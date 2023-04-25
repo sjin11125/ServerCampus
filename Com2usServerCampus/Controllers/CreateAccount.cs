@@ -19,7 +19,7 @@ namespace Com2usServerCampus.Controllers
 
                 if (userCode != null)//테이블에 있니?네
                 {
-                    Result.Result = ErrorCode.CreateAccount_Fail_Dup; //에러코드(아이디 중복)
+                    Result.Error = ErrorCode.CreateAccount_Fail_Dup; //에러로그(아이디 중복)
                     return Result;      //빠꾸
                 }
                 else                    //테이블에 없으면 계정 만들 수 있음
@@ -27,6 +27,7 @@ namespace Com2usServerCampus.Controllers
                     //비번 암호화
                     //account 테이블에 이메일, 비번 넣기
                     //토큰 생성해서 레디스에 넣자
+                    //성공 로그
                 }
             }
 
@@ -43,7 +44,8 @@ namespace Com2usServerCampus.Controllers
     }
     public class CreateAccountResponse
     {
-        public ErrorCode Result { get; set; }
+        public ErrorCode Error { get; set; }
+        public SuccessCode Success { get; set; }
     }
     
 }
