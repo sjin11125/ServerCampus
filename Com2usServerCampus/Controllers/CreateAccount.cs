@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CloudStructures.Structures;
+using Microsoft.AspNetCore.Mvc;
+using SqlKata.Execution;
 
 namespace Com2usServerCampus.Controllers
 {
@@ -24,9 +26,12 @@ namespace Com2usServerCampus.Controllers
                 }
                 else                    //테이블에 없으면 계정 만들 수 있음
                 {
-                    //비번 암호화
-                    //account 테이블에 이메일, 비번 넣기
-                    //토큰 생성해서 레디스에 넣자
+                    string passwordHash = Security.Encrypt(UserInfo.Password);  //비번 암호화
+                    await db.Result.Query("account").InsertAsync(new {          //account 테이블에 이메일, 비번 넣기
+                        UserInfo.Email,
+                        passwordHash
+                    });
+                    var radisId = new RedisString<string>(DBManager.RedisConnection,UserInfo.Email,passwordHash);//토큰 생성해서 레디스에 넣자
                     //성공 로그
                 }
             }
