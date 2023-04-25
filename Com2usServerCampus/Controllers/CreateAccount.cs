@@ -12,9 +12,22 @@ namespace Com2usServerCampus.Controllers
         {
             var Result=new CreateAccountResponse();
 
-            using (var db=DBManager.GetDBQuery())
+            using (var db=DBManager.GetDBQuery())       //accouunt_db 연결
             {
-                var userCode=db.Result.Query("account")
+                var userCode = db.Result.Query("account").Where("Email", UserInfo.Email).Select();
+                //아이디가 account 테이블에 있는지 확인(중복 확인)
+
+                if (userCode != null)//테이블에 있니?네
+                {
+                    Result.Result = ErrorCode.CreateAccount_Fail_Dup; //에러코드(아이디 중복)
+                    return Result;      //빠꾸
+                }
+                else                    //테이블에 없으면 계정 만들 수 있음
+                {
+                    //비번 암호화
+                    //account 테이블에 이메일, 비번 넣기
+                    //토큰 생성해서 레디스에 넣자
+                }
             }
 
             return Result;
