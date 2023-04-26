@@ -21,6 +21,7 @@ namespace Com2usServerCampus
             RedisConnectString = configuration.GetSection("DBConnection")["Redis"];
             var config = new RedisConfig("basic", RedisConnectString);     //redis 커넥션
             RedisConnection=new RedisConnection(config);
+      
         }
 
         public static async Task<QueryFactory> GetDBQuery()

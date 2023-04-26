@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Com2usServerCampus.props" />
+</Project>
