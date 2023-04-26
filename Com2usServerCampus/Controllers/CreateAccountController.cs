@@ -10,10 +10,10 @@ namespace Com2usServerCampus.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CreateAccount:ControllerBase
+    public class CreateAccountController:ControllerBase
     {
         ILogger Logger;
-        public CreateAccount(ILogger<CreateAccount> logger)
+        public CreateAccountController(ILogger<CreateAccountController> logger)
         {
             Logger = logger;
         }
@@ -54,7 +54,6 @@ namespace Com2usServerCampus.Controllers
                 }
             }
 
-            return Result;
 
         }
     }
