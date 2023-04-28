@@ -1,7 +1,8 @@
 ﻿namespace Com2usServerCampus
 {
-    public class UserInfo
+    public struct UserInfo
     {
+        public int AccountId { get; set; }  
         public int Exp { get; set; }
         public int Attack { get; set; }
         public int Defence { get; set; }
@@ -14,6 +15,7 @@
             Defence = defence;
         }
     }
+    [Serializable]
     public struct UserItem
     {
         public int AccountId;       //계정번호

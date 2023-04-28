@@ -5,6 +5,7 @@ namespace Com2usServerCampus
 {
     public class Security       //암호화
     {
+        private const String AllowableCharacters = "abcdefghijklmnopqrstuvwxyz0123456789";
         public static string Encrypt(string password)
         {
             string result="";
@@ -21,6 +22,15 @@ namespace Com2usServerCampus
             }
                 return result;
         }
+        public static string CreateAuthToken()
+        {
+            var bytes = new Byte[25];
+            using (var random = RandomNumberGenerator.Create())
+            {
+                random.GetBytes(bytes);
+            }
 
+            return new String(bytes.Select(x => AllowableCharacters[x % AllowableCharacters.Length]).ToArray());
+        }
     }
 }
