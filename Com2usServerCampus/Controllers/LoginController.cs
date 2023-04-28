@@ -13,12 +13,12 @@ namespace Com2usServerCampus.Controllers
         }*/
 
         [HttpPost]
-        public async Task<UserInfo> Post(LoginAccountRequest UserInfo)
+        public async Task<LoginAccountResponse> Post(LoginAccountRequest UserInfo)
         {
-            LoginAccountResult Result = new LoginAccountResult();
+            LoginAccountResponse Result = new LoginAccountResponse();
             using (var db=DBManager.GetDBQuery()) //QueryFactory 인스턴스 불러와
             {
-                var userCode = await db.Result.Query("account").Where("Email", UserInfo.Email).FirstOrDefaultAsync<LoginAccountResponse>();
+                var userCode = await db.Result.Query("account").Where("Email", UserInfo.Email).FirstOrDefaultAsync<DBUserInfo>();
                 //아이디가 account 테이블에 있는지 확인(중복 확인)
 
                 if (userCode != null)//테이블에 있으면 성공
@@ -29,22 +29,25 @@ namespace Com2usServerCampus.Controllers
                         //자신의 게임 데이터 로딩
                         using (var gamedb=DBManager.GetGameDBQuery())
                         {
-                            //기본 게임데이터 로드
-                            //아이템 데이터 로드
-                        }
-                            Result.Success = SuccessCode.Login_Success;     //로그인 성공
+                            Result.userInfo = await db.Result.Query("gamedata").Where("AccountId", userCode.AccountId).FirstOrDefaultAsync<UserInfo>(); //기본 게임데이터 로드
+                            Result.ItemList = new List<UserItem>();
 
+                            IEnumerable<UserItem> items = await db.Result.Query("itemdata").Where("AccountId", userCode.AccountId).GetAsync<UserItem>(); //아이템 데이터 로드
+                            Result.ItemList =items.ToList();
+                        }
+                            Result.Error= ErrorCode.None;     //로그인 성공
+                        return Result;
                     }
                     else            //테이블에 없으면 실패
                     {
                         Result.Error = ErrorCode.Login_Fail_Password;       //로그인 실패(패스워드 불일치)
-               
+                        return Result;
                     }
                 }
                 else                    //테이블에 없으면 실패
                 {
                     Result.Error = ErrorCode.Login_Fail_Email;
-             
+                    return Result;
                 }
             }
           
@@ -58,12 +61,15 @@ namespace Com2usServerCampus.Controllers
     }
     public class LoginAccountResponse //유저가 서버에게 주는 아이디, 비번 데이터 클래스
     {
+        public ErrorCode Error { get; set; }
+        public UserInfo userInfo { get; set; }
+        public List<UserItem> ItemList { get; set; }
+        public string Authtoken { get; set; }
+    }
+    class DBUserInfo
+    {
+        public int AccountId { get; set; }
         public string Email { get; set; }
         public string HashedPassword { get; set; }
-    }
-    public class LoginAccountResult
-    {
-        public ErrorCode Error { get; set; }
-        public SuccessCode Success { get; set; }
     }
 }

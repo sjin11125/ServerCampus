@@ -6,7 +6,7 @@
         public int Attack { get; set; }
         public int Defence { get; set; }
 
-        public List<UserItem> ItemList { get; set; }
+      
         public UserInfo( int exp, int attack, int defence)
         {
             Exp = exp;
