@@ -13,7 +13,7 @@ namespace Com2usServerCampus.Controllers
         }*/
 
         [HttpPost]
-        public async Task<LoginAccountResult> Post(LoginAccountRequest UserInfo)
+        public async Task<UserInfo> Post(LoginAccountRequest UserInfo)
         {
             LoginAccountResult Result = new LoginAccountResult();
             using (var db=DBManager.GetDBQuery()) //QueryFactory 인스턴스 불러와
@@ -26,22 +26,28 @@ namespace Com2usServerCampus.Controllers
                     string HashedPassword = Security.Encrypt(UserInfo.Password);  //비번 암호화 
                     if (userCode.HashedPassword==HashedPassword) //비번 체크
                     {
-                        Result.Success = SuccessCode.Login_Success;     //로그인 성공
-                        return Result;
+                        //자신의 게임 데이터 로딩
+                        using (var gamedb=DBManager.GetGameDBQuery())
+                        {
+                            //기본 게임데이터 로드
+                            //아이템 데이터 로드
+                        }
+                            Result.Success = SuccessCode.Login_Success;     //로그인 성공
+
                     }
-                    else
+                    else            //테이블에 없으면 실패
                     {
                         Result.Error = ErrorCode.Login_Fail_Password;       //로그인 실패(패스워드 불일치)
-                        return Result;
+               
                     }
                 }
                 else                    //테이블에 없으면 실패
                 {
                     Result.Error = ErrorCode.Login_Fail_Email;
-                    return Result;
+             
                 }
             }
-            return Result;
+          
         }
 
     }
