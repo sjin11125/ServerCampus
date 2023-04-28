@@ -43,17 +43,30 @@ namespace Com2usServerCampus.Controllers
                         UserInfo.Email,
                         HashedPassword
                     });
-                    UserInfo userInfo = new UserInfo(10,0,1,1);             //유저정보 초기화
+                    UserInfo userInfo = new UserInfo(0,1,1);             //유저정보 초기화
+
+                    UserItem userItem;                  //기본 아이템 돈 10원
+                    userItem.ItemCode = 1;
+                    userItem.EnhanceCount = 0;
+                    userItem.Count = 10;
 
                     using (var gamedb=DBManager.GetGameDBQuery()) // gamedata_db에 기본 데이터 생성(기본 게임 데이터, 기본 아이템 데이터)
                     {
-                        await gamedb.Result.Query("gamedata").Where("AccountId", AccountId).InsertAsync(new {
+                        await gamedb.Result.Query("gamedata").InsertAsync(new {
                             AccountId,
-                            userInfo.Money,
                             userInfo.Exp,
                             userInfo.Attack,
                             userInfo.Defence,
                         });
+                        await gamedb.Result.Query("itemdata").InsertAsync(new
+                        {
+                            AccountId,
+                            userItem.ItemCode,
+                            userItem.EnhanceCount,
+                            userItem.Count
+                        });
+
+
                     }
                         Result.Success = SuccessCode.CreateAccount_Success; //성공 로그
                                                                         // EventId eventId;
