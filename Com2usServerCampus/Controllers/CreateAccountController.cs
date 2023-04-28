@@ -19,11 +19,11 @@ namespace Com2usServerCampus.Controllers
         }
 
         [HttpPost]
-        public async Task<CreateAccountResult> AccountPost(CreateAccountRequest UserInfo)
+        public async Task<CreateAccountResponse> AccountPost(CreateAccountRequest UserInfo)
         {
             
 
-            var Result=new CreateAccountResult();
+            var Result=new CreateAccountResponse();
 
             using (var db=DBManager.GetDBQuery())       //accouunt_db 연결
             {
@@ -87,13 +87,10 @@ namespace Com2usServerCampus.Controllers
         public string Email { get; set; }
         public string Password { get; set; }
     }
-    public class CreateAccountResponse //유저가 서버에게 주는 아이디, 비번 데이터 클래스
+    public class CreateAccountResponse //서버가 유저에게 주는 응답 클래스
     {
         public string Email { get; set; }
         public string HashedPassword { get; set; }
-    }
-    public class CreateAccountResult
-    {
         public ErrorCode Error { get; set; }
         public SuccessCode Success { get; set; }
     }
