@@ -38,14 +38,24 @@ namespace Com2usServerCampus.Controllers
                 else                    //테이블에 없으면 계정 만들 수 있음
                 {
                     string HashedPassword = Security.Encrypt(UserInfo.Password);  //비번 암호화
-                    await db.Result.Query("account").InsertAsync(new {          //account 테이블에 이메일, 비번 넣기
+
+                   var AccountId = await db.Result.Query("account").InsertGetIdAsync<Int64>(new {          //account 테이블에 이메일, 비번 넣기
                         UserInfo.Email,
                         HashedPassword
                     });
-                   // var radisId = new RedisString<string>(DBManager.RedisConnection,UserInfo.Email,TimeSpan.FromDays(1));//토큰 생성해서 레디스에 넣자(유효기간 1일)
-                   // await radisId.SetAsync(UserInfo.Email);
+                    UserInfo userInfo = new UserInfo(10,0,1,1);             //유저정보 초기화
 
-                    Result.Success = SuccessCode.CreateAccount_Success; //성공 로그
+                    using (var gamedb=DBManager.GetGameDBQuery()) // gamedata_db에 기본 데이터 생성(기본 게임 데이터, 기본 아이템 데이터)
+                    {
+                        await gamedb.Result.Query("gamedata").Where("AccountId", AccountId).InsertAsync(new {
+                            AccountId,
+                            userInfo.Money,
+                            userInfo.Exp,
+                            userInfo.Attack,
+                            userInfo.Defence,
+                        });
+                    }
+                        Result.Success = SuccessCode.CreateAccount_Success; //성공 로그
                                                                         // EventId eventId;
                                                                         //  eventId.Id=
                                                                         // Logger.LogInformation();

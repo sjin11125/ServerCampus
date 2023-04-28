@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sj\\Documents\\GitHub\\ServerCampus\\Com2usServerCampus\\Com2usServerCampus.csproj": {}
+    "C:\\Users\\82109\\source\\repos\\Com2usServerCampus\\Com2usServerCampus\\Com2usServerCampus.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sj\\Documents\\GitHub\\ServerCampus\\Com2usServerCampus\\Com2usServerCampus.csproj": {
+    "C:\\Users\\82109\\source\\repos\\Com2usServerCampus\\Com2usServerCampus\\Com2usServerCampus.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sj\\Documents\\GitHub\\ServerCampus\\Com2usServerCampus\\Com2usServerCampus.csproj",
+        "projectUniqueName": "C:\\Users\\82109\\source\\repos\\Com2usServerCampus\\Com2usServerCampus\\Com2usServerCampus.csproj",
         "projectName": "Com2usServerCampus",
-        "projectPath": "C:\\Users\\sj\\Documents\\GitHub\\ServerCampus\\Com2usServerCampus\\Com2usServerCampus.csproj",
-        "packagesPath": "C:\\Users\\sj\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sj\\Documents\\GitHub\\ServerCampus\\Com2usServerCampus\\obj\\",
+        "projectPath": "C:\\Users\\82109\\source\\repos\\Com2usServerCampus\\Com2usServerCampus\\Com2usServerCampus.csproj",
+        "packagesPath": "C:\\Users\\82109\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\82109\\source\\repos\\Com2usServerCampus\\Com2usServerCampus\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\sj\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\82109\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
