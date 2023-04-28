@@ -78,7 +78,7 @@ namespace Com2usServerCampus.Controllers
         public string Password { get; set; }
     }
     [Serializable]
-    public class LoginAccountResponse //유저가 서버에게 주는 아이디, 비번 데이터 클래스
+    public class LoginAccountResponse //서버가 유저에게 주는 응답 클래스
     {
         public ErrorCode Error { get; set; }
         public UserInfo userInfo { get; set; }
