@@ -68,7 +68,7 @@ namespace Com2usServerCampus.Controllers
 
 
                     }
-                        Result.Success = SuccessCode.CreateAccount_Success; //성공 로그
+                        Result.Error = ErrorCode.None; //성공 로그
                                                                         // EventId eventId;
                                                                         //  eventId.Id=
                                                                         // Logger.LogInformation();
@@ -92,7 +92,7 @@ namespace Com2usServerCampus.Controllers
         public string Email { get; set; }
         public string HashedPassword { get; set; }
         public ErrorCode Error { get; set; }
-        public SuccessCode Success { get; set; }
+
     }
     
 }
