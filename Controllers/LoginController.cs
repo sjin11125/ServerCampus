@@ -30,7 +30,7 @@ namespace Com2usServerCampus.Controllers
                     if (userCode.HashedPassword==HashedPassword) //비번 체크
                     {
                         //자신의 게임 데이터 로딩
-                       /* using (var gamedb=dBManager.GetGameDBQuery())
+                        using (var gamedb=dBManager.GetGameDBQuery())
                         {
                             Result.userInfo = await gamedb.Result.Query("gamedata").Where("AccountId", userCode.AccountId).FirstOrDefaultAsync<UserInfo>(); //기본 게임데이터 로드
                            // Result.itemList = new List<UserItem>();
@@ -38,7 +38,7 @@ namespace Com2usServerCampus.Controllers
                             
                             IEnumerable<UserItem> items = await gamedb.Result.Query("itemdata").Where("AccountId", userCode.AccountId).GetAsync<UserItem>(); //아이템 데이터 로드
                             Result.itemList =items.ToList();
-                        }*/
+                        }
                         //공지 불러옴
                         var noticeRedis = new RedisList<Notice>(DBManager.RedisConnection, "Notice", TimeSpan.FromDays(1)); //키가 Notice인 인덱스의 Value리스트
                        var noticeList=await noticeRedis.RangeAsync(0,-1);
