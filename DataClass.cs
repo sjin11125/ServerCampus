@@ -86,4 +86,13 @@
             this.isRead = isRead;
         }
     }
+    public class Mail
+    {
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public int Code { get; set; }
+        public bool isRead { get; set; }
+        public bool isGet { get; set; }
+
+    }
 }
