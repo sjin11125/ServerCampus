@@ -13,6 +13,8 @@ namespace Com2usServerCampus
        static string AccountDBConnectString;
         static string GameDBConnectString;
        static string RedisConnectString;
+        MySqlConnection connection;
+        MySqlConnection connectionGame;
 
         public static RedisConnection RedisConnection { get; set; }
         public async static void Init(IConfiguration configuration)
@@ -26,28 +28,37 @@ namespace Com2usServerCampus
 
         }
 
-        public static async Task<QueryFactory> GetDBQuery()
+        public  async Task<QueryFactory> GetDBQuery()
         {
-            var connection = new MySqlConnection(AccountDBConnectString);
+            connection = new MySqlConnection(AccountDBConnectString);
             await connection.OpenAsync();  //DB 연동
 
 
             var compiler = new SqlKata.Compilers.MySqlCompiler();
             var queryFactory=new SqlKata.Execution.QueryFactory(connection,compiler);
+            
+            return queryFactory;
+        }
+
+        public  async Task<QueryFactory> GetGameDBQuery()
+        {
+            connectionGame = new MySqlConnection(GameDBConnectString);
+            await connectionGame.OpenAsync();  //DB 연동
+
+
+            var compiler = new SqlKata.Compilers.MySqlCompiler();
+            var queryFactory = new SqlKata.Execution.QueryFactory(connectionGame, compiler);
 
             return queryFactory;
         }
 
-        public static async Task<QueryFactory> GetGameDBQuery()
+        public async void CloseDB()
         {
-            var connection = new MySqlConnection(GameDBConnectString);
-            await connection.OpenAsync();  //DB 연동
-
-
-            var compiler = new SqlKata.Compilers.MySqlCompiler();
-            var queryFactory = new SqlKata.Execution.QueryFactory(connection, compiler);
-
-            return queryFactory;
+            await connection.CloseAsync();
+        }
+        public async void CloseGameDB()
+        {
+            await connectionGame.CloseAsync();
         }
     }
 

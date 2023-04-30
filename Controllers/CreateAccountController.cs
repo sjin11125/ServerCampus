@@ -2,10 +2,10 @@
 using CloudStructures.Structures;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using SqlKata.Execution;
 using StackExchange.Redis;
 using ZLogger;
-
 namespace Com2usServerCampus.Controllers
 {
     [ApiController]
@@ -13,6 +13,8 @@ namespace Com2usServerCampus.Controllers
     public class CreateAccountController:ControllerBase
     {
         ILogger Logger;
+        string CurrentAppVersion = "v1.00.0";
+        string CurrentDataVersion = "v1.00.0";
         public CreateAccountController(ILogger<CreateAccountController> logger)
         {
             Logger = logger;
@@ -25,7 +27,9 @@ namespace Com2usServerCampus.Controllers
 
             var Result=new CreateAccountResponse();
 
-            using (var db=DBManager.GetDBQuery())       //accouunt_db 연결
+            DBManager dBManager = new DBManager();
+
+            using (var db=dBManager.GetDBQuery())       //accouunt_db 연결
             {
                 var userCode = await db.Result.Query("account").Where("Email", UserInfo.Email).FirstOrDefaultAsync<CreateAccountResponse>();
                 //아이디가 account 테이블에 있는지 확인(중복 확인)
@@ -33,6 +37,9 @@ namespace Com2usServerCampus.Controllers
                 if (userCode != null)//테이블에 있니?네
                 {
                     Result.Error = ErrorCode.CreateAccount_Fail_Dup; //에러로그(아이디 중복)
+
+                    dBManager.CloseDB() ;
+
                     return Result;      //빠꾸
                 }
                 else                    //테이블에 없으면 계정 만들 수 있음
@@ -41,8 +48,10 @@ namespace Com2usServerCampus.Controllers
 
                    var AccountId = await db.Result.Query("account").InsertGetIdAsync<Int64>(new {          //account 테이블에 이메일, 비번 넣기
                         UserInfo.Email,
-                        HashedPassword
-                    });
+                        HashedPassword,
+                       CurrentAppVersion,
+                       CurrentDataVersion
+                   });
                     UserInfo userInfo = new UserInfo(0,1,1);             //유저정보 초기화
 
                     UserItem userItem;                  //기본 아이템 돈 10원
@@ -50,7 +59,7 @@ namespace Com2usServerCampus.Controllers
                     userItem.EnhanceCount = 0;
                     userItem.Count = 10;
 
-                    using (var gamedb=DBManager.GetGameDBQuery()) // gamedata_db에 기본 데이터 생성(기본 게임 데이터, 기본 아이템 데이터)
+                    using (var gamedb=dBManager.GetGameDBQuery()) // gamedata_db에 기본 데이터 생성(기본 게임 데이터, 기본 아이템 데이터)
                     {
                         await gamedb.Result.Query("gamedata").InsertAsync(new {
                             AccountId,
@@ -73,6 +82,11 @@ namespace Com2usServerCampus.Controllers
                                                                         //  eventId.Id=
                                                                         // Logger.LogInformation();
                     Console.WriteLine(Result.ToString());
+
+                    //DB닫기
+                    dBManager.CloseDB();
+                    dBManager.CloseGameDB();
+
                     return Result;
                 }
             }
@@ -94,5 +108,5 @@ namespace Com2usServerCampus.Controllers
         public ErrorCode Error { get; set; }
 
     }
-    
+
 }
