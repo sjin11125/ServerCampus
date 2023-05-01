@@ -1,10 +1,23 @@
 ﻿namespace Com2usServerCampus
 {
+
+    public class CreateAccountRequest //유저가 서버에게 주는 아이디, 비번 데이터 클래스
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+    public class CreateAccountResponse //서버가 유저에게 주는 응답 클래스
+    {
+        public string Email { get; set; }
+        public string HashedPassword { get; set; }
+        public ErrorCode Error { get; set; }
+
+    }
     public class ItemData    //아이템
     {
         public int Code { get; set; }   
         public string Name { get; set; }
-        public string Attribute { get; set; }
+        public int Attribute { get; set; }
         public int Sell { get; set; }
         public int Buy { get; set; }
         public int UseLv { get; set; }
@@ -45,7 +58,7 @@
     {
         public int Code { get; set; }
         public int NPCCode { get; set; }
-        public int Cound { get; set; }
+        public int Count { get; set; }
         public int Exp { get; set; }
     }
     public class LoginAccountRequest //유저가 서버에게 주는 아이디, 비번 데이터 클래스
@@ -88,6 +101,7 @@
     }
     public class Mail
     {
+        public string Email { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public int Code { get; set; }

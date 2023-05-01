@@ -10,9 +10,6 @@ namespace Com2usServerCampus.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        /*public LoginController()
-        {
-        }*/
 
         [HttpPost]
         public async Task<LoginAccountResponse> Post(LoginAccountRequest UserInfo)
