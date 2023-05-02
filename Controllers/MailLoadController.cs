@@ -29,13 +29,15 @@ namespace Com2usServerCampus.Controllers
                 return mailLoadResponse;
         }
     }
-
+    [Serializable]
     public class MailLoadRequest
     {
         public string Email { get; set; }   
         public int Page { get; set; }
 
     }
+    [Serializable]
+
     public class MailLoadResponse
     {
       public  List<Mail> Mails=new List<Mail>();

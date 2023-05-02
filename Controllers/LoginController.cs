@@ -10,6 +10,8 @@ namespace Com2usServerCampus.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
+        string CurrentAppVersion = "v1.00.0";
+        string CurrentDataVersion = "v1.00.0";
 
         [HttpPost]
         public async Task<LoginAccountResponse> Post(LoginAccountRequest UserInfo)
@@ -24,7 +26,7 @@ namespace Com2usServerCampus.Controllers
                 if (userCode != null)//테이블에 있으면 성공
                 {
                     string HashedPassword = Security.Encrypt(UserInfo.Password);  //비번 암호화 
-                    if (userCode.HashedPassword==HashedPassword) //비번 체크
+                    if (userCode.HashedPassword==HashedPassword&&userCode.AppVersion==CurrentAppVersion&&userCode.MasterDataVersion==CurrentDataVersion) //비번 체크, 버전 체크
                     {
                         //자신의 게임 데이터 로딩
                         using (var gamedb=dBManager.GetGameDBQuery())
