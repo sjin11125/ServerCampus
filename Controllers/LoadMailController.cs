@@ -1,5 +1,6 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
+using Com2usServerCampus.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;

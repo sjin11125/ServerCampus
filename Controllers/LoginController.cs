@@ -1,5 +1,6 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
+using Com2usServerCampus.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;
@@ -13,7 +14,7 @@ namespace Com2usServerCampus.Controllers
         string CurrentAppVersion = "v1.00.0";
         string CurrentDataVersion = "v1.00.0";
 
-        [HttpPost]
+       /* [HttpPost]
         public async Task<LoginAccountResponse> Post(LoginAccountRequest UserInfo)
         {
             LoginAccountResponse Result = new LoginAccountResponse();
@@ -71,7 +72,7 @@ namespace Com2usServerCampus.Controllers
             }
 
 
-        }
+        }*/
 
     }
    

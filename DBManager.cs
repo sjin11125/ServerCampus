@@ -1,6 +1,7 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
 using Com2usServerCampus.Controllers;
+using Com2usServerCampus.Model;
 using MySqlConnector;
 using SqlKata.Execution;
 
@@ -54,30 +55,8 @@ namespace Com2usServerCampus
 
             return queryFactory;
         }
-        public async Task<DBUserInfo> CheckUser(string email)            //유저 정보가 있는지
-        {
-            using (var db = GetDBQuery())
-            {
-                var userCode = await db.Result.Query("account").Where("Email", email).FirstOrDefaultAsync<DBUserInfo>();
-                CloseDB();
-                return userCode;
-            }
-        }
-        public async Task<long> AddUser(string email, string hashedPassword)
-        {
-            using (var db = GetDBQuery())
-            {
-                var AccountId = await db.Result.Query("account").InsertGetIdAsync<Int64>(new
-                {          //account 테이블에 이메일, 비번 넣기
-                    email,
-                    hashedPassword,
-                    CurrentAppVersion,
-                    CurrentDataVersion
-                });
-                CloseDB();
-                return AccountId;
-            }
-        }
+    
+       
 
         public async Task InsertItem(string email, UserItem userItem)           //아이템 넣기
         {

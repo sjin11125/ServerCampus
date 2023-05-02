@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MasterDataLoad.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CloudStructures" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />
     <PackageReference Include="MySqlConnector" Version="2.2.5" />

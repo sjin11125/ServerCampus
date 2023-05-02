@@ -10,17 +10,17 @@ using ZLogger;
 
 namespace Com2usServerCampus.MiddleWare
 {
-    public class CheckUserSessionMiddleWare
+    public class CheckUserAuth
     {
         ILogger Logger;
         readonly RequestDelegate _next;
 
-        public CheckUserSessionMiddleWare( RequestDelegate next, ILogger logger)
+        public CheckUserAuth( RequestDelegate next, ILogger logger)     //CheckUserAuth 클래스가 미들웨어로 등록될 때 생성자 호출 
         {
             Logger = logger;
             _next = next;
         }
-        public async Task<ErrorCode> Invoke()
+        public async Task<ErrorCode> Invoke(HttpClient httpClient)
         {
             ErrorCode error= ErrorCode.None;
 

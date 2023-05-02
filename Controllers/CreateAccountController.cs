@@ -1,5 +1,6 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
+using Com2usServerCampus.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
@@ -18,7 +19,7 @@ namespace Com2usServerCampus.Controllers
             Logger = logger;
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public async Task<DBUserInfo> AccountPost(CreateAccountRequest UserInfo)
         {
 
@@ -56,16 +57,13 @@ namespace Com2usServerCampus.Controllers
                                                // Logger.LogInformation();
                 Console.WriteLine(Result.ToString());
 
-                //DB닫기
-                // dBManager.CloseDB();
-                //  dBManager.CloseGameDB();
 
                 return Result;
             }
+          
 
 
-
-        }
+        }*/
     }
 
 
