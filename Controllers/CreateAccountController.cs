@@ -13,8 +13,6 @@ namespace Com2usServerCampus.Controllers
     public class CreateAccountController : ControllerBase
     {
         ILogger Logger;
-        string CurrentAppVersion = "v1.00.0";
-        string CurrentDataVersion = "v1.00.0";
         public CreateAccountController(ILogger<CreateAccountController> logger)
         {
             Logger = logger;
