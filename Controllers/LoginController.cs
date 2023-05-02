@@ -19,7 +19,7 @@ namespace Com2usServerCampus.Controllers
             LoginAccountResponse Result = new LoginAccountResponse();
 
             DBManager dBManager = new DBManager();
-
+            
             var userCode = await dBManager.CheckUser(UserInfo.Email);
             //아이디가 account 테이블에 있는지 확인(중복 확인)
 

@@ -1,5 +1,6 @@
 ﻿namespace Com2usServerCampus
 {
+    [Serializable]
     public struct UserInfo
     {
         public int AccountId { get; set; }  
@@ -19,9 +20,17 @@
     [Serializable]
     public struct UserItem
     {
-        public int AccountId;       //계정번호
-        public int ItemCode;        //아이템 코드
-        public int EnhanceCount;        //강화횟수
-        public int Count;           //몇개인지
+        public string Eamil { get; set; }     //계정번호
+        public int ItemCode { get; set; }        //아이템 코드
+        public int EnhanceCount { get; set; }        //강화횟수
+        public int Count { get; set; }           //몇개인지
+
+        public UserItem(string email, int itemCode, int enhanceCount, int count)
+        {
+            Eamil = email;
+            ItemCode = itemCode;
+            EnhanceCount = enhanceCount;
+            Count = count;
+        }
     }
 }
