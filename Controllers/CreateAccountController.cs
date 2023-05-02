@@ -50,7 +50,7 @@ namespace Com2usServerCampus.Controllers
                 await dBManager.InsertItem(UserInfo.Email, userItem);
                 await dBManager.InsertGameData(UserInfo.Email, userInfo);
 
-                Result.Error = ErrorCode.None; //성공 로그
+                Result.Error = ErrorCode.None; //성공 
                                                // EventId eventId;
                                                //  eventId.Id=
                                                // Logger.LogInformation();
