@@ -3,6 +3,7 @@ using CloudStructures.Structures;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;
+using ZLogger;
 
 namespace Com2usServerCampus.Controllers
 {
@@ -10,7 +11,13 @@ namespace Com2usServerCampus.Controllers
     [ApiController]
     public class MailLoadController:ControllerBase
     {
-       // [HttpPost]
+        ILogger logger;
+        public MailLoadController(ILogger<MailLoadController> logger)
+        {
+            this.logger = logger;
+        }
+
+        [HttpPost]
         public async Task<MailLoadResponse> MailPost(MailLoadRequest MailInfo)
         {
             MailLoadResponse mailLoadResponse=new MailLoadResponse();
