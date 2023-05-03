@@ -1,23 +1,28 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
 using Com2usServerCampus.Model;
+using Com2usServerCampus.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using SqlKata.Execution;
 using StackExchange.Redis;
 using ZLogger;
-namespace Com2usServerCampus.Controllers
-{
+using static Com2usServerCampus.LogManager;
+
+namespace Com2usServerCampus.Controllers;
+
     [ApiController]
     [Route("[controller]")]
     public class CreateAccountController : ControllerBase
     {
-        ILogger Logger;
-        public CreateAccountController(ILogger<CreateAccountController> logger)
-        {
-            Logger = logger;
-        }
+    readonly IAccountDB _accountDB;
+       readonly ILogger _logger;
+    public CreateAccountController(ILogger<CreateAccountController> logger, IAccountDB accountDB)
+    {
+        _logger = logger;
+        _accountDB = accountDB;
+    }
 
         /*[HttpPost]
         public async Task<DBUserInfo> AccountPost(CreateAccountRequest UserInfo)
@@ -67,4 +72,4 @@ namespace Com2usServerCampus.Controllers
     }
 
 
-}
+

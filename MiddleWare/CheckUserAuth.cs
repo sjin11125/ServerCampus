@@ -45,7 +45,26 @@ public class CheckUserAuth
 
             var document = JsonDocument.Parse(bodyStr);  //JSON 문자열 파싱
 
-            if (document != null) { }
+            if (IsInvalidJsonFormat(context, document, out email, out AuthToken))//사용자가 보낸 요청에서 email과 토큰 정보가 있는지 확인
+                return;
+            var (isOK, userInfo) = await _redisDB.GetUserAsync(email);//레디스에서 사용자 정보 조회
+
+            if (!isOK)     //조회 안되면 리턴
+                return;
+
+            if (await IsInvalidUserAuthToken(context, userInfo, AuthToken)) //유저가 보낸 토큰과 레디스에 있던 토큰을 비교해 맞지 않다면
+                return; //리턴
+
+            userLockKey = "ULock_" + email;
+            if (await SetLock(context, userLockKey))        //락이 걸려있는지 확인 걸려있으면
+                return;
+
+            context.Request.Body.Position = 0;
+
+            await _next(context);
+
+            // 트랜잭션 해제(Redis 동기화 해제) 락 해제
+            await _redisDB.DelUserReqLockAsync(userLockKey);
         }
 
     }
@@ -56,17 +75,64 @@ public class CheckUserAuth
 
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse             //에러코드 설정
         {
-            errorCode = ErrorCode.InvalidRequestHttpBody
+            errorCode = ErrorCode.WrongdRequestHttpBody
         });
         var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);           //Response Body에 에러코드 반환
 
         return true;
     }
-    
-    bool IsInvalidJsonFormat()
+    public async Task<bool> IsInvalidUserAuthToken(HttpContext context, AuthUser userInfo,string authToken)
     {
+        if(string.CompareOrdinal(userInfo.AuthTokent,authToken)==0)     //두값이 같다면
+            return false;
 
+        var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
+        {
+            errorCode = ErrorCode.InvalidAuthToken
+        });
+
+        var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
+        await context.Response.Body.WriteAsync(bytes,0,bytes.Length);
+
+        return true;
+    }
+    public async Task<bool> SetLock(HttpContext context, string AuthToken)
+    {
+        if (await _redisDB.SetUserReqLockAsync(AuthToken))      //락이 설정되어있지 않으면
+            return false;
+
+        //설정되어있다면
+
+        var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
+        {
+            errorCode = ErrorCode.AuthTokenFailSetNx
+        });
+        var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
+        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+
+        return true;
+    }
+    bool IsInvalidJsonFormat(HttpContext context,JsonDocument document, out string email,out string authToken)//사용자가 보낸 요청에서 email과 토큰 정보가 있는지 확인
+    {
+        try
+        {
+            email = document.RootElement.GetProperty("Email").GetString();
+            authToken = document.RootElement.GetProperty("AuthToken").GetString();
+
+            return false;
+        }
+        catch 
+        {
+            email = "";authToken = "";
+            var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse { 
+            
+                errorCode = ErrorCode.WrongAuthTokenOrEmail
+            });
+            var bytes=Encoding.UTF8.GetBytes(errorJsonResponse);
+            context.Response.Body.Write(bytes,0,bytes.Length);
+            return true;
+        }
     }
 
     public class MiddlewareResponse

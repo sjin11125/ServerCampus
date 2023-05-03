@@ -13,8 +13,11 @@
         Login_Fail_Password = 2002,
 
         //CheckUserAuth 관련 에러코드
-        InvalidRequestHttpBody = 3001,
-        InvalidAppversion = 3002,
-        InvalidDataversion = 3003,
+        WrongdRequestHttpBody = 3001,
+        WrongAuthTokenOrEmail = 3001,
+        InvalidAuthToken= 3002,
+        AuthTokenFailSetNx=3003,
+        //InvalidAppversion = 3002,
+       // InvalidDataversion = 3003,
     }
 }
