@@ -5,15 +5,16 @@ using ZLogger;
 
 namespace Com2usServerCampus.Services;
 
-    public class AccountDB:IAccountDB
-    {
+public class AccountDB : IAccountDB
+{
     ILogger<AccountDB> logger;
-    IOptions<AccountDB> options;
+    IOptions<DBConfig> configuration;
 
-        public AccountDB(ILogger<AccountDB> logger, IOptions<AccountDB> options) { 
+    public AccountDB(ILogger<AccountDB> logger, IOptions<DBConfig> configuration)
+    {
         this.logger = logger;
-        this.options = options;
-        }
+        this.configuration = configuration;
+    }
 
     Task<long> IAccountDB.AddUser(string email, string hashedPassword)
     {
@@ -25,4 +26,5 @@ namespace Com2usServerCampus.Services;
         throw new NotImplementedException();
     }
 }
+
 

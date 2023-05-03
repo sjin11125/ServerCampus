@@ -7,4 +7,5 @@ namespace Com2usServerCampus.Services
         public Task<UserInfo> GetGameData(string email);
         public Task<IEnumerable<UserItem>> GetItems(string email);
     }
+
 }
