@@ -37,8 +37,8 @@ SetLogger();        //로그 세팅
 var app = builder.Build();
 
 
-
-
+var loggerFactory=app.Services.GetRequiredService<ILoggerFactory>();
+LogManager.SetLoggerFactory(loggerFactory,"Global");
 
 
 
