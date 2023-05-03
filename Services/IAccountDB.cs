@@ -5,6 +5,6 @@ namespace Com2usServerCampus.Services
     public interface IAccountDB
     {
         public Task<DBUserInfo> CheckUser(string email);
-        public Task<long> AddUser(string email, string hashedPassword);
+        public Task<ErrorCode> AddUser(string email, string hashedPassword);
     }
 }

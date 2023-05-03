@@ -17,7 +17,16 @@
         WrongAuthTokenOrEmail = 3001,
         InvalidAuthToken= 3002,
         AuthTokenFailSetNx=3003,
+
+        //GameData 관련 에러코드
+        InsertGameDataDup=4001,
+        WrongGameData=4002,
+
+
+        //ItemData 관련 에러코드
+        InsertItemDataFail = 5001,
+
         //InvalidAppversion = 3002,
-       // InvalidDataversion = 3003,
+        // InvalidDataversion = 3003,
     }
 }

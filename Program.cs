@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Com2usServerCampus.Services;
 using ZLogger;
 using System.Text.Json;
+using Com2usServerCampus.MiddleWare;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,8 +43,9 @@ LogManager.SetLoggerFactory(loggerFactory,"Global");
 
 
 
-//인증 미들웨어 추가
+app.UseMiddleware<CheckUserAuth>();     //인증 미들웨어 추가
 //앱버전 체크 미들웨어 추가
+
 app.UseRouting();
 app.UseEndpoints(endpoints =>endpoints.MapControllers());
 

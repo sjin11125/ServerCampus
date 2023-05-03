@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Com2usServerCampus.Model;
 
-namespace Com2usServerCampus.Model;
+namespace Com2usServerCampus.ModelReqRes;
 public class LoginAccountRequest //유저가 서버에게 주는 아이디, 비번 데이터 클래스
 {
     [Required]

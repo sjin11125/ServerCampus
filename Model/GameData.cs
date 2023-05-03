@@ -1,5 +1,5 @@
 ﻿namespace Com2usServerCampus.Model;
-public struct UserInfo
+public class UserInfo
 {
     public int AccountId { get; set; }
     public int Exp { get; set; }
@@ -23,12 +23,15 @@ public struct UserItem
     public int EnhanceCount { get; set; }        //강화횟수
     public int Count { get; set; }           //몇개인지
 
-    public UserItem(string email, int itemCode, int enhanceCount, int count)
+    public bool IsCount { get; set; }       //겹칠수있는지
+
+    public UserItem(string email, int itemCode, int enhanceCount, int count,bool isCount)
     {
         Eamil = email;
         ItemCode = itemCode;
         EnhanceCount = enhanceCount;
         Count = count;
+        IsCount = isCount;
     }
 }
 public class Notice
