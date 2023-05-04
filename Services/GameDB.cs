@@ -130,5 +130,18 @@ public class GameDB : IGameDB
         }
         return (ErrorCode.None, mailInfos.List.ToList());
     }
+
+    public async Task<(ErrorCode, string )> ReadMail(string email, int id)
+    {
+        var content = await queryFactory.Query("mail").Where("Email", email).Where("Id", id).Select("Content").FirstOrDefaultAsync<string>();
+
+        if (content is null)
+        {
+            return (ErrorCode.EmptyMailContent, null);
+        }
+
+        return (ErrorCode.None, content);
+
+    }
 }
 

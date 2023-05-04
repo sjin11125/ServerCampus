@@ -9,6 +9,8 @@ namespace Com2usServerCampus.Services
         public Task<ErrorCode> InsertItem(string email, UserItem useritem);
         public Task<ErrorCode> InsertGameData(string email, UserInfo userInfo);
         public  Task<(ErrorCode, List<Mail>)> GetMails(string email, int page);
+        public Task<(ErrorCode, string)> ReadMail(string email, int id);
+
 
     }
 
