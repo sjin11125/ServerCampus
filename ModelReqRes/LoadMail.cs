@@ -24,9 +24,11 @@ public class MailLoadRequest
 public class MailLoadResponse
 {
     List<Mail> Mails = new List<Mail>();
-    public List<Mail> GetMails()
+    public List<Mail> GetMailList()
     {
         return Mails;
     }
+
+   public  ErrorCode Error { get; set; }
 
 }

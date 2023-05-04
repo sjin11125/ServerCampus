@@ -3,6 +3,8 @@ using Microsoft.Extensions.Options;
 using System.Data;
 using MySqlConnector;
 using SqlKata.Execution;
+using SqlKata;
+using System.Dynamic;
 
 namespace Com2usServerCampus.Services;
 public class GameDB : IGameDB
@@ -107,9 +109,26 @@ public class GameDB : IGameDB
         return (ErrorCode.None, items.ToList());
     }
 
-   /* public async Task<(ErrorCode,List<Mail>)> GetMails(string email)
+    public async Task<(ErrorCode,List<Mail>)> GetMails(string email,int page)
     {
+        var subQuery = new Query("mail").WhereRaw("Time + INTERVAL ExpiryTime> NOW()");
 
-    }*/
+     var mailInfos=await queryFactory.Query("mail").WhereRaw("Time + INTERVAL ExpiryTime> NOW()").Where("isRead", false).Select("Id","Title").PaginateAsync<Mail>(page, 20);
+        //유효기간 지난 메일과 읽은 메일은 불러오지 않고 메일ID와 제목만 불러오기
+        if (mailInfos is null)
+        {
+            return (ErrorCode.EmptyMail, null);
+        }
+        foreach (var mail in mailInfos.List)
+        {
+            var mailitems = await queryFactory.Query("mailitem").Where("Email", email).Where("Id", mail.Id).GetAsync<MailItem>();
+
+            if (mailitems is null)      //메일의 아이템이 없으면
+                continue;
+
+            mail.Items=mailitems.ToList();
+        }
+        return (ErrorCode.None, mailInfos.List.ToList());
+    }
 }
 

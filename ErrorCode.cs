@@ -30,7 +30,12 @@
         EmptyItemData=5002,
 
         //Token 관련 에러코드
-        SetUserTokenFail=6001
+        SetUserTokenFail=6001,
+
+        //Mail 관련 에러코드
+        EmptyMail=7001,
+
+
         //InvalidAppversion = 3002,
         // InvalidDataversion = 3003,
     }
