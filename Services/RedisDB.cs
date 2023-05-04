@@ -57,7 +57,7 @@ public class RedisDB : IRedisDB
             return false;
         }
     }
-    public async Task<bool> SetUserReqLockAsync(string key)
+    public async Task<bool> SetUserReqLockAsync(string key)     //락 걸기
     {
         try
         {
@@ -73,10 +73,36 @@ public class RedisDB : IRedisDB
         }
         return true;
     }
+    public async Task<List<Notice>> LoadNotice()               //공지 불러옴
+    {
+        var noticeRedis = new RedisList<Notice>(RedisConnection, "Notice", TimeSpan.FromDays(1)); //키가 Notice인 인덱스의 Value리스트
+        var noticeList = await noticeRedis.RangeAsync(0, -1);
+        if (noticeList.Length != 0)        //공지가 있다면
+            return noticeList.ToList();
+        else return null;
+    }
+    public async Task<ErrorCode> SetUserToken(string email, string token, int accountId)            //레디스에 유저 토큰 넣기
+    {
+        var uid = "UID_" + email;
+        var redisId = new RedisString<AuthUser>(RedisConnection, uid, LoginTimeSpan());       //유효 기간 1일
+        var userInfo = new AuthUser { AccountId = accountId, Email = email, AuthTokent = token, State = "Default" };
 
+        if (await redisId.SetAsync(userInfo, LoginTimeSpan()) == false) //실패햇다면
+        {
+            logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.SetUserTokenFail} Email:{email} Token: {token} AccountId:{accountId}");    //레디스에 토큰 넣기 실패 에러
+            return ErrorCode.SetUserTokenFail;
+        }
+
+        return ErrorCode.None;
+
+    }
     public TimeSpan NxKeyTimeSpan()
     {
         return TimeSpan.FromSeconds( RedisKeyExpireTime.NxKeyExpireSecond);
+    }
+    public TimeSpan LoginTimeSpan()
+    {
+        return TimeSpan.FromSeconds( RedisKeyExpireTime.RedisKeyExpireSecond);
     }
 }
 

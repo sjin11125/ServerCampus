@@ -24,7 +24,7 @@ public class GameDB : IGameDB
         queryFactory = new SqlKata.Execution.QueryFactory(_dbconn, compiler);
     }
 
-    public async Task<ErrorCode> InsertGameData(string email, UserInfo userInfo)
+    public async Task<ErrorCode> InsertGameData(string email, UserInfo userInfo)        //유저 게임 정보 넣기
     {
       var count=  await queryFactory.Query("gamedata").InsertAsync(new
         {
@@ -41,7 +41,7 @@ public class GameDB : IGameDB
         return ErrorCode.None;
     }
 
-    public async Task<ErrorCode> InsertItem(string email, UserItem userItem)
+    public async Task<ErrorCode> InsertItem(string email, UserItem userItem)        //게임 아이템 넣기
     {
         int result = 0;
         if (userItem.IsCount)       //겹치기가 가능한가
@@ -71,7 +71,7 @@ public class GameDB : IGameDB
                 });
             }
         }
-        else                            //겹치기가 안돼면 걍 넣음
+        else                            //겹치기가 안되면 걍 넣음
         {
              result = await queryFactory.Query("gamedata").InsertAsync(new
             {
@@ -88,18 +88,28 @@ public class GameDB : IGameDB
         else return ErrorCode.None;
     }
 
-     async Task<(UserInfo,ErrorCode)> IGameDB.GetGameData(string email)
+   public  async Task<(ErrorCode,UserInfo)> GetGameData(string email)       //유저 게임 데이터 불러오기
     {
         UserInfo userInfo = await queryFactory.Query("gamedata").Where("Email", email).FirstOrDefaultAsync<UserInfo>();
         if (userInfo==null)             //유저의 게임정보가 없다면
-            return (null,ErrorCode.WrongGameData);
-        else
-            return (userInfo, ErrorCode.WrongGameData);
+            return ( ErrorCode.WrongGameData,null);
+        else 
+            return (ErrorCode.WrongGameData, userInfo);
     }
 
-    Task<IEnumerable<UserItem>> IGameDB.GetItems(string email)
+   public async Task<(ErrorCode,List<UserItem>)> GetItems(string email)
     {
-        throw new NotImplementedException();
+        var items =await queryFactory.Query("itemdata").Where("Email", email).GetAsync<UserItem>();
+
+        if (items.Count()==0)       //가지고 있는 아이템이 하나도 없다면
+            return (ErrorCode.EmptyItemData, null);
+
+        return (ErrorCode.None, items.ToList());
     }
+
+   /* public async Task<(ErrorCode,List<Mail>)> GetMails(string email)
+    {
+
+    }*/
 }
 

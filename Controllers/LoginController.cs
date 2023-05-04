@@ -1,6 +1,6 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
-using Com2usServerCampus.Model;
+using Com2usServerCampus.ModelReqRes;
 using Com2usServerCampus.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +14,15 @@ public class LoginController : ControllerBase
 {
     ILogger<LoginController> _logger;
     IAccountDB _accountDB;
+    IGameDB _gameDB;
+    IRedisDB _redisDB;
 
-    public LoginController(ILogger<LoginController> logger, IAccountDB accountDB)
+    public LoginController(ILogger<LoginController> logger, IAccountDB accountDB, IGameDB gameDB,IRedisDB redisDB)
     {
         _logger = logger;
         _accountDB = accountDB;
+        _gameDB = gameDB;
+        _redisDB = redisDB;
     }
 
     [HttpPost]
@@ -26,56 +30,60 @@ public class LoginController : ControllerBase
     {
         LoginAccountResponse Result = new LoginAccountResponse();
 
-        var userCode = await _accountDB.CheckUser(UserInfo.Email);
+
+        var userCode = await _accountDB.CheckUser(UserInfo.Email,UserInfo.Password);
         //아이디가 account 테이블에 있는지 확인(중복 확인)
 
-        if (userCode != null)//테이블에 있으면 성공
+        if (userCode.Item1!=ErrorCode.None)     //성공하지 못했다면
         {
-            string HashedPassword = Security.Encrypt(UserInfo.Password);  //비번 암호화 
-            if (userCode.HashedPassword != HashedPassword) //비번 체크
-            {
-                Result.Error = ErrorCode.Login_Fail_Password;       //로그인 실패(패스워드 불일치)
-
-
-                return Result;
-            }
-
-
-            //자신의 게임 데이터 로딩
-
-           /* Result.userInfo = await dBManager.GetGameData(userCode.Email); //기본 게임데이터 로드
-
-            IEnumerable<UserItem> items = await dBManager.GetItems(userCode.Email); //아이템 데이터 로드
-            Result.itemList = items.ToList();
-
-            //공지 불러옴
-            var noticeRedis = new RedisList<Notice>(DBManager.RedisConnection, "Notice", TimeSpan.FromDays(1)); //키가 Notice인 인덱스의 Value리스트
-            var noticeList = await noticeRedis.RangeAsync(0, -1);
-            Result.NoticeList = noticeList.ToList();          //공지리스트*/
-
-
-            string tokenValue = Security.CreateAuthToken();     //토큰 생성
-            var idDefaultExpiry = TimeSpan.FromDays(1);         //유효기간
-            var redisId = new RedisString<string>(DBManager.RedisConnection, userCode.Email, idDefaultExpiry);
-            await redisId.SetAsync(tokenValue);
-
-
-
-            Result.Authtoken = tokenValue;      //토큰 설정
-
-            Result.Error = ErrorCode.None;     //로그인 성공
-
-            return Result;
-
-        }
-        else                    //테이블에 없으면 실패
-        {
-            Result.Error = ErrorCode.Login_Fail_Email;
-
-
+            Result.Error = userCode.Item1;
             return Result;
         }
 
+        //성공했다면
+
+            //유저의 게임 데이터 로딩
+         var userGameData=  await _gameDB.GetGameData(userCode.Item2.Email);
+        if (userGameData.Item1 != ErrorCode.None)
+        {
+            Result.Error = userCode.Item1;
+            return Result;
+        }
+        Result.userInfo = userGameData.Item2;
+
+        //유저의 아이템 데이터 로딩
+        var userItemData = await _gameDB.GetItems(userCode.Item2.Email);
+        if (userItemData.Item1 != ErrorCode.None)
+        {
+            Result.Error = userCode.Item1;
+            return Result;
+        }
+        Result.itemList = userItemData.Item2;
+
+        //공지 불러오기
+        var notice = await _redisDB.LoadNotice();
+        if (notice is not null)     //공지가 있다면
+        {
+            Result.NoticeList = notice;
+        }
+        else Result.NoticeList = null;
+
+        //토큰 생성
+        string tokenValue = Security.CreateAuthToken();     //토큰 생성
+        var idDefaultExpiry = TimeSpan.FromDays(1);         //유효기간
+
+        //레디스에 토큰 넣기
+        var token = await _redisDB.SetUserToken(userCode.Item2.Email, tokenValue, userCode.Item2.AccountId);
+        if (token!=ErrorCode.None)      //실패했다면
+        {
+            Result.Error =token;
+            return Result;
+        }
+
+        Result.Authtoken= tokenValue;
+        Result.Error = ErrorCode.None;
+
+        return Result;
 
     }
 

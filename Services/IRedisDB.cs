@@ -10,5 +10,8 @@ namespace Com2usServerCampus.Services;
     public Task<(bool, AuthUser)> GetUserAsync(string email);
     public  Task<bool> SetUserReqLockAsync(string key);
     public Task<bool> DelUserReqLockAsync(string key);
-    }
+
+    public Task<List<Notice>> LoadNotice();
+    public  Task<ErrorCode> SetUserToken(string email, string token, int accountId);
+}
 

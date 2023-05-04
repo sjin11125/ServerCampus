@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;
 using ZLogger;
+using Com2usServerCampus.ModelReqRes;
 
-namespace Com2usServerCampus.Controllers
-{
+namespace Com2usServerCampus.Controllers;
+
     [Route("[controller]")]
     [ApiController]
     public class LoadMailController:ControllerBase
@@ -44,31 +45,5 @@ namespace Com2usServerCampus.Controllers
                 return mailLoadResponse;
         }
     }
-    [Serializable]
-    public class MailLoadRequest
-    {
-      public  string Email { get; set; }
-        string email;
-        public int Page { get; set; }
-        int page;
-        public string Authtoken { get; set; }
-        string authtoken;
-        public MailLoadRequest(string email, int page, string authtoken)
-        {
-            Email = email;
-            Page = page;
-            Authtoken = authtoken;
-        }
-    }
-    [Serializable]
+    
 
-    public class MailLoadResponse
-    {
-        List<Mail> Mails=new List<Mail>();
-        public List<Mail> GetMails()
-        {
-            return Mails;
-        }
-
-    }
-}

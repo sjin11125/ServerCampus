@@ -4,7 +4,7 @@ namespace Com2usServerCampus.Services
 {
     public interface IAccountDB
     {
-        public Task<DBUserInfo> CheckUser(string email);
+        public Task<(ErrorCode, DBUserInfo)> CheckUser(string email, string password);
         public Task<ErrorCode> AddUser(string email, string hashedPassword);
     }
 }

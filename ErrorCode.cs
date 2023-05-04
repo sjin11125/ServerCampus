@@ -11,6 +11,8 @@
         //Login 관련 에러코드
         Login_Fail_Email = 2001,
         Login_Fail_Password = 2002,
+        LoginFailNoData=2003,
+        LoginFailException=2004,
 
         //CheckUserAuth 관련 에러코드
         WrongdRequestHttpBody = 3001,
@@ -25,7 +27,10 @@
 
         //ItemData 관련 에러코드
         InsertItemDataFail = 5001,
+        EmptyItemData=5002,
 
+        //Token 관련 에러코드
+        SetUserTokenFail=6001
         //InvalidAppversion = 3002,
         // InvalidDataversion = 3003,
     }
