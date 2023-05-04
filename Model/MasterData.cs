@@ -14,7 +14,7 @@ public class ItemData    //아이템
     public int Defence { get; set; }
     public int Magic { get; set; }
     public int EnhanceMaxCount { get; set; }
-
+    public bool isCount { get; set; }   
 }
 
 public class ItemAttribute  //아이템 특성

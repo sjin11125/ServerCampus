@@ -139,8 +139,31 @@ public class GameDB : IGameDB
         {
             return (ErrorCode.EmptyMailContent, null);
         }
-
+        
+        await queryFactory.Query("mail").Where("Email", email).Where("Id", id).UpdateAsync(new { isRead=true});     //읽음 처리함
         return (ErrorCode.None, content);
+
+    }
+
+    public async Task<(ErrorCode,List<MailItem>)> GetMailItem(string email,int id)
+    {
+        var items = await queryFactory.Query("mailitem").Where("Email", email).Where("Id", id).GetAsync<MailItem>();
+        if (items is null)
+            return (ErrorCode.EmptyMailItem,null);
+
+        return (ErrorCode.None, items.ToList());
+
+    }
+    public async Task<ErrorCode> UpdateMailItem(string email,int id)
+    {
+        var result = await queryFactory.Query("mailitem").Where("Email", email).Where("Id", id).Select("isGet").FirstOrDefaultAsync<string>();
+
+        if (result is null)
+            return ErrorCode.GetMailItemFail;
+
+        await queryFactory.Query("mail").Where("Email", email).Where("Id", id).UpdateAsync(new { isGet = true });     //받음 처리함
+
+        return ErrorCode.None;
 
     }
 }

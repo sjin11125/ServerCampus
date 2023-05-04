@@ -21,9 +21,9 @@ public class ReadMailController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ReadMaildResponse> MailReadPost(ReadMaildRequest mailInfo)
+    public async Task<ReadMailResponse> MailReadPost(ReadMailRequest mailInfo)
     {
-        ReadMaildResponse readMaildResponse = new ReadMaildResponse();
+        ReadMailResponse readMaildResponse = new ReadMailResponse();
 
         var content = await _gameDB.ReadMail(mailInfo.Email, mailInfo.Id);
         if (content.Item1!=ErrorCode.None)

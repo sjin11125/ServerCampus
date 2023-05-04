@@ -35,6 +35,11 @@
         //Mail 관련 에러코드
         EmptyMail=7001,
         EmptyMailContent=7002,
+        EmptyMailItem=7003,
+        GetMailItemFail=7004,
+
+        //마스터 데이터 관련 에러코드
+        InvalidItemData=8001,
 
         //InvalidAppversion = 3002,
         // InvalidDataversion = 3003,
