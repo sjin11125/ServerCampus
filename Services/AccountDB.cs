@@ -86,7 +86,7 @@ public class AccountDB : IAccountDB
         }
         catch (Exception e)
         {
-            _logger.ZLogError(e,$"AccountDB.CheckUser Exception ErrorCode: {ErrorCode.LoginFailException}  Email: {email} Password: {password}");
+            _logger.ZLogError(e,$"AccountDB.CheckUser Exception ErrorCode: {ErrorCode.Login_Fail_Password}  Email: {email} Password: {password}");
 
             throw;
         }

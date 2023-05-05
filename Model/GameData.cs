@@ -1,18 +1,21 @@
 ﻿namespace Com2usServerCampus.Model;
 public class UserInfo
 {
-    public int AccountId { get; set; }
+    public string Email { get; set; }
     public int Exp { get; set; }
     public int Attack { get; set; }
     public int Defence { get; set; }
+    public DateTime Attendance { get; set; }    
+    public int AttendanceCount { get; set; }    
 
 
-
-    public UserInfo(int exp, int attack, int defence)
+    public UserInfo(string email,int exp, int attack, int defence, DateTime attendance)
     {
+        Email = email;
         Exp = exp;
         Attack = attack;
         Defence = defence;
+        Attendance = attendance;
     }
 }
 
@@ -49,3 +52,4 @@ public class Notice
         this.isRead = isRead;
     }
 }
+

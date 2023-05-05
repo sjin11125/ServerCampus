@@ -5,6 +5,7 @@ using MySqlConnector;
 using SqlKata.Execution;
 using SqlKata;
 using System.Dynamic;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Com2usServerCampus.Services;
 public class MasterDataDB : IMasterDataDB
@@ -31,10 +32,19 @@ public class MasterDataDB : IMasterDataDB
         var data=await queryFactory.Query("itemdata").Where("Code",code).FirstOrDefaultAsync<ItemData>();
 
         if (data is null)
-            return (ErrorCode.EmptyItemData,null);
+            return (ErrorCode.InvalidItemData, null);
 
         return (ErrorCode.None, data);
         
+    }
+    public async Task<(ErrorCode, AttendanceReward)> GetAttendanceRewardData(int code)      //출석 보상 불러와
+    {
+        var reward= await queryFactory.Query("attendancedata").Where("Code", code).FirstOrDefaultAsync<AttendanceReward>();
+        if (reward is null)
+            return (ErrorCode.InvalidItemData, null);
+
+        return (ErrorCode.None, reward);
+
     }
 }
 

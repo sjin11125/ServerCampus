@@ -27,7 +27,6 @@
 
         //ItemData 관련 에러코드
         InsertItemDataFail = 5001,
-        EmptyItemData=5002,
 
         //Token 관련 에러코드
         SetUserTokenFail=6001,
@@ -37,9 +36,14 @@
         EmptyMailContent=7002,
         EmptyMailItem=7003,
         GetMailItemFail=7004,
+        ErrorInsertMail=7005,
+
+        //Attendance 관련 에러코드
+        InvalidAttendance=8001,
+        ErrorAttendanceInit=8002,
 
         //마스터 데이터 관련 에러코드
-        InvalidItemData=8001,
+        InvalidItemData=9001,
 
         //InvalidAppversion = 3002,
         // InvalidDataversion = 3003,
