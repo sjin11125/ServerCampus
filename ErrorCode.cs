@@ -37,6 +37,7 @@
         EmptyMailItem=7003,
         GetMailItemFail=7004,
         ErrorInsertMail=7005,
+        InvalidMailType=7006,
 
         //Attendance 관련 에러코드
         InvalidAttendance=8001,

@@ -48,4 +48,26 @@ CREATE TABLE IF NOT EXISTS gamedata_db.`mail`
 );
 ```
 
- 
+   ## inapppurchasereceipt 테이블
+인앱결제 영수증 테이블
+```sql
+  CREATE TABLE IF NOT EXISTS gamedata_db.`inapppurchasereceipt`
+(
+    Id bigint not null auto_increment primary key comment '영수증id',
+    Email VARCHAR(50) NOT NULL COMMENT '이메일',
+    Title VARCHAR(100) NOT NULL COMMENT  '제목',
+    Content VARCHAR(100) NOT NULL COMMENT '내용',
+    Time datetime default current_timestamp comment '발송날짜',
+    ExpiryTime int comment '유효기간'
+);
+```
+   ## inapppurchaseitem 테이블
+인앱결제 아이템 테이블
+```sql
+  CREATE TABLE IF NOT EXISTS gamedata_db.`inapppurchaseitem`
+(
+    Id bigint not null auto_increment primary key comment '영수증id',
+    Code int NOT NULL COMMENT '아이템 코드',
+    Count int NOT NULL COMMENT '아이템 갯수',
+);
+```

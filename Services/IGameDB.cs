@@ -13,7 +13,7 @@ namespace Com2usServerCampus.Services
         public Task<(ErrorCode, List<MailItem>)> GetMailItem(string email, int id);
         public  Task<ErrorCode> UpdateMailItem(string email, int id);
         public Task<(ErrorCode, int)> AttendanceCheck(string email);
-        public  Task<ErrorCode> InsertMail(string email, UserItem item);
+        public  Task<ErrorCode> InsertMail(string email, UserItem item, MailType type);
 
 
 

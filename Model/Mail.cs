@@ -20,3 +20,8 @@ public class MailItem       //메일에 있는 보상 아이템 리스트
     public int Code { get; set; }
     public int Count { get; set; }
 }
+
+public enum MailType
+{
+    AttendanceReward
+}

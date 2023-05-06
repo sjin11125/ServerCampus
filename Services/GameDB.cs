@@ -168,35 +168,43 @@ public class GameDB : IGameDB
         return ErrorCode.None;
 
     }
-    public async Task<ErrorCode> InsertMail(string email, UserItem item)        //유저에게 메일 전송
+    public async Task<ErrorCode> InsertMail(string email, UserItem item, MailType type)        //유저에게 메일 전송
     {
-        var result= await queryFactory.Query("mail").InsertGetIdAsync<int>(new {               //메일 내용 넣고 메일Id 불러오기(성공 1, 실패 0)
-         Email=email,
-         Title="출석 보상",
-         Content="출석 보상입니다리미",
-         Time=DateTime.Today,
-         ExpiryTime=7,
-         isRead=false,
-         isGet=false,
-        });
+        switch (type)
+        {
+            case MailType.AttendanceReward:
 
-        if (result!=1)
-            return ErrorCode.ErrorInsertMail;
+                var result = await queryFactory.Query("mail").InsertGetIdAsync<int>(new
+                {               //메일 내용 넣고 메일Id 불러오기(성공 1, 실패 0)
+                    Email = email,
+                    Title = "출석 보상",
+                    Content = "출석 보상입니다리미",
+                    Time = DateTime.Today,
+                    ExpiryTime = 7,
+                    isRead = false,
+                    isGet = false,
+                });
 
-        var insertMail = await queryFactory.Query("mailitem").InsertAsync(new  //메일 아이템 테이블에 아이템 넣기(성공 1, 실패 0)
-        {   
-            Email = email,
-            Id=result,
-            Code=item.ItemCode,
-            Count=item.Count
-        });
+                if (result != 1)
+                    return ErrorCode.ErrorInsertMail;
 
-        if (insertMail != 1)
-            return ErrorCode.ErrorInsertMail;
+                var insertMail = await queryFactory.Query("mailitem").InsertAsync(new  //메일 아이템 테이블에 아이템 넣기(성공 1, 실패 0)
+                {
+                    Email = email,
+                    Id = result,
+                    Code = item.ItemCode,
+                    Count = item.Count
+                });
 
-        return ErrorCode.None;
+                if (insertMail != 1)
+                    return ErrorCode.ErrorInsertMail;
+
+                return ErrorCode.None;
+            default:
+                return ErrorCode.InvalidMailType;
+        }
     }
-    public async Task<(ErrorCode, int)> AttendanceCheck(string email)          //출석체크
+    public async Task<(ErrorCode, int)> AttendanceCheck(string email)          //출석 확인
     {
         var result = await queryFactory.Query("gamedata").Where("Email", email).Select("AttendanceTime", "AttendanceCount").FirstOrDefaultAsync<AttendanceInfo>();     //사용자 게임정보 중 날짜를 불러옴
 

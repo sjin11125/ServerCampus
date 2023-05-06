@@ -54,7 +54,7 @@ public class AttendanceController : ControllerBase
             EnhanceCount= 0,
             IsCount=itemInfo.Item2.isCount
 
-        });
+        },Model.MailType.AttendanceReward);
         if (result != ErrorCode.None)
         {
             AttendancedResponse.Error = result;
