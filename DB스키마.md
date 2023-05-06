@@ -1,3 +1,5 @@
+
+
 # Account DB
   
 ## account 테이블
@@ -19,7 +21,23 @@ CREATE TABLE IF NOT EXISTS account_db.`account`
    
    
 # Game DB
-  
+  ## gamedata 테이블
+유저 게임 데이터 테이블
+```sql
+  CREATE TABLE IF NOT EXISTS gamedata_db.`gamedata`
+(
+
+    Email VARCHAR(50) NOT NULL primary key COMMENT '이메일',
+    Exp int NOT NULL COMMENT  '경험치',
+    Attack int NOT NULL COMMENT '공격력',
+    Defense int Not Null comment '방어력',
+    Attendance datetime not null COMMENT '마지막 출석 날짜',
+    AttendanceCount int not null comment '출석 카운트'
+    
+);
+```
+
+
 ## mail 테이블
 유저 메일 테이블
 ```sql
@@ -72,4 +90,16 @@ DROP TABLE IF EXISTS gamedata_db.`inapppurchaseitem`;
 (
     Id VARCHAR(50) NOT NULL  comment '영수증id',
     Code int NOT NULL COMMENT '아이템 코드'
+```
+
+
+# Notice DB
+## 레디스 공지 데이터베이스
+```c#
+        Notice notice= new Notice("공지1","공지1입니다","2023-01-01","false");
+        await noticeRedis.RightPushAsync(notice,TimeSpan.FromDays(7));
+        Notice notice2 = new Notice("공지2", "공지2입니다", "2023-01-01", "false");\
+        await noticeRedis.RightPushAsync(notice2,TimeSpan.FromDays(7));
+        Notice notice3= new Notice("공지3","공지3입니다","2023-01-01","false");
+        await noticeRedis.RightPushAsync(notice3,TimeSpan.FromDays(7));
 ```

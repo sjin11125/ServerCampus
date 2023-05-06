@@ -33,8 +33,8 @@ public class CheckUserAuth
 
         context.Request.EnableBuffering();      //요청 바디의 데이터를 여러 번 읽을 수 있게 함
 
-        string AuthToken;       //유저가 보낸 토큰 
-        string email;           //유저가 보낸 이메일
+        string AuthToken="";       //유저가 보낸 토큰 
+        string email="";           //유저가 보낸 이메일
         string userLockKey = "";
 
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))         //요청 바디의 데이터를 문자열로 가져옴
@@ -45,8 +45,13 @@ public class CheckUserAuth
 
             var document = JsonDocument.Parse(bodyStr);  //JSON 문자열 파싱
 
-            if (IsInvalidJsonFormat(context, document, out email, out AuthToken))//사용자가 보낸 요청에서 email과 토큰 정보가 있는지 확인
+            var result = await IsInvalidJsonFormat(context, document, email, AuthToken);
+
+            if (result.Item1)//사용자가 보낸 요청에서 email과 토큰 정보가 있는지 확인
                 return;
+            email= result.Item2;
+            AuthToken = result.Item3;
+
             var (isOK, userInfo) = await _redisDB.GetUserAsync(email);//레디스에서 사용자 정보 조회
 
             if (!isOK)     //조회 안되면 리턴
@@ -113,14 +118,14 @@ public class CheckUserAuth
 
         return true;
     }
-    bool IsInvalidJsonFormat(HttpContext context,JsonDocument document, out string email,out string authToken)//사용자가 보낸 요청에서 email과 토큰 정보가 있는지 확인
+   async Task<(bool,string,string)> IsInvalidJsonFormat(HttpContext context,JsonDocument document, string email, string authToken)//사용자가 보낸 요청에서 email과 토큰 정보가 있는지 확인
     {
         try
         {
             email = document.RootElement.GetProperty("Email").GetString();
-            authToken = document.RootElement.GetProperty("AuthToken").GetString();
+            authToken = document.RootElement.GetProperty("Authtoken").GetString();
 
-            return false;
+            return (false,email,authToken);
         }
         catch 
         {
@@ -130,8 +135,8 @@ public class CheckUserAuth
                 errorCode = ErrorCode.WrongAuthTokenOrEmail
             });
             var bytes=Encoding.UTF8.GetBytes(errorJsonResponse);
-            context.Response.Body.Write(bytes,0,bytes.Length);
-            return true;
+           await context.Response.Body.WriteAsync(bytes,0,bytes.Length);
+            return (true,null,null);
         }
     }
 

@@ -9,7 +9,8 @@ using  Com2usServerCampus.Model;
 using Com2usServerCampus.Services;
 
 namespace Com2usServerCampus.Controllers;
-
+[ApiController]
+[Route("[controller]")]
 public class AttendanceController : ControllerBase
 {
     ILogger<AttendanceController> _logger;
@@ -56,7 +57,7 @@ public class AttendanceController : ControllerBase
 
         } };
 
-        var result = await _gameDB.InsertMail(Attendance.Email,MailType.AttendanceReward);
+        var result = await _gameDB.InsertMail(Attendance.Email,UserItems,MailType.AttendanceReward);
         if (result != ErrorCode.None)
         {
             AttendancedResponse.Error = result;

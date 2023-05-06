@@ -76,10 +76,13 @@ public class RedisDB : IRedisDB
     public async Task<List<Notice>> LoadNotice()               //공지 불러옴
     {
         var noticeRedis = new RedisList<Notice>(RedisConnection, "Notice", TimeSpan.FromDays(1)); //키가 Notice인 인덱스의 Value리스트
+
         var noticeList = await noticeRedis.RangeAsync(0, -1);
         if (noticeList.Length != 0)        //공지가 있다면
             return noticeList.ToList();
         else return null;
+
+        
     }
     public async Task<ErrorCode> SetUserToken(string email, string token, int accountId)            //레디스에 유저 토큰 넣기
     {

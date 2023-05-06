@@ -13,8 +13,8 @@ using Com2usServerCampus.Services;
 public class DBConfig
 {
 
-    public string AccountDB;        //계정정보 DB
-    public string GameDB;           //게임정보 DB
-    public string DataDB;           //마스터데이터 DB
-    public string RedisDB;  //레디스 DB
+    public string AccountDB { get; set; }       //계정정보 DB
+    public string GameDB { get; set; }            //게임정보 DB
+    public string DataDB { get; set; }            //마스터데이터 DB
+    public string RedisDB { get; set; }   //레디스 DB
 }

@@ -7,11 +7,8 @@ namespace Com2usServerCampus.ModelReqRes;
 public class MailLoadRequest
 {
     public string Email { get; set; }
-    string email;
     public int Page { get; set; }
-    int page;
     public string Authtoken { get; set; }
-    string authtoken;
     public MailLoadRequest(string email, int page, string authtoken)
     {
         Email = email;

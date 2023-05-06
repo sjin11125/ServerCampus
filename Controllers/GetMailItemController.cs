@@ -9,7 +9,8 @@ using Com2usServerCampus.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Com2usServerCampus.Controllers;
-
+[ApiController]
+[Route("[controller]")]
 public class GetMailItemController : ControllerBase
 {
     ILogger<ReadMailController> _logger;
@@ -49,7 +50,7 @@ public class GetMailItemController : ControllerBase
             Eamil=mailInfo.Email,
             ItemCode=mailInfo.Id,
             EnhanceCount=0,
-            Count=item.Count,
+            ItemCount =item.Count,
             IsCount=itemData.Item2.isCount
             });
 

@@ -8,6 +8,8 @@ using  Com2usServerCampus.ModelReqRes;
 using Com2usServerCampus.Services;
 
 namespace Com2usServerCampus.Controllers;
+[ApiController]
+[Route("[controller]")]
 
 public class ReadMailController : ControllerBase
 {

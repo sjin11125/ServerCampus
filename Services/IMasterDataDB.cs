@@ -7,7 +7,7 @@ namespace Com2usServerCampus.Services
         public Task<(ErrorCode, ItemData)> GetItemData(int code);  
         public  Task<(ErrorCode, AttendanceReward)> GetAttendanceRewardData(int code);
 
-        public Task<(ErrorCode, List<UserItem>)> GetInAppProduct(int code); 
+        public Task<(ErrorCode, List<InAppProduct>)> GetInAppProduct(int code); 
 
     }
 

@@ -10,8 +10,8 @@ using Com2usServerCampus.Services;
 using Com2usServerCampus;
 
 namespace APIServer.Controllers;
-[Route("[controlelr]")]
 [ApiController]
+[Route("[controller]")]
 public class InAppPurchaseConrtoller : ControllerBase
 {
     ILogger<InAppPurchaseConrtoller> _logger;

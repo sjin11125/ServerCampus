@@ -16,9 +16,9 @@
 
         //CheckUserAuth 관련 에러코드
         WrongdRequestHttpBody = 3001,
-        WrongAuthTokenOrEmail = 3001,
-        InvalidAuthToken= 3002,
-        AuthTokenFailSetNx=3003,
+        WrongAuthTokenOrEmail = 3002,
+        InvalidAuthToken= 3003,
+        AuthTokenFailSetNx=3004,
 
         //GameData 관련 에러코드
         InsertGameDataDup=4001,

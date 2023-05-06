@@ -35,7 +35,7 @@ public static class LogManager
 
     public static void SetLoggerFactory(ILoggerFactory loggerFactory, string categoryName)
     {
-        loggerFactory=LoggerFactory;
+       LoggerFactory = loggerFactory ;
         Logger = loggerFactory.CreateLogger(categoryName);
     }
 

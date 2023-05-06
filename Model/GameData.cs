@@ -4,18 +4,19 @@ public class UserInfo
     public string Email { get; set; }
     public int Exp { get; set; }
     public int Attack { get; set; }
-    public int Defence { get; set; }
+    public int Defense { get; set; }
     public DateTime Attendance { get; set; }    
     public int AttendanceCount { get; set; }    
 
 
-    public UserInfo(string email,int exp, int attack, int defence, DateTime attendance)
+    public UserInfo(string email,int exp, int attack, int defense, DateTime attendance, int attendanceCount)
     {
         Email = email;
         Exp = exp;
         Attack = attack;
-        Defence = defence;
+        Defense = defense;
         Attendance = attendance;
+        AttendanceCount = attendanceCount;
     }
 }
 

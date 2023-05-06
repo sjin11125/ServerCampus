@@ -35,8 +35,9 @@ public class GameDB : IGameDB
            userInfo.Email,
             userInfo.Exp,
             userInfo.Attack,
-            userInfo.Defence,
-          userInfo.Attendance
+            userInfo.Defense,
+          userInfo.Attendance,
+          userInfo.AttendanceCount
       });
 
         if (count != 1)       //실패
@@ -51,12 +52,12 @@ public class GameDB : IGameDB
         int result = 0;
         if (userItem.IsCount)       //겹치기가 가능한가
         {
-            var count = await queryFactory.Query("gamedata").Where("Email", email).Where("Code", userItem.ItemCode).Select("Count").FirstOrDefaultAsync<int>();  //아이템 있는지 확인
+            var count = await queryFactory.Query("itemdata").Where("Email", email).Where("ItemCode", userItem.ItemCode).Select("ItemCount").FirstOrDefaultAsync<int>();  //아이템 있는지 확인
 
             
             if (count == 0)//없으면 걍 넣고
             {
-                result = await queryFactory.Query("gamedata").InsertAsync(new
+                result = await queryFactory.Query("itemdata").InsertAsync(new
                 {
                     email,
                     userItem.ItemCode,
@@ -67,7 +68,7 @@ public class GameDB : IGameDB
             else //있으면 기존 갯수 + 새로 들어온 갯수
             {
                 int newCount = userItem.ItemCount + count;
-                 result = await queryFactory.Query("gamedata").InsertAsync(new
+                 result = await queryFactory.Query("itemdata").InsertAsync(new
                 {
                     email,
                     userItem.ItemCode,
@@ -99,7 +100,7 @@ public class GameDB : IGameDB
         if (userInfo==null)             //유저의 게임정보가 없다면
             return ( ErrorCode.WrongGameData,null);
         else 
-            return (ErrorCode.WrongGameData, userInfo);
+            return (ErrorCode.None, userInfo);
     }
 
 
