@@ -5,6 +5,7 @@ using MySqlConnector;
 using SqlKata.Execution;
 using SqlKata;
 using System.Dynamic;
+using System.Collections.Generic;
 
 namespace Com2usServerCampus.Services;
 public class GameDB : IGameDB
@@ -60,12 +61,12 @@ public class GameDB : IGameDB
                     email,
                     userItem.ItemCode,
                     userItem.EnhanceCount,
-                    userItem.Count
+                    userItem.ItemCount
                 });
             }
             else //있으면 기존 갯수 + 새로 들어온 갯수
             {
-                int newCount = userItem.Count + count;
+                int newCount = userItem.ItemCount + count;
                  result = await queryFactory.Query("gamedata").InsertAsync(new
                 {
                     email,
@@ -82,10 +83,10 @@ public class GameDB : IGameDB
                 email,
                 userItem.ItemCode,
                 userItem.EnhanceCount,
-                userItem.Count
+                userItem.ItemCount
             });
         }
-        if (result!=1)  //실패
+        if (result!=1)  //실패    
         {
             return ErrorCode.InsertItemDataFail;
         }
@@ -168,41 +169,67 @@ public class GameDB : IGameDB
         return ErrorCode.None;
 
     }
-    public async Task<ErrorCode> InsertMail(string email, UserItem item, MailType type)        //유저에게 메일 전송
+    public async Task<ErrorCode> InsertMail(string email, List<UserItem> items, MailType type)        //유저에게 메일 전송
     {
+        string title, content;
         switch (type)
         {
             case MailType.AttendanceReward:
-
-                var result = await queryFactory.Query("mail").InsertGetIdAsync<int>(new
-                {               //메일 내용 넣고 메일Id 불러오기(성공 1, 실패 0)
-                    Email = email,
-                    Title = "출석 보상",
-                    Content = "출석 보상입니다리미",
-                    Time = DateTime.Today,
-                    ExpiryTime = 7,
-                    isRead = false,
-                    isGet = false,
-                });
-
-                if (result != 1)
-                    return ErrorCode.ErrorInsertMail;
-
-                var insertMail = await queryFactory.Query("mailitem").InsertAsync(new  //메일 아이템 테이블에 아이템 넣기(성공 1, 실패 0)
-                {
-                    Email = email,
-                    Id = result,
-                    Code = item.ItemCode,
-                    Count = item.Count
-                });
-
-                if (insertMail != 1)
-                    return ErrorCode.ErrorInsertMail;
-
-                return ErrorCode.None;
+                title = "출석 보상";
+                content = "출석 보상입니다리미";
+                break;
+            case MailType.InAppPurchase:
+                title = "인앱 결제 상품";
+                content = "인앱 결제 상품입니다리미";
+                break;
             default:
-                return ErrorCode.InvalidMailType;
+                title = "";
+                content = "";
+                break;
         }
+
+
+        var result = await queryFactory.Query("mail").InsertGetIdAsync<int>(new
+        {               //메일 내용 넣고 메일Id 불러오기(성공 1, 실패 0)
+            Email = email,
+            Title = title,
+            Content = content,
+            Time = DateTime.Today,
+            ExpiryTime = 7,
+            isRead = false,
+            isGet = false,
+        });
+
+        if (result != 1)
+            return ErrorCode.ErrorInsertMail;
+
+        var item = await InsertMailItems(email, items, result); //메일 아이템 테이블에 아이템 넣기
+
+        if (item != ErrorCode.None)
+            return item;
+
+        return ErrorCode.None;
+
+    }
+    public async Task<ErrorCode> InsertMailItems(string email, List<UserItem> items, int id) //메일 아이템 테이블에 아이템 넣기
+    {
+        if (items.Count == 0) return ErrorCode.EmptyMailItemInfo;
+
+        foreach (var item in items)
+        {
+            var insertMail = await queryFactory.Query("mailitem").InsertAsync(new  //메일 아이템 테이블에 아이템 넣기(성공 1, 실패 0)
+            {
+                Email = email,
+                Id = id,
+                Code = item.ItemCode,
+                Count = item.ItemCount
+            });
+
+            if (insertMail != 1)
+                return ErrorCode.ErrorInsertMail;
+        }
+        return ErrorCode.None;
+
     }
     public async Task<(ErrorCode, int)> AttendanceCheck(string email)          //출석 확인
     {
@@ -226,8 +253,15 @@ public class GameDB : IGameDB
             //마지막으로 출석한 날짜 초기화, 출석일수 업데이트
             return (ErrorCode.None, result.AttendanceCount); //(오늘 날짜 - DB 출석 날짜)+1 한 결과를 컨트롤러에 전달
         } 
+    }
 
-
+    public async Task<ErrorCode> CheckDuplicateReceipt(string id)           //영수증 중복 검사
+    {
+        var result = await queryFactory.Query("inapppurchasereceipt").Where("Id", id).Limit(1).FirstOrDefault();
+        if (result is null)     //중복 되지 않음
+            return ErrorCode.None;
+        else                // 중복됨
+            return ErrorCode.InAppPurchaseFailDup;
     }
 }
 

@@ -2,9 +2,10 @@
 namespace Com2usServerCampus.Model;
 public class InAppPurchaseReceipt
 {
-    public int Id { get; set; }
+    public string Id { get; set; }
     public string Email { get; set; }
     public string Title { get; set; }   
+    public int Code { get; set; }   //상품 번호
     public string Content { get; set; } 
     public DateTime Time { get; set; }
 
@@ -13,9 +14,8 @@ public class InAppPurchaseReceipt
 }
 public class InAppPurchaseItem
 {
-    public int Id { get; set; }
+    public string Id { get; set; }
     public int Code { get; set; }
-    public int Count { get; set; }
 
 
 }

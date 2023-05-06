@@ -52,9 +52,16 @@ public class CreateAccountController : ControllerBase
             return Result;
         }
 
-        UserItem userItem = new UserItem(UserInfo.Email, 1, 0, 10,true);                  //기본 아이템 돈 10원
+        var UserItemErrorCode = await _gameDB.InsertItem(UserInfo.Email,  //기본 아이템 돈 10원
+            new UserItem
+            {             //받아온 출석보상을 사용자 메일 테이블에 추가
+                Eamil = UserInfo.Email,
+                Count = 10,
+                ItemCode = 1,
+                EnhanceCount = 0,
+                IsCount = true
 
-        var UserItemErrorCode = await _gameDB.InsertItem(UserInfo.Email, userItem);
+            } );
         if (UserItemErrorCode != ErrorCode.None)
         {
             Result.Error = UserItemErrorCode;

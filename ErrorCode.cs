@@ -38,6 +38,7 @@
         GetMailItemFail=7004,
         ErrorInsertMail=7005,
         InvalidMailType=7006,
+        EmptyMailItemInfo=7007,
 
         //Attendance 관련 에러코드
         InvalidAttendance=8001,
@@ -45,6 +46,10 @@
 
         //마스터 데이터 관련 에러코드
         InvalidItemData=9001,
+
+        //인앱 결제 영수증 관련 에러코드
+        InAppPurchaseFailDup=10001,
+
 
         //InvalidAppversion = 3002,
         // InvalidDataversion = 3003,

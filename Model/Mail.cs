@@ -23,5 +23,7 @@ public class MailItem       //메일에 있는 보상 아이템 리스트
 
 public enum MailType
 {
-    AttendanceReward
+    AttendanceReward,
+    InAppPurchase,
+
 }

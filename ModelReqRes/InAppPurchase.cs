@@ -4,11 +4,18 @@ namespace Com2usServerCampus.ModelReqRes;
 
 public class InAppPurchaseRequest
 {
-    public InAppPurchaseReceipt InAppPurchaseReceipt { get; set; }
-    
+    public string Id { get; set; }
+    public string Email { get; set; }
+    public string Title { get; set; }
+    public int Code { get; set; }   //상품 번호
+    public string Content { get; set; }
+    public DateTime Time { get; set; }
+
+    public int ExpiryTime { get; set; }
+
 }
 public class InAppPurchaseResponse
 {
-    ErrorCode Error { get; set; }
+  public  ErrorCode Error { get; set; }
 }
 

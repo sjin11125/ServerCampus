@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;
 using ZLogger;
 using  Com2usServerCampus.ModelReqRes;
+using  Com2usServerCampus.Model;
 using Com2usServerCampus.Services;
 
 namespace Com2usServerCampus.Controllers;
@@ -46,15 +47,16 @@ public class AttendanceController : ControllerBase
             AttendancedResponse.Error = itemInfo.Item1;
             return AttendancedResponse;
         }
-
-        var result = await _gameDB.InsertMail(Attendance.Email,new Model.UserItem {             //받아온 출석보상을 사용자 메일 테이블에 추가
+        List<UserItem> UserItems = new List<UserItem>() { new UserItem {             //받아온 출석보상을 사용자 메일 테이블에 추가
             Eamil=Attendance.Email,
-            Count=reward.Item2.Count,
+            ItemCount=reward.Item2.Count,
             ItemCode=reward.Item2.ItemCode,
             EnhanceCount= 0,
             IsCount=itemInfo.Item2.isCount
 
-        },Model.MailType.AttendanceReward);
+        } };
+
+        var result = await _gameDB.InsertMail(Attendance.Email,MailType.AttendanceReward);
         if (result != ErrorCode.None)
         {
             AttendancedResponse.Error = result;

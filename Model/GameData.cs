@@ -19,23 +19,16 @@ public class UserInfo
     }
 }
 
-public struct UserItem
+public class UserItem
 {
     public string Eamil { get; set; }     //계정번호
     public int ItemCode { get; set; }        //아이템 코드
     public int EnhanceCount { get; set; }        //강화횟수
-    public int Count { get; set; }           //몇개인지
+    public int ItemCount { get; set; }           //몇개인지
 
     public bool IsCount { get; set; }       //겹칠수있는지
 
-    public UserItem(string email, int itemCode, int enhanceCount, int count,bool isCount)
-    {
-        Eamil = email;
-        ItemCode = itemCode;
-        EnhanceCount = enhanceCount;
-        Count = count;
-        IsCount = isCount;
-    }
+
 }
 public class Notice
 {

@@ -49,25 +49,27 @@ CREATE TABLE IF NOT EXISTS gamedata_db.`mail`
 ```
 
    ## inapppurchasereceipt 테이블
-인앱결제 영수증 테이블
+인앱결제 영수증 테이블(누가 어떤 상품을 언제 샀다)
 ```sql
+DROP TABLE IF EXISTS gamedata_db.`inapppurchasereceipt`;
   CREATE TABLE IF NOT EXISTS gamedata_db.`inapppurchasereceipt`
 (
-    Id bigint not null auto_increment primary key comment '영수증id',
+    Id VARCHAR(50) not null  primary key comment '영수증id',
     Email VARCHAR(50) NOT NULL COMMENT '이메일',
     Title VARCHAR(100) NOT NULL COMMENT  '제목',
+    Code int NOT NULL COMMENT '상품 코드',
     Content VARCHAR(100) NOT NULL COMMENT '내용',
-    Time datetime default current_timestamp comment '발송날짜',
+    Time datetime Not Null comment '발송날짜',
     ExpiryTime int comment '유효기간'
 );
 ```
    ## inapppurchaseitem 테이블
-인앱결제 아이템 테이블
+인앱결제 아이템 테이블(누가 어떤 상품을 샀는데 그 상품이 뭔지)
 ```sql
+DROP TABLE IF EXISTS gamedata_db.`inapppurchaseitem`;
+
   CREATE TABLE IF NOT EXISTS gamedata_db.`inapppurchaseitem`
 (
-    Id bigint not null auto_increment primary key comment '영수증id',
-    Code int NOT NULL COMMENT '아이템 코드',
-    Count int NOT NULL COMMENT '아이템 갯수',
-);
+    Id VARCHAR(50) NOT NULL  comment '영수증id',
+    Code int NOT NULL COMMENT '아이템 코드'
 ```

@@ -30,12 +30,10 @@ public class AttendanceReward       //출석보상
     public int Count { get; set; }
 }
 
-public class InAppProduct       //인앱상품
+public class InAppProduct:UserItem       //인앱상품
 {
     public int Code { get; set; }
-    public int ItemCode { get; set; }
     public string ItemName { get; set; }
-    public int ItemCount { get; set; }
 }
 
 public class StageItem      //스테이지 아이템

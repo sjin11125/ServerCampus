@@ -13,10 +13,9 @@ namespace Com2usServerCampus.Services
         public Task<(ErrorCode, List<MailItem>)> GetMailItem(string email, int id);
         public  Task<ErrorCode> UpdateMailItem(string email, int id);
         public Task<(ErrorCode, int)> AttendanceCheck(string email);
-        public  Task<ErrorCode> InsertMail(string email, UserItem item, MailType type);
-
-
-
+        public  Task<ErrorCode> InsertMail(string email, List<UserItem> items, MailType type);
+        public  Task<ErrorCode> CheckDuplicateReceipt(string id);
+        Task InsertMail(string email, UserItem userItem, MailType attendanceReward);
     }
 
 }

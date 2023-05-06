@@ -46,5 +46,16 @@ public class MasterDataDB : IMasterDataDB
         return (ErrorCode.None, reward);
 
     }
+
+    public async Task<(ErrorCode,List<InAppProduct> )> GetInAppProduct(int code)    //인앱상품 데이터 불러오기
+    { 
+        var data=await queryFactory.Query("InAppProductdata").Where("Code",code).GetAsync<InAppProduct>();
+
+        if (data is null)
+            return (ErrorCode.InvalidItemData, null);
+
+
+        return (ErrorCode.None, data.ToList());
+    }
 }
 
