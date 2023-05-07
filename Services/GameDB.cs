@@ -65,21 +65,17 @@ public class GameDB : IGameDB
                     userItem.ItemCount
                 });
             }
-            else //있으면 기존 갯수 + 새로 들어온 갯수
+            else //있으면 기존 갯수 + 새로 들어온 갯수 업데이트
             {
-                int newCount = userItem.ItemCount + count;
-                 result = await queryFactory.Query("itemdata").InsertAsync(new
-                {
-                    email,
-                    userItem.ItemCode,
-                    userItem.EnhanceCount,
-                    newCount
-                });
+                int ItemCount = userItem.ItemCount + count;
+                result = await queryFactory.Query("itemdata").Where("ItemCode", userItem.ItemCode).UpdateAsync(new { ItemCount = ItemCount });
+                    
+                
             }
         }
         else                            //겹치기가 안되면 걍 넣음
         {
-             result = await queryFactory.Query("gamedata").InsertAsync(new
+             result = await queryFactory.Query("itemdata").InsertAsync(new
             {
                 email,
                 userItem.ItemCode,
@@ -117,9 +113,9 @@ public class GameDB : IGameDB
     public async Task<(ErrorCode,List<Mail>)> GetMails(string email,int page)           //유저 메일 불러오기
     {
 
-     var mailInfos=await queryFactory.Query("mail").WhereRaw("Time + INTERVAL ExpiryTime> NOW()").Where("isRead", false).Select("Id","Title").PaginateAsync<Mail>(page, 20);
+     var mailInfos=await queryFactory.Query("mail").WhereRaw("Time +  ExpiryTime> NOW()").Where("isRead", false).Select("Id","Title").PaginateAsync<Mail>(page, 20);
         //유효기간 지난 메일과 읽은 메일은 불러오지 않고 메일ID와 제목만 불러오기
-        if (mailInfos is null)
+        if (mailInfos.List.Count()==0)
         {
             return (ErrorCode.EmptyMail, null);
         }
@@ -127,7 +123,7 @@ public class GameDB : IGameDB
         {
             var mailitems = await queryFactory.Query("mailitem").Where("Email", email).Where("Id", mail.Id).GetAsync<MailItem>();
 
-            if (mailitems is null)      //메일의 아이템이 없으면
+            if (mailitems.Count()==0)      //메일의 아이템이 없으면
                 continue;
 
             mail.Items=mailitems.ToList();
@@ -149,7 +145,7 @@ public class GameDB : IGameDB
 
     }
 
-    public async Task<(ErrorCode,List<MailItem>)> GetMailItem(string email,int id)      //유저 메일 아이템 받기
+    public async Task<(ErrorCode,List<MailItem>)> GetMailItem(string email,int id)      //유저 메일 아이템 정보 받기
     {
         var items = await queryFactory.Query("mailitem").Where("Email", email).Where("Id", id).GetAsync<MailItem>();
         if (items is null)
@@ -160,7 +156,7 @@ public class GameDB : IGameDB
     }
     public async Task<ErrorCode> UpdateMailItem(string email,int id)                //유저 메일 아이템 받기 처리
     {
-        var result = await queryFactory.Query("mailitem").Where("Email", email).Where("Id", id).Select("isGet").FirstOrDefaultAsync<string>();
+        var result = await queryFactory.Query("mail").Where("Email", email).Where("Id", id).Select("isGet").FirstOrDefaultAsync<string>();
 
         if (result is null)
             return ErrorCode.GetMailItemFail;
@@ -191,7 +187,7 @@ public class GameDB : IGameDB
 
 
         var result = await queryFactory.Query("mail").InsertGetIdAsync<int>(new
-        {               //메일 내용 넣고 메일Id 불러오기(성공 1, 실패 0)
+        {               //메일 내용 넣고 메일Id 불러오기
             Email = email,
             Title = title,
             Content = content,
@@ -200,10 +196,6 @@ public class GameDB : IGameDB
             isRead = false,
             isGet = false,
         });
-
-        if (result != 1)
-            return ErrorCode.ErrorInsertMail;
-
         var item = await InsertMailItems(email, items, result); //메일 아이템 테이블에 아이템 넣기
 
         if (item != ErrorCode.None)
@@ -234,23 +226,23 @@ public class GameDB : IGameDB
     }
     public async Task<(ErrorCode, int)> AttendanceCheck(string email)          //출석 확인
     {
-        var result = await queryFactory.Query("gamedata").Where("Email", email).Select("AttendanceTime", "AttendanceCount").FirstOrDefaultAsync<AttendanceInfo>();     //사용자 게임정보 중 날짜를 불러옴
+        var result = await queryFactory.Query("gamedata").Where("Email", email).Select("Attendance", "AttendanceCount").FirstOrDefaultAsync<AttendanceInfo>();     //사용자 게임정보 중 날짜를 불러옴
 
-        if (result.GetType().Name != "DateTime")
+        if (result is null)
             return (ErrorCode.InvalidAttendance, 0);
 
-        int day = (int)(DateTime.Today - result.AttendanceTime).TotalDays;//(오늘 날짜 - 마지막 출석 날짜)
+        int day = (int)(DateTime.Today - result.Attendance).TotalDays;//(오늘 날짜 - 마지막 출석 날짜)
 
         if (day != 1)     //연속으로 출석하지 않으면
         {
-           await queryFactory.Query("gamedata").Where("Email", email).UpdateAsync(new { AttendanceCount = 1, AttendanceTime = DateTime.Today });
+           await queryFactory.Query("gamedata").Where("Email", email).UpdateAsync(new { AttendanceCount = 1, Attendance = DateTime.Today });
             //마지막으로 출석한 날짜 초기화, 1일부터 다시시작 
          
             return (ErrorCode.None, 1);
         }
         else
         {
-            await queryFactory.Query("gamedata").Where("Email", email).UpdateAsync(new { AttendanceCount = result.AttendanceCount+1, AttendanceTime = DateTime.Today });
+            await queryFactory.Query("gamedata").Where("Email", email).UpdateAsync(new { AttendanceCount = result.AttendanceCount+1, Attendance = DateTime.Today });
             //마지막으로 출석한 날짜 초기화, 출석일수 업데이트
             return (ErrorCode.None, result.AttendanceCount); //(오늘 날짜 - DB 출석 날짜)+1 한 결과를 컨트롤러에 전달
         } 

@@ -88,7 +88,7 @@ public class RedisDB : IRedisDB
     {
         var uid = "UID_" + email;
         var redisId = new RedisString<AuthUser>(RedisConnection, uid, LoginTimeSpan());       //유효 기간 1일
-        var userInfo = new AuthUser { AccountId = accountId, Email = email, AuthTokent = token, State = "Default" };
+        var userInfo = new AuthUser { AccountId = accountId, Email = email, AuthToken = token, State = "Default" };
 
         if (await redisId.SetAsync(userInfo, LoginTimeSpan()) == false) //실패햇다면
         {

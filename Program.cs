@@ -27,6 +27,8 @@ builder.Services.AddTransient<IAccountDB,AccountDB>();
 builder.Services.AddTransient<IGameDB, GameDB>();
 //Transient: 각각의 요청, 서비스마다 새로운 객체를 제공하는 의존성 주입
 
+builder.Services.AddTransient<IMasterDataDB, MasterDataDB>();
+
 builder.Services.AddSingleton<IRedisDB, RedisDB>();
 //Singleton: 서버를 시작할 때 부터 종료하는 순간까지의 객체를 가지는 의존성 주입
 

@@ -16,15 +16,13 @@ public class MailLoadRequest
         Authtoken = authtoken;
     }
 }
-[Serializable]
+
 
 public class MailLoadResponse
 {
-    List<Mail> Mails = new List<Mail>();
-    public List<Mail> GetMailList()
-    {
-        return Mails;
-    }
+
+    public List<Mail> Mails { get; set; }
+  
 
    public  ErrorCode Error { get; set; }
 

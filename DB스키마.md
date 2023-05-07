@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS account_db.`account`
     Email VARCHAR(50) NOT NULL UNIQUE COMMENT '이메일',
     HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성 날짜'
-) COMMENT '계정 정보 테이블';
+) ;
 ```   
    
 <br>  
@@ -37,6 +37,18 @@ CREATE TABLE IF NOT EXISTS account_db.`account`
 );
 ```
 
+  ## item 테이블
+유저 아이템 테이블
+```sql
+  CREATE TABLE IF NOT EXISTS gamedata_db.`itemdata`
+(
+
+    Email VARCHAR(50) NOT NULL COMMENT '이메일',
+    ItemCode int NOT NULL COMMENT  '아이템코드',
+    EnhanceCount int NOT NULL COMMENT '강화 횟수',
+    ItemCount int NOT NULL COMMENT '아이템 갯수'
+);
+```
 
 ## mail 테이블
 유저 메일 테이블
@@ -62,7 +74,7 @@ CREATE TABLE IF NOT EXISTS gamedata_db.`mail`
     Id bigint not null comment '메일번호',
     Email VARCHAR(50) NOT NULL COMMENT '이메일',
     Code int NOT NULL COMMENT '아이템 코드',
-    Count int NOT NULL COMMENT '아이템 갯수',
+    Count int NOT NULL COMMENT '아이템 갯수'
 );
 ```
 
@@ -82,14 +94,14 @@ DROP TABLE IF EXISTS gamedata_db.`inapppurchasereceipt`;
 );
 ```
    ## inapppurchaseitem 테이블
-인앱결제 아이템 테이블(누가 어떤 상품을 샀는데 그 상품이 뭔지)
+인앱결제 아이템 테이블(누가 어떤 상품을 샀는데 그 상품이 뭔지!!!!!!!!!!!!)
 ```sql
 DROP TABLE IF EXISTS gamedata_db.`inapppurchaseitem`;
 
   CREATE TABLE IF NOT EXISTS gamedata_db.`inapppurchaseitem`
 (
     Id VARCHAR(50) NOT NULL  comment '영수증id',
-    Code int NOT NULL COMMENT '아이템 코드'
+    Code int NOT NULL COMMENT '아이템 코드');
 ```
 
 

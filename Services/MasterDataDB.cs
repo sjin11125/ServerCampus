@@ -29,7 +29,7 @@ public class MasterDataDB : IMasterDataDB
 
    public async Task<(ErrorCode,ItemData)> GetItemData(int code)   //아이템 데이터 불러오기
     {
-        var data=await queryFactory.Query("itemdata").Where("Code",code).FirstOrDefaultAsync<ItemData>();
+        var data=await queryFactory.Query("item").Where("Code",code).FirstOrDefaultAsync<ItemData>();
 
         if (data is null)
             return (ErrorCode.InvalidItemData, null);
@@ -39,7 +39,7 @@ public class MasterDataDB : IMasterDataDB
     }
     public async Task<(ErrorCode, AttendanceReward)> GetAttendanceRewardData(int code)      //출석 보상 불러와
     {
-        var reward= await queryFactory.Query("attendancedata").Where("Code", code).FirstOrDefaultAsync<AttendanceReward>();
+        var reward= await queryFactory.Query("attendance").Where("Code", code).FirstOrDefaultAsync<AttendanceReward>();
         if (reward is null)
             return (ErrorCode.InvalidItemData, null);
 
@@ -49,7 +49,7 @@ public class MasterDataDB : IMasterDataDB
 
     public async Task<(ErrorCode,List<InAppProduct> )> GetInAppProduct(int code)    //인앱상품 데이터 불러오기
     { 
-        var data=await queryFactory.Query("InAppProductdata").Where("Code",code).GetAsync<InAppProduct>();
+        var data=await queryFactory.Query("inAppProduct").Where("Code",code).GetAsync<InAppProduct>();
 
         if (data is null)
             return (ErrorCode.InvalidItemData, null);

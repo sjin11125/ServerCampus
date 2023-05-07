@@ -48,7 +48,7 @@ public class GetMailItemController : ControllerBase
 
             var result = await _gameDB.InsertItem(mailInfo.Email, new Model.UserItem {      //해당 계정에 아이템 넣기
             Eamil=mailInfo.Email,
-            ItemCode=mailInfo.Id,
+            ItemCode= itemData.Item2.Code,
             EnhanceCount=0,
             ItemCount =item.Count,
             IsCount=itemData.Item2.isCount

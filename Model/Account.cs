@@ -10,7 +10,7 @@ public class DBUserInfo             //AccountDB에 있는 유저 계정 정보
 public class AuthUser           //레디스에 저장되어있는 유저 계정 정보
 {
     public string Email { get; set; }
-    public string AuthTokent { get; set; }  
+    public string AuthToken { get; set; }  
     public Int64 AccountId { get; set; }    
     public string State { get; set; }
 }

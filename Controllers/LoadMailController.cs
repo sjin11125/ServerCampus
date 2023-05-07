@@ -34,8 +34,7 @@ public class LoadMailController : ControllerBase
             mailLoadResponse.Error = mailInfos.Item1;
             return mailLoadResponse;
         }
-        var mailList = mailLoadResponse.GetMailList ();
-        mailList = mailInfos.Item2;
+         mailLoadResponse.Mails = mailInfos.Item2;
 
         return mailLoadResponse;
     }

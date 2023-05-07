@@ -89,7 +89,7 @@ public class CheckUserAuth
     }
     public async Task<bool> IsInvalidUserAuthToken(HttpContext context, AuthUser userInfo,string authToken)
     {
-        if(string.CompareOrdinal(userInfo.AuthTokent,authToken)==0)     //두값이 같다면
+        if(string.CompareOrdinal(userInfo.AuthToken,authToken)==0)     //두값이 같다면
             return false;
 
         var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse
@@ -123,7 +123,7 @@ public class CheckUserAuth
         try
         {
             email = document.RootElement.GetProperty("Email").GetString();
-            authToken = document.RootElement.GetProperty("Authtoken").GetString();
+            authToken = document.RootElement.GetProperty("AuthToken").GetString();
 
             return (false,email,authToken);
         }
