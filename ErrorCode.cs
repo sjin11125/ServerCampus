@@ -28,6 +28,7 @@
         //ItemData 관련 에러코드
         InsertItemDataFail = 5001,
         UpdateItemDataFail=5002,
+        DeleteItemDataFail=5003,
 
         //Token 관련 에러코드
         SetUserTokenFail=6001,

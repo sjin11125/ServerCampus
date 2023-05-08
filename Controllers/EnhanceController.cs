@@ -86,14 +86,28 @@ public class EnhanceController : ControllerBase
             Defence=newDefence,
             Magic=item.Item2.Magic
             
-            });; 
+            });
+            if (itemUpdate != ErrorCode.None)
+            {
+                enhanceResult.Error = itemUpdate;
+                return enhanceResult;
+            }
         }
         else {
-            //실패하면 아이템 지우기
-
+            var deleteReuslt = await _gameDB.DeleteItem(enhanceInfo.Email, enhanceInfo.Id);   //실패하면 아이템 지우기
+            if (deleteReuslt!=ErrorCode.None)
+            {
+                enhanceResult.Error = deleteReuslt;
+                return enhanceResult;
+            }
         }
 
-        //강화 단계 이력 정보 추가
+        var EnhanceInfoReuslt = await _gameDB.InsertitemInfo(enhanceInfo.Email, enhanceInfo.Id);    //강화 단계 이력 정보 추가
+        if (deleteReuslt != ErrorCode.None)
+        {
+            enhanceResult.Error = deleteReuslt;
+            return enhanceResult;
+        } 
         return enhanceResult;
     }
 }

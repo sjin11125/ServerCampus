@@ -110,6 +110,15 @@ public class GameDB : IGameDB
         return ErrorCode.None;
 
     }
+    public async Task<ErrorCode> DeleteItem(string email, int id)        //게임 아이템 지우기
+    {
+        var result = await queryFactory.Query("itemdata").Where("Id", id).DeleteAsync(); //(성공 1, 실패 0)
+        if (result != 1)
+            return ErrorCode.DeleteItemDataFail;
+
+        return ErrorCode.None;
+
+    }
     public  async Task<(ErrorCode,UserInfo)> GetGameData(string email)       //유저 게임 데이터 불러오기
     {
         UserInfo userInfo = await queryFactory.Query("gamedata").Where("Email", email).FirstOrDefaultAsync<UserInfo>();
@@ -286,6 +295,22 @@ public class GameDB : IGameDB
             return ErrorCode.None;
         else                // 중복됨
             return ErrorCode.InAppPurchaseFailDup;
+    }  public async Task<ErrorCode> InsertitemInfo(string email,UserItem itemInfo)           //강화 단계 이력 정보 추가
+    {
+        var result = await queryFactory.Query("enhance").InsertAsync(new  //강화 단계 이력 테이블에 강화 정보 넣기(성공 1, 실패 0)
+        {
+            Email = email,
+            Id = itemInfo.Id,
+            ItemCode = itemInfo.ItemCode,
+            EnhanceCount = itemInfo.EnhanceCount,
+            Attack = itemInfo.Attack,
+            Defence = itemInfo.Defence,
+            Magic = itemInfo.Magic
+        }) ;
+        if (result !=1)     //실패하면
+            return ErrorCode.InsertEnhanceInfoFail;
+        else                // 중복됨
+            return ErrorCode.None;
     }
 }
 
