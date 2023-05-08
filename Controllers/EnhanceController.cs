@@ -59,55 +59,95 @@ public class EnhanceController : ControllerBase
             enhanceResult.Error = ErrorCode.MaxEnhanceCount;
             return enhanceResult;
         }
+
         Random rand=new Random();
-        int isSuccess = rand.Next(1,101);//강화 성공 실패 결정(확률 30퍼)
-        if (isSuccess <= 30)//강화 성공
+
+        int EnhanceValue = rand.Next(1,101);//강화 성공 실패 결정(확률 30퍼)
+        bool isSuccess = false;
+        int before, after;
+        if (EnhanceValue <= 30)//강화 성공
         {
-            int newAttack,newDefence;
+            isSuccess=true; 
+
+            int newAttack, newDefence;
 
             //성공하면 아이템의 강화 횟수 +1, 무기인 경우 공격력, 방어구일 경우 방어력 수치 10퍼 상승
             if (itemAttributedata.Item2 == "무기")
             {
                 newAttack = (item.Item2.Attack + (int)(item.Item2.Attack * 0.1));
                 newDefence = item.Item2.Defence;
+
+                before = item.Item2.Attack;
+                after = newAttack;
             }
             else
             {
                 newAttack = item.Item2.Attack;
-                newDefence = (item.Item2.Attack + (int)(item.Item2.Attack * 0.1));
+                newDefence = (item.Item2.Defence + (int)(item.Item2.Defence * 0.1));
+
+                before = item.Item2.Defence;
+                after = newDefence;
             }
-            var itemUpdate = await _gameDB.UpdateItem(enhanceInfo.Email,new UserItem {      // 아이템 업데이트
-            Eamil=enhanceInfo.Email,
-            ItemCode=item.Item2.ItemCode,
-            Id= enhanceInfo.Id,
-            EnhanceCount= item.Item2.EnhanceCount+1,
-            ItemCount=item.Item2.ItemCount,
-            Attack= newAttack,
-            Defence=newDefence,
-            Magic=item.Item2.Magic
-            
+            var itemUpdate = await _gameDB.UpdateItem(enhanceInfo.Email, new UserItem
+            {      // 아이템 업데이트
+                Eamil = enhanceInfo.Email,
+                ItemCode = item.Item2.ItemCode,
+                Id = enhanceInfo.Id,
+                EnhanceCount = item.Item2.EnhanceCount + 1,
+                ItemCount = item.Item2.ItemCount,
+                Attack = newAttack,
+                Defence = newDefence,
+                Magic = item.Item2.Magic
+
             });
             if (itemUpdate != ErrorCode.None)
             {
                 enhanceResult.Error = itemUpdate;
                 return enhanceResult;
             }
+
+         
         }
-        else {
+        else
+        {
             var deleteReuslt = await _gameDB.DeleteItem(enhanceInfo.Email, enhanceInfo.Id);   //실패하면 아이템 지우기
-            if (deleteReuslt!=ErrorCode.None)
+            if (deleteReuslt != ErrorCode.None)
             {
                 enhanceResult.Error = deleteReuslt;
                 return enhanceResult;
             }
+
+            if (itemAttributedata.Item2 == "무기")
+            {
+                before = item.Item2.Attack;
+                after = item.Item2.Attack;
+            }
+            else
+            {
+                before = item.Item2.Defence;
+                after = item.Item2.Defence;
+            }
+        }
+        var enhanceInfoReuslt = await _gameDB.InsertEnhanceInfo(enhanceInfo.Email, new EnhanceItemInfo
+        {   //강화 단계 이력 정보 추가
+
+            Email = enhanceInfo.Email,
+            Id = enhanceInfo.Id,
+            ItemCode = item.Item2.ItemCode,
+            EnhanceCount = item.Item2.EnhanceCount,
+            Attribute = itemAttributedata.Item2,
+            BeforeValue = before,
+            AfterValue = after,
+            isSuccess = isSuccess,
+            Date = DateTime.Now,
+
+        });
+        if (enhanceInfoReuslt != ErrorCode.None)
+        {
+            enhanceResult.Error = enhanceInfoReuslt;
+            return enhanceResult;
         }
 
-        var EnhanceInfoReuslt = await _gameDB.InsertitemInfo(enhanceInfo.Email, enhanceInfo.Id);    //강화 단계 이력 정보 추가
-        if (deleteReuslt != ErrorCode.None)
-        {
-            enhanceResult.Error = deleteReuslt;
-            return enhanceResult;
-        } 
         return enhanceResult;
     }
 }
