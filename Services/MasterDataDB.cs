@@ -35,7 +35,17 @@ public class MasterDataDB : IMasterDataDB
             return (ErrorCode.InvalidItemData, null);
 
         return (ErrorCode.None, data);
-        
+
+    }
+    public async Task<(ErrorCode, string)> GetItemAttributeData(int code)   //아이템 특성 불러오기
+    {
+        var data = await queryFactory.Query("itemAttribute").Where("Code", code).Select("Name").FirstOrDefaultAsync<string>();
+
+        if (string.IsNullOrEmpty(data))
+            return (ErrorCode.InvanlidItemAttributeData, null);
+
+        return (ErrorCode.None, data);
+
     }
     public async Task<(ErrorCode, AttendanceReward)> GetAttendanceRewardData(int code)      //출석 보상 불러와
     {

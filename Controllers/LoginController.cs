@@ -52,7 +52,7 @@ public class LoginController : ControllerBase
         Result.userInfo = userGameData.Item2;
 
         //유저의 아이템 데이터 로딩
-        var userItemData = await _gameDB.GetItems(userCode.Item2.Email);
+        var userItemData = await _gameDB.GetAllItems(userCode.Item2.Email);
         if (userItemData.Item1 != ErrorCode.None)
         {
             Result.Error = userCode.Item1;

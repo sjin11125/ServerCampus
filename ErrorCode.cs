@@ -27,6 +27,7 @@
 
         //ItemData 관련 에러코드
         InsertItemDataFail = 5001,
+        UpdateItemDataFail=5002,
 
         //Token 관련 에러코드
         SetUserTokenFail=6001,
@@ -46,11 +47,14 @@
 
         //마스터 데이터 관련 에러코드
         InvalidItemData=9001,
+        InvanlidItemAttributeData=9002,
 
         //인앱 결제 영수증 관련 에러코드
         InAppPurchaseFailDup=10001,
 
-
+        //강화 관련 에러코드
+        NotEnhanceType=11001,
+        MaxEnhanceCount=11002,
         //InvalidAppversion = 3002,
         // InvalidDataversion = 3003,
     }

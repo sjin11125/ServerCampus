@@ -89,8 +89,28 @@ public class GameDB : IGameDB
         }
         else return ErrorCode.None;
     }
+    public async Task<ErrorCode> UpdateItem(string email, UserItem userItem)        //게임 아이템 업데이트
+    { 
+        var   result = await queryFactory.Query("itemdata").Where("ItemCode", userItem.ItemCode).Where("Id",userItem.Id).UpdateAsync(new {
 
-   public  async Task<(ErrorCode,UserInfo)> GetGameData(string email)       //유저 게임 데이터 불러오기
+            Eamil = userItem.Eamil,
+            ItemCode = userItem.ItemCode,
+            Id = userItem.Id,
+            EnhanceCount = userItem.EnhanceCount + 1,
+            ItemCount = userItem.ItemCount,
+            Attack = userItem.Attack,
+            Defence = userItem.Defence,
+            Magic = userItem.Magic
+
+
+        }); //(성공 1, 실패 0)
+        if (result!=1)
+            return ErrorCode.UpdateItemDataFail;
+
+        return ErrorCode.None;
+
+    }
+    public  async Task<(ErrorCode,UserInfo)> GetGameData(string email)       //유저 게임 데이터 불러오기
     {
         UserInfo userInfo = await queryFactory.Query("gamedata").Where("Email", email).FirstOrDefaultAsync<UserInfo>();
         if (userInfo==null)             //유저의 게임정보가 없다면
@@ -100,7 +120,7 @@ public class GameDB : IGameDB
     }
 
 
-   public async Task<(ErrorCode,List<UserItem>)> GetItems(string email)         //유저 아이템 불러오기
+   public async Task<(ErrorCode,List<UserItem>)> GetAllItems(string email)         //유저 아이템 모두 불러오기
     {
         var items =await queryFactory.Query("itemdata").Where("Email", email).GetAsync<UserItem>();
 
@@ -109,7 +129,18 @@ public class GameDB : IGameDB
 
         return (ErrorCode.None, items.ToList());
     }
+    public async Task<(ErrorCode, UserItem)> GetItem(string email, int id) //유저 아이템  불러오기
+    {
+        var items = await queryFactory.Query("itemdata").Where("Email", email).Where("Id",id).FirstOrDefaultAsync<UserItem>();
 
+        if (items is null)       //해당 아이템이 없다면
+            return (ErrorCode.InvalidItemData, null);
+
+        return (ErrorCode.None, items);
+
+    }
+
+    
     public async Task<(ErrorCode,List<Mail>)> GetMails(string email,int page)           //유저 메일 불러오기
     {
 

@@ -46,7 +46,11 @@ CREATE TABLE IF NOT EXISTS account_db.`account`
     Email VARCHAR(50) NOT NULL COMMENT '이메일',
     ItemCode int NOT NULL COMMENT  '아이템코드',
     EnhanceCount int NOT NULL COMMENT '강화 횟수',
-    ItemCount int NOT NULL COMMENT '아이템 갯수'
+
+    ItemCount int NOT NULL COMMENT '아이템 갯수',
+    Attack int NOT NULL COMMENT  '공격력',
+    Defence int NOT NULL COMMENT  '방어력',
+    Magic int NOT NULL COMMENT  '마법력'
 );
 ```
 
