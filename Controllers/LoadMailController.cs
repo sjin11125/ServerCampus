@@ -27,14 +27,14 @@ public class LoadMailController : ControllerBase
     {
         MailLoadResponse mailLoadResponse = new MailLoadResponse();
 
-        var mailInfos =await _gameDB.GetMails(MailInfo.Email, MailInfo.Page);
+        (var errorMail, var mailInfos) =await _gameDB.GetMails(MailInfo.Email, MailInfo.Page);
 
-        if (mailInfos.Item1 != ErrorCode.None)         //메일이 없다면
+        if (errorMail != ErrorCode.None)         //메일이 없다면
         {
-            mailLoadResponse.Error = mailInfos.Item1;
+            mailLoadResponse.Error = errorMail;
             return mailLoadResponse;
         }
-         mailLoadResponse.Mails = mailInfos.Item2;
+         mailLoadResponse.Mails = mailInfos;
 
         return mailLoadResponse;
     }

@@ -36,13 +36,13 @@ public class InAppPurchaseController : ControllerBase
             return result;
         }
 
-        var data = await _masterDataDB.GetInAppProduct(receipt.Code); //마스터데이터에서 해당 상품 데이터 불러오기
-        if (data.Item1!=ErrorCode.None)
+       (var errorItemData, var data) =  _masterDataDB.GetInAppProduct(receipt.Code); //마스터데이터에서 해당 상품 데이터 불러오기
+        if (errorItemData!=ErrorCode.None)
         {
-            result.Error=data.Item1;
+            result.Error=errorItemData;
             return result;
         }
-        List<UserItem> items = data.Item2.ConvertAll<UserItem>(i => i as UserItem) ;    //형변환
+        List<UserItem> items = data.ConvertAll<UserItem>(i => i as UserItem) ;    //형변환
         var mailReust = await _gameDB.InsertMail(receipt.Email, items,MailType.InAppPurchase);  //메일 테이블에 메일 넣고 메일 아이템 테이블에 아이템 넣기
         if (mailReust != ErrorCode.None)
         { 

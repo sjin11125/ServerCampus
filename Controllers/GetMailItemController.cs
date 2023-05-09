@@ -39,19 +39,19 @@ public class GetMailItemController : ControllerBase
         //성공
         foreach (var item in items.Item2)
         {
-            var itemData = await _masterDataDB.GetItemData(item.Code); //마스터데이터에서 아이템 데이터 찾아서 
-            if (itemData.Item1!=ErrorCode.None)
+            (var errorItemData, var itemData) =  _masterDataDB.GetItemData(item.Code); //마스터데이터에서 아이템 데이터 찾아서 
+            if (errorItemData!=ErrorCode.None)
             {
-                getMailItemResponse.Error = itemData.Item1;
+                getMailItemResponse.Error = errorItemData;
                 return getMailItemResponse;
             }
 
             var result = await _gameDB.InsertItem(mailInfo.Email, new Model.UserItem {      //해당 계정에 아이템 넣기
             Eamil=mailInfo.Email,
-            ItemCode= itemData.Item2.Code,
+            ItemCode= itemData.Code,
             EnhanceCount=0,
             ItemCount =item.Count,
-            IsCount=itemData.Item2.isCount
+            IsCount=itemData.isCount
             });
 
             if(result!=ErrorCode.None)

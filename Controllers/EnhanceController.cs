@@ -31,30 +31,32 @@ public class EnhanceController : ControllerBase
     {
         EnhanceResponse enhanceResult=new EnhanceResponse   ();
 
-        var item = await _gameDB.GetItem(enhanceInfo.Email,enhanceInfo.Id); //아이템 데이터에서 해당 유저의 아이템 받아옴
-        if (item.Item1!=ErrorCode.None)
+        (var errorGetItem, var item) = await _gameDB.GetItem(enhanceInfo.Email,enhanceInfo.Id); //아이템 데이터에서 해당 유저의 아이템 받아옴
+        if (errorGetItem != ErrorCode.None)
         {
-            enhanceResult.Error = item.Item1;
+            enhanceResult.Error = errorGetItem;
             return enhanceResult;
         }
-        var itemdata = _masterDataDB.GetItemData(item.Item2.ItemCode);  //해당 아이템의 마스터 데이터 불러옴
-        if (itemdata.Item1 != ErrorCode.None)
+
+       (var errorItemdata, var itemdata) = _masterDataDB.GetItemData(item.ItemCode);  //해당 아이템의 마스터 데이터 불러옴
+        if (errorItemdata != ErrorCode.None)
         {
-            enhanceResult.Error = itemdata.Item1;
+            enhanceResult.Error = errorItemdata;
             return enhanceResult;
         }
-        var itemAttributedata =  _masterDataDB.GetItemAttributeData(item.Item2.ItemCode);  //해당 아이템 특성의 마스터 데이터 불러옴
-        if (itemAttributedata.Item1 != ErrorCode.None)
+
+       (var errorItemAttribute, var itemAttributedata) =  _masterDataDB.GetItemAttributeData(item.ItemCode);  //해당 아이템 특성의 마스터 데이터 불러옴
+        if (errorItemAttribute != ErrorCode.None)
         {
-            enhanceResult.Error = itemAttributedata.Item1;
+            enhanceResult.Error = errorItemAttribute;
             return enhanceResult;
         }
-        if (itemdata.Item2.EnhanceMaxCount==0)//무기, 방어구아니면 넘겨
+        if (itemdata.EnhanceMaxCount==0)//무기, 방어구아니면 넘겨
         {
             enhanceResult.Error = ErrorCode.NotEnhanceType;
             return enhanceResult;
         }
-        if (item.Item2.EnhanceCount>=10)//강화 횟수 10회 이상인지 검사
+        if (item.EnhanceCount>=10)//강화 횟수 10회 이상인지 검사
         {
             enhanceResult.Error = ErrorCode.MaxEnhanceCount;
             return enhanceResult;
@@ -72,32 +74,32 @@ public class EnhanceController : ControllerBase
             int newAttack, newDefence;
 
             //성공하면 아이템의 강화 횟수 +1, 무기인 경우 공격력, 방어구일 경우 방어력 수치 10퍼 상승
-            if (itemAttributedata.Item2 == "무기")
+            if (itemAttributedata.Name == "무기")
             {
-                newAttack = (item.Item2.Attack + (int)(item.Item2.Attack * 0.1));
-                newDefence = item.Item2.Defence;
+                newAttack = (item.Attack + (int)(item.Attack * 0.1));
+                newDefence = item.Defence;
 
-                before = item.Item2.Attack;
+                before = item.Attack;
                 after = newAttack;
             }
             else
             {
-                newAttack = item.Item2.Attack;
-                newDefence = (item.Item2.Defence + (int)(item.Item2.Defence * 0.1));
+                newAttack = item.Attack;
+                newDefence = (item.Defence + (int)(item.Defence * 0.1));
 
-                before = item.Item2.Defence;
+                before = item.Defence;
                 after = newDefence;
             }
             var itemUpdate = await _gameDB.UpdateItem(enhanceInfo.Email, new UserItem
             {      // 아이템 업데이트
                 Eamil = enhanceInfo.Email,
-                ItemCode = item.Item2.ItemCode,
+                ItemCode = item.ItemCode,
                 Id = enhanceInfo.Id,
-                EnhanceCount = item.Item2.EnhanceCount + 1,
-                ItemCount = item.Item2.ItemCount,
+                EnhanceCount = item.EnhanceCount + 1,
+                ItemCount = item.ItemCount,
                 Attack = newAttack,
                 Defence = newDefence,
-                Magic = item.Item2.Magic
+                Magic = item.Magic
 
             });
             if (itemUpdate != ErrorCode.None)
@@ -117,15 +119,15 @@ public class EnhanceController : ControllerBase
                 return enhanceResult;
             }
 
-            if (itemAttributedata.Item2 == "무기")
+            if (itemAttributedata.Name == "무기")
             {
-                before = item.Item2.Attack;
-                after = item.Item2.Attack;
+                before = item.Attack;
+                after = item.Attack;
             }
             else
             {
-                before = item.Item2.Defence;
-                after = item.Item2.Defence;
+                before = item.Defence;
+                after = item.Defence;
             }
         }
         var enhanceInfoReuslt = await _gameDB.InsertEnhanceInfo(enhanceInfo.Email, new EnhanceItemInfo
@@ -133,9 +135,9 @@ public class EnhanceController : ControllerBase
 
             Email = enhanceInfo.Email,
             Id = enhanceInfo.Id,
-            ItemCode = item.Item2.ItemCode,
-            EnhanceCount = item.Item2.EnhanceCount,
-            Attribute = itemAttributedata.Item2,
+            ItemCode = item.ItemCode,
+            EnhanceCount = item.EnhanceCount,
+            Attribute = itemAttributedata.Name,
             BeforeValue = before,
             AfterValue = after,
             isSuccess = isSuccess,

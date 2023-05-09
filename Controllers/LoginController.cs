@@ -31,34 +31,34 @@ public class LoginController : ControllerBase
         LoginAccountResponse Result = new LoginAccountResponse();
 
 
-        var userCode = await _accountDB.CheckUser(UserInfo.Email,UserInfo.Password);
+        (var errorUser,var userCode) = await _accountDB.CheckUser(UserInfo.Email,UserInfo.Password);
         //아이디가 account 테이블에 있는지 확인(중복 확인)
 
-        if (userCode.Item1!=ErrorCode.None)     //성공하지 못했다면
+        if (errorUser != ErrorCode.None)     //성공하지 못했다면
         {
-            Result.Error = userCode.Item1;
+            Result.Error = errorUser;
             return Result;
         }
 
         //성공했다면
 
             //유저의 게임 데이터 로딩
-         var userGameData=  await _gameDB.GetGameData(userCode.Item2.Email);
-        if (userGameData.Item1 != ErrorCode.None)
+       ( var errorUserGameData, var userGameData)=  await _gameDB.GetGameData(userCode.Email);
+        if (errorUserGameData != ErrorCode.None)
         {
-            Result.Error = userCode.Item1;
+            Result.Error = errorUser;
             return Result;
         }
-        Result.userInfo = userGameData.Item2;
+        Result.userInfo = userGameData;
 
         //유저의 아이템 데이터 로딩
-        var userItemData = await _gameDB.GetAllItems(userCode.Item2.Email);
-        if (userItemData.Item1 != ErrorCode.None)
+      (var errorUserItemData  ,var userItemData) = await _gameDB.GetAllItems(userCode.Email);
+        if (errorUserItemData != ErrorCode.None)
         {
-            Result.Error = userCode.Item1;
+            Result.Error = errorUser;
             return Result;
         }
-        Result.itemList = userItemData.Item2;
+        Result.itemList = userItemData;
 
         //공지 불러오기
         var notice = await _redisDB.LoadNotice();
@@ -73,7 +73,7 @@ public class LoginController : ControllerBase
         var idDefaultExpiry = TimeSpan.FromDays(1);         //유효기간
 
         //레디스에 토큰 넣기
-        var token = await _redisDB.SetUserToken(userCode.Item2.Email, tokenValue, userCode.Item2.AccountId);
+        var token = await _redisDB.SetUserToken(userCode.Email, tokenValue, userCode.AccountId);
         if (token!=ErrorCode.None)      //실패했다면
         {
             Result.Error =token;
