@@ -36,13 +36,13 @@ public class AttendanceController : ControllerBase
             return AttendancedResponse;
         }
 
-        var reward = await _masterDataDB.GetAttendanceRewardData(content.Item2); //마스터 데이터에서 출석 보상 받아옴
-        if (reward.Item1 != ErrorCode.None)
+        (var error,var reward )= _masterDataDB.GetAttendanceRewardData(content.Item2); //마스터 데이터에서 출석 보상 받아옴
+        if (error != ErrorCode.None)
         {
-            AttendancedResponse.Error = reward.Item1;
+            AttendancedResponse.Error = error;
             return AttendancedResponse;
         }
-        var itemInfo = await _masterDataDB.GetItemData(content.Item2);          //마스터 데이터에서 해당 보상 아이템의 정보를 받아옴
+        var itemInfo = _masterDataDB.GetItemData(content.Item2);          //마스터 데이터에서 해당 보상 아이템의 정보를 받아옴
         if (itemInfo.Item1 != ErrorCode.None)
         {
             AttendancedResponse.Error = itemInfo.Item1;
@@ -50,8 +50,8 @@ public class AttendanceController : ControllerBase
         }
         List<UserItem> UserItems = new List<UserItem>() { new UserItem {             //받아온 출석보상을 사용자 메일 테이블에 추가
             Eamil=Attendance.Email,
-            ItemCount=reward.Item2.Count,
-            ItemCode=reward.Item2.ItemCode,
+            ItemCount=reward.Count,
+            ItemCode=reward.ItemCode,
             EnhanceCount= 0,
             IsCount=itemInfo.Item2.isCount
 

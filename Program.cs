@@ -60,7 +60,7 @@ var masterData = app.Services.GetRequiredService<IMasterDataDB>();
 var result = await masterData.Init();        //마스터데이터 불러오기
 if (result != ErrorCode.None)     //정상적으로 안됐다
     return;
-
+    
 
 
 app.Run(configuration["ServerAddress"]);

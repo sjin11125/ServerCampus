@@ -37,19 +37,19 @@ public class EnhanceController : ControllerBase
             enhanceResult.Error = item.Item1;
             return enhanceResult;
         }
-        var itemdata = await _masterDataDB.GetItemData(item.Item2.ItemCode);  //해당 아이템의 마스터 데이터 불러옴
+        var itemdata = _masterDataDB.GetItemData(item.Item2.ItemCode);  //해당 아이템의 마스터 데이터 불러옴
         if (itemdata.Item1 != ErrorCode.None)
         {
             enhanceResult.Error = itemdata.Item1;
             return enhanceResult;
         }
-        var itemAttributedata = await _masterDataDB.GetItemAttributeData(item.Item2.ItemCode);  //해당 아이템 특성의 마스터 데이터 불러옴
+        var itemAttributedata =  _masterDataDB.GetItemAttributeData(item.Item2.ItemCode);  //해당 아이템 특성의 마스터 데이터 불러옴
         if (itemAttributedata.Item1 != ErrorCode.None)
         {
             enhanceResult.Error = itemAttributedata.Item1;
             return enhanceResult;
         }
-        if (!(itemAttributedata.Item2=="무기"|| itemAttributedata.Item2=="방어구"))//무기, 방어구아니면 넘겨
+        if (itemdata.Item2.EnhanceMaxCount==0)//무기, 방어구아니면 넘겨
         {
             enhanceResult.Error = ErrorCode.NotEnhanceType;
             return enhanceResult;
