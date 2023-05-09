@@ -52,10 +52,12 @@
 
         //인앱 결제 영수증 관련 에러코드
         InAppPurchaseFailDup=10001,
+        InAppPurchaseFail=10002,
 
         //강화 관련 에러코드
         NotEnhanceType=11001,
         MaxEnhanceCount=11002,
+        InsertEnhanceInfoFail=11002,
         //InvalidAppversion = 3002,
         // InvalidDataversion = 3003,
     }

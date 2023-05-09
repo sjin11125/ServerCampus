@@ -6,11 +6,13 @@ using SqlKata.Execution;
 using SqlKata;
 using System.Dynamic;
 using System.Collections.Generic;
+using Com2usServerCampus.ModelReqRes;
+using ZLogger;
 
 namespace Com2usServerCampus.Services;
 public class GameDB : IGameDB
 {
-    ILogger<GameDB> logger;
+    ILogger<GameDB> _logger;
     IOptions<DBConfig> configuration;
 
     IDbConnection _dbconn;
@@ -19,7 +21,7 @@ public class GameDB : IGameDB
 
     public GameDB(ILogger<GameDB> logger, IOptions<DBConfig> configuration)
     {
-        this.logger = logger;
+        this._logger = logger;
         this.configuration = configuration;
 
         _dbconn = new MySqlConnection(configuration.Value.GameDB);
@@ -288,14 +290,32 @@ public class GameDB : IGameDB
         } 
     }
 
-    public async Task<ErrorCode> CheckDuplicateReceipt(string id)           //영수증 중복 검사
+    public async Task<ErrorCode> CheckDuplicateReceipt(InAppPurchaseRequest info)           //영수증 중복 검사 후 영수증 정보 넣기(성공: 1, 실패: 0)
     {
-        var result = await queryFactory.Query("inapppurchasereceipt").Where("Id", id).Limit(1).FirstOrDefault();
-        if (result is null)     //중복 되지 않음
-            return ErrorCode.None;
-        else                // 중복됨
-            return ErrorCode.InAppPurchaseFailDup;
-    }  
+        try
+        {
+
+            var result = await queryFactory.Query("inapppurchasereceipt").InsertAsync(new
+            {
+                Id = info.Id,
+                Email = info.Email,
+                Title = info.Title,
+                Content = info.Content,
+                Time = info.Time,
+                ExpiryTime = info.ExpiryTime
+            });
+            if (result != 1)     //중복 됨
+                return ErrorCode.InAppPurchaseFail;
+            else                // 중복되지않음
+                return ErrorCode.None;
+        }
+        catch (Exception e)
+        {
+            _logger.ZLogError(e,$"GameDB.CheckDuplicateReceipt Exception ErrorCode:{ErrorCode.InAppPurchaseFailDup} email: {info.Email}");
+            Console.WriteLine(e);
+            throw;
+        }
+    } 
     
     public async Task<ErrorCode> InsertEnhanceInfo(string email,EnhanceItemInfo enhanceInfo)           //강화 단계 이력 정보 추가
     {

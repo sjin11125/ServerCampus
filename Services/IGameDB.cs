@@ -1,4 +1,5 @@
 ﻿using Com2usServerCampus.Model;
+using Com2usServerCampus.ModelReqRes;
 
 namespace Com2usServerCampus.Services
 {
@@ -18,7 +19,7 @@ namespace Com2usServerCampus.Services
         public Task<ErrorCode> UpdateMailItem(string email, int id);
         public Task<(ErrorCode, int)> AttendanceCheck(string email);
         public Task<ErrorCode> InsertMail(string email, List<UserItem> items, MailType type);
-        public Task<ErrorCode> CheckDuplicateReceipt(string id);
+        public  Task<ErrorCode> CheckDuplicateReceipt(InAppPurchaseRequest info);
         public Task<ErrorCode> InsertEnhanceInfo(string email, EnhanceItemInfo enhanceInfo);
 
 

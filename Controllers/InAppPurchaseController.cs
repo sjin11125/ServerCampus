@@ -12,13 +12,13 @@ using Com2usServerCampus;
 namespace APIServer.Controllers;
 [ApiController]
 [Route("[controller]")]
-public class InAppPurchaseConrtoller : ControllerBase
+public class InAppPurchaseController : ControllerBase
 {
-    ILogger<InAppPurchaseConrtoller> _logger;
+    ILogger<InAppPurchaseController> _logger;
     IGameDB _gameDB;
     IMasterDataDB _masterDataDB;
 
-    public InAppPurchaseConrtoller(ILogger<InAppPurchaseConrtoller> logger, IGameDB gameDB, IMasterDataDB masterDataDB)
+    public InAppPurchaseController(ILogger<InAppPurchaseController> logger, IGameDB gameDB, IMasterDataDB masterDataDB)
     {
         _logger = logger;
         _gameDB = gameDB;
@@ -29,7 +29,7 @@ public class InAppPurchaseConrtoller : ControllerBase
     public async Task<InAppPurchaseResponse> Post(InAppPurchaseRequest receipt)
     {
         InAppPurchaseResponse result=new InAppPurchaseResponse();
-        var check = await _gameDB.CheckDuplicateReceipt(receipt.Id); //영수증 중복 검사
+        var check = await _gameDB.CheckDuplicateReceipt(receipt); //영수증 중복 검사
         if (check!=ErrorCode.None)          //중복됨
         { 
             result.Error = check;
