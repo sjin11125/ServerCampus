@@ -6,6 +6,7 @@ using SqlKata.Execution;
 using SqlKata;
 using System.Dynamic;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Linq;
 
 namespace Com2usServerCampus.Services;
 public class MasterDataDB : IMasterDataDB
@@ -17,6 +18,12 @@ public class MasterDataDB : IMasterDataDB
     SqlKata.Compilers.MySqlCompiler compiler;
     SqlKata.Execution.QueryFactory queryFactory;
 
+    public List<ItemData> ItemDataList { get; set; }
+    public List<ItemAttribute> ItemAttributeDataList { get; set; }  
+    public List<AttendanceReward> AttendanceRewardDataList { get; set; }
+
+    public List<InAppProduct> InAppProductDataList { get; set; }    
+
     public MasterDataDB(ILogger<MasterDataDB> logger, IOptions<DBConfig> configuration)
     {
         this.logger = logger;
@@ -27,45 +34,88 @@ public class MasterDataDB : IMasterDataDB
         queryFactory = new SqlKata.Execution.QueryFactory(_dbconn, compiler);
     }
 
-   public async Task<(ErrorCode,ItemData)> GetItemData(int code)   //아이템 데이터 불러오기
+    public async Task<ErrorCode> Init()
     {
-        var data=await queryFactory.Query("item").Where("Code",code).FirstOrDefaultAsync<ItemData>();
+       var  itemDatas = await queryFactory.Query("item").GetAsync<ItemData>();
+        if (itemDatas.Count() == 0)
+            return ErrorCode.InvalidItemData;
 
-        if (data is null)
-            return (ErrorCode.InvalidItemData, null);
 
-        return (ErrorCode.None, data);
+            ItemDataList = itemDatas.ToList();
+        
+
+        var itemAttributes = await queryFactory.Query("itemAttribute").GetAsync<ItemAttribute>();
+        if (itemAttributes.Count() == 0)
+            return ErrorCode.InvalidItemData;
+
+        ItemAttributeDataList = itemAttributes.ToList();
+
+
+
+        var attendances = await queryFactory.Query("attendance").GetAsync<AttendanceReward>();
+        if (attendances.Count() == 0)
+            return ErrorCode.InvalidItemData;
+
+        AttendanceRewardDataList =attendances.ToList();
+
+
+
+        var inAppProducts=await queryFactory.Query("inAppProduct").GetAsync<InAppProduct>();
+        if (inAppProducts.Count() == 0)
+            return ErrorCode.InvalidItemData;
+
+        InAppProductDataList = inAppProducts.ToList();
+
+        return ErrorCode.None;
+
 
     }
-    public async Task<(ErrorCode, string)> GetItemAttributeData(int code)   //아이템 특성 불러오기
+   public (ErrorCode,ItemData) GetItemData(int code)   //아이템 데이터 불러오기
     {
-        var data = await queryFactory.Query("itemAttribute").Where("Code", code).Select("Name").FirstOrDefaultAsync<string>();
-
-        if (string.IsNullOrEmpty(data))
-            return (ErrorCode.InvanlidItemAttributeData, null);
-
-        return (ErrorCode.None, data);
-
-    }
-    public async Task<(ErrorCode, AttendanceReward)> GetAttendanceRewardData(int code)      //출석 보상 불러와
-    {
-        var reward= await queryFactory.Query("attendance").Where("Code", code).FirstOrDefaultAsync<AttendanceReward>();
-        if (reward is null)
+        var data =ItemDataList.Find(x => x.Code==code);
+        if (data is not null)
+        {
+            return (ErrorCode.None, data);
+        }
+        else
             return (ErrorCode.InvalidItemData, null);
 
-        return (ErrorCode.None, reward);
+       
 
     }
-
-    public async Task<(ErrorCode,List<InAppProduct> )> GetInAppProduct(int code)    //인앱상품 데이터 불러오기
-    { 
-        var data=await queryFactory.Query("inAppProduct").Where("Code",code).GetAsync<InAppProduct>();
-
-        if (data is null)
+    public  (ErrorCode, ItemAttribute) GetItemAttributeData(int code)   //아이템 특성 불러오기
+    {
+        var data = ItemAttributeDataList.Find(x => x.Code == code);
+        if (data is not null)
+        {
+            return (ErrorCode.None, data);
+        }
+        else
             return (ErrorCode.InvalidItemData, null);
 
 
-        return (ErrorCode.None, data.ToList());
+    }
+    public  (ErrorCode, AttendanceReward) GetAttendanceRewardData(int code)      //출석 보상 불러와
+    {
+        var data = AttendanceRewardDataList.Find(x => x.Code == code);
+        if (data is not null)
+        {
+            return (ErrorCode.None, data);
+        }
+        else
+            return (ErrorCode.InvalidItemData, null);
+
+    }
+
+    public  (ErrorCode,List<InAppProduct> ) GetInAppProduct(int code)    //인앱상품 데이터 불러오기
+    {
+        var data = InAppProductDataList.FindAll(x=>x.Code==code);
+        if (data is not null)
+        {
+            return (ErrorCode.None, data);
+        }
+        else
+            return (ErrorCode.InvalidItemData, null);
     }
 }
 

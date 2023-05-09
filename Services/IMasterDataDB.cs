@@ -4,11 +4,20 @@ namespace Com2usServerCampus.Services
 {
     public interface IMasterDataDB
     {
-        public Task<(ErrorCode, ItemData)> GetItemData(int code);  
-        public  Task<(ErrorCode, AttendanceReward)> GetAttendanceRewardData(int code);
+        public Task<ErrorCode> Init();
 
-        public Task<(ErrorCode, List<InAppProduct>)> GetInAppProduct(int code);
-        public Task<(ErrorCode, string)> GetItemAttributeData(int code);
+
+        public List<ItemData> ItemDataList { get; set; }
+        public List<ItemAttribute> ItemAttributeDataList { get; set; }
+        public List<AttendanceReward> AttendanceRewardDataList { get; set; }
+
+        public List<InAppProduct> InAppProductDataList { get; set; }
+        public (ErrorCode, ItemData) GetItemData(int code);
+
+        public (ErrorCode, AttendanceReward) GetAttendanceRewardData(int code);
+
+        public (ErrorCode, List<InAppProduct>) GetInAppProduct(int code);
+        public (ErrorCode, ItemAttribute) GetItemAttributeData(int code);
 
     }
 

@@ -1,2 +1,114 @@
+# bin and obj folders
 bin/
 obj/
+
+# user-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# MSTest test Results
+TestResults/
+
+# Visual Studio code coverage results
+*.coverage
+*.coveragexml
+
+# build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.log
+*.vspscc
+*.vssscc
+.builds
+
+# Azuer build stuff
+csx/
+*.build.csdef
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Documentation
+[Dd]oc/
+docfx_project/
+**/bin/**/*xml
+
+# NuGet
+*.nuget.props
+*.nuget.targets
+*.psmdcp
+
+# msbuild generated files
+**/Properties/AssemblyInfo.cs
+**/Properties/launchSettings.json
+
+#Npm Generated files
+node_modules/
+
+# Backup & report files from converting an old project file
+# to a newer Visual Studio version. Backup files are not needed,
+# because we have git ;-)
+_UpgradeReport_Files/
+Backup*/
+UpgradeLog*.XML
+UpgradeLog*.htm
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Business Intelligence projects
+*.rdl.data
+*.bim.layout
+*.bim_*.settings
+
+# Microsoft Fakes
+FakesAssemblies/
+
+# Log Files
+*.log
+
+# Bazel
+bazel-*/
+
+# Files and directories created by Visual Studio SccProvider
+# https://github.com/git/git/blob/master/Documentation/gitignore.txt#L642
+# Although SccProvider is no longer used in VS2017 and above, it may still present
+# in older versions.
+[Ss]cc/
+
+# Chutzpah Test files
+_Chutzpah*
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# Visual Studio Trace Files
+*.e2e
+
+# Tizen
+**/tizen/buildinfo.json
+**/tizen/tizen-manifest.xml

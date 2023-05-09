@@ -1,4 +1,4 @@
-using CloudStructures;
+ï»¿using CloudStructures;
 using Com2usServerCampus;
 using MySqlConnector;
 using static Microsoft.Extensions.Logging.ILogger;
@@ -22,20 +22,20 @@ builder.Services.AddLogging();
 builder.Services.Configure<DBConfig>(builder.Configuration.GetSection("DBConnection"));
 
 builder.Services.AddTransient<IAccountDB,AccountDB>();
-//DI ÄÁÅ×ÀÌ³Ê¿¡ IAccountDb ÀÎÅÍÆäÀÌ½º¿Í AccountDb Å¬·¡½º¸¦ µî·ÏÇØ IAccountDb¸¦ ¿äÃ»ÇÒ ¶§¸¶´Ù AccountDb Å¬·¡½ºÀÇ ÀÎ½ºÅÏ½º¸¦ »ý¼ºÇØ ¹ÝÈ¯
+//DI ï¿½ï¿½ï¿½ï¿½ï¿½Ì³Ê¿ï¿½ IAccountDb ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ï¿½ï¿½ AccountDb Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ IAccountDbï¿½ï¿½ ï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ AccountDb Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 
 builder.Services.AddTransient<IGameDB, GameDB>();
-//Transient: °¢°¢ÀÇ ¿äÃ», ¼­ºñ½º¸¶´Ù »õ·Î¿î °´Ã¼¸¦ Á¦°øÇÏ´Â ÀÇÁ¸¼º ÁÖÀÔ
+//Transient: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã», ï¿½ï¿½ï¿½ñ½º¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-builder.Services.AddTransient<IMasterDataDB, MasterDataDB>();
+builder.Services.AddSingleton<IMasterDataDB, MasterDataDB>();
 
 builder.Services.AddSingleton<IRedisDB, RedisDB>();
-//Singleton: ¼­¹ö¸¦ ½ÃÀÛÇÒ ¶§ ºÎÅÍ Á¾·áÇÏ´Â ¼ø°£±îÁöÀÇ °´Ã¼¸¦ °¡Áö´Â ÀÇÁ¸¼º ÁÖÀÔ
+//Singleton: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 
 builder.Services.AddControllers();
 
-SetLogger();        //·Î±× ¼¼ÆÃ
+SetLogger();        //ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 var app = builder.Build();
 
@@ -45,16 +45,23 @@ LogManager.SetLoggerFactory(loggerFactory,"Global");
 
 
 
-app.UseMiddleware<CheckUserAuth>();     //ÀÎÁõ ¹Ìµé¿þ¾î Ãß°¡
-//¾Û¹öÀü Ã¼Å© ¹Ìµé¿þ¾î Ãß°¡
+app.UseMiddleware<CheckUserAuth>();     //ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
+//ï¿½Û¹ï¿½ï¿½ï¿½ Ã¼Å© ï¿½Ìµï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 
 app.UseRouting();
 app.UseEndpoints(endpoints =>endpoints.MapControllers());
 
 
-var redis = app.Services.GetRequiredService<IRedisDB>();            //RedisDB °´Ã¼ ºÒ·¯¿È
-redis.Init(builder.Configuration.GetSection("DBConnection")["RedisDB"]);        //·¹µð½º ¿¬°á ÃÊ±âÈ­
-//·¹µð½º´Â ½º·¹µå ¼¼ÀÌÇÁ ÇÔÀ¸·Î ÇÑ¹ø¸¸ ÃÊ±âÈ­ÇÑ´Ù
+var redis = app.Services.GetRequiredService<IRedisDB>();            //RedisDB ï¿½ï¿½Ã¼ ï¿½Ò·ï¿½ï¿½ï¿½
+redis.Init(builder.Configuration.GetSection("DBConnection")["RedisDB"]);        //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
+//ï¿½ï¿½ï¿½ð½º´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½
+
+var masterData = app.Services.GetRequiredService<IMasterDataDB>();
+var result = await masterData.Init();        //ë§ˆìŠ¤í„°ë°ì´í„° ë¶ˆëŸ¬ì˜¤ê¸°
+if (result != ErrorCode.None)     //ì •ìƒì ìœ¼ë¡œ ì•ˆëë‹¤
+    return;
+
+
 
 app.Run(configuration["ServerAddress"]);
 
@@ -64,40 +71,40 @@ app.Run(configuration["ServerAddress"]);
 void SetLogger()
 {
     var logging = builder.Logging;
-    //·Î±ë ¼³Á¤À» °¡Á®¿È
+    //ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
     logging.ClearProviders();
-    //ÀÌÀü¿¡ µî·ÏµÇ¾î ÀÖ´ø ·Î±ë ÇÁ·Î¹ÙÀÌ´õ¸¦ Á¦°Å
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ÏµÇ¾ï¿½ ï¿½Ö´ï¿½ ï¿½Î±ï¿½ ï¿½ï¿½ï¿½Î¹ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     var path = configuration["logdir"];
-    //appsettings.Development.jsonÀÇ logdir ¼½¼ÇÀÇ ½ºÆ®¸µÀ» °¡Á®¿Â´Ù(ÆÄÀÏÀ» ÀúÀåÇÒ °æ·Î)
+    //appsettings.Development.jsonï¿½ï¿½ logdir ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Â´ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
 
-    if (!Directory.Exists(path)) //°æ·Î°¡ Á¸ÀçÇÏÁö ¾Ê´Â´Ù
+    if (!Directory.Exists(path)) //ï¿½ï¿½Î°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´ï¿½
     {
-        Directory.CreateDirectory(path);        //°æ·Î¿¡ Æú´õ¸¦ ¸¸µë
+        Directory.CreateDirectory(path);        //ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
-    logging.AddZLoggerRollingFile( //ÆÄÀÏ¿¡ ·Î±×¸¦ ±â·ÏÇÏ´Â Rolling File ·Î±× ÇÁ·Î¹ÙÀÌ´õ¸¦ Ãß°¡ÇÔ
-        (time, x) => $"{path}{time.ToLocalTime():yyyy-MM-dd}_{x:000}.log",       //·Î±×ÆÄÀÏÀÇ ÀÌ¸§À» °áÁ¤ (dt: DateTime, x: ÀÎµ¦½º)
-        x => x.ToLocalTime().Date,  //·Î±× ÆÄÀÏÀ» ÀÏ ´ÜÀ§·Î ºÐ¸®->³¯Â¥º°·Î ·Î±×ÆÄÀÏÀ» »ý¼ºÇÔ
-        1024,  //ÆÄÀÏ ÇÏ³ªÀÇ ÃÖ´ë Å©±â
+    logging.AddZLoggerRollingFile( //ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½Î±×¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Rolling File ï¿½Î±ï¿½ ï¿½ï¿½ï¿½Î¹ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½
+        (time, x) => $"{path}{time.ToLocalTime():yyyy-MM-dd}_{x:000}.log",       //ï¿½Î±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (dt: DateTime, x: ï¿½Îµï¿½ï¿½ï¿½)
+        x => x.ToLocalTime().Date,  //ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½->ï¿½ï¿½Â¥ï¿½ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        1024,  //ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ Å©ï¿½ï¿½
         options =>
-        {     //·Î±ë Æ÷¸ËÀ» ÁöÁ¤ÇÒ ¼ö ÀÖÀ½
-            options.EnableStructuredLogging = true;   //·Î±ë Á¤º¸¸¦ ±¸Á¶È­µÈ JSON ÇüÅÂ·Î ÀúÀåÇÒ ¼ö ÀÖÀ½
-            var time = JsonEncodedText.Encode("Timestamp");  //½Ã°£ Çü½ÄÀ» Á¤ÇÔ(?)
+        {     //ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            options.EnableStructuredLogging = true;   //ï¿½Î±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½ JSON ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+            var time = JsonEncodedText.Encode("Timestamp");  //ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(?)
 
-            //DateTime.Now´Â UTC+0 ÀÌ°í ÇÑ±¹Àº UTC+9ÀÌ¹Ç·Î 9½Ã°£À» ´õÇÑ °ªÀ» Ãâ·ÂÇÑ´Ù.
+            //DateTime.Nowï¿½ï¿½ UTC+0 ï¿½Ì°ï¿½ ï¿½Ñ±ï¿½ï¿½ï¿½ UTC+9ï¿½Ì¹Ç·ï¿½ 9ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
             var timeValue = JsonEncodedText.Encode(DateTime.Now.AddHours(9).ToString("yyyy-MM-dd HH:mm:ss"));
 
             options.StructuredLoggingFormatter = (writer, info) =>
             {
                 writer.WriteString(time, timeValue);
-                info.WriteToJsonWriter(writer);     //JSONÀ¸·Î ¾²±â
+                info.WriteToJsonWriter(writer);     //JSONï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             };
         }
         );
 
-    logging.AddZLoggerConsole(options =>           //ÄÜ¼Ö¿¡ ·Î±×¸¦ Ãâ·ÂÇÏ´Â ÄÜ¼Ö ·Î±× ÇÁ·Î¹ÙÀÌ´õ Ãß°¡
+    logging.AddZLoggerConsole(options =>           //ï¿½Ü¼Ö¿ï¿½ ï¿½Î±×¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ü¼ï¿½ ï¿½Î±ï¿½ ï¿½ï¿½ï¿½Î¹ï¿½ï¿½Ì´ï¿½ ï¿½ß°ï¿½
     {
         options.EnableStructuredLogging = true;
         var time = JsonEncodedText.Encode("EventTime");
@@ -109,4 +116,9 @@ void SetLogger()
         };
 
     });
+}
+
+ async Task GetMasterData(WebApplication app)
+{
+    
 }
