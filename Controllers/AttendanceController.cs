@@ -27,14 +27,18 @@ public class AttendanceController : ControllerBase
     [HttpPost]
     public async Task<AttendanceResponse> AttendancePost(AttendanceRequest Attendance)
     {
+        var userInfo = (AuthUser)HttpContext.Items[nameof(AuthUser)]!;
+
         AttendanceResponse AttendancedResponse = new AttendanceResponse();
 
-        var content = await _gameDB.AttendanceCheck(Attendance.Email);          //출석일수 
+
+        var content = await _gameDB.Attendance(Attendance.Email);          //출석체크 하기
         if (content.Item1!=ErrorCode.None)
         {
             AttendancedResponse.Error = content.Item1;
             return AttendancedResponse;
         }
+
 
         (var error,var reward )= _masterDataDB.GetAttendanceRewardData(content.Item2); //마스터 데이터에서 출석 보상 받아옴
         if (error != ErrorCode.None)
@@ -42,12 +46,16 @@ public class AttendanceController : ControllerBase
             AttendancedResponse.Error = error;
             return AttendancedResponse;
         }
+
+
         var itemInfo = _masterDataDB.GetItemData(content.Item2);          //마스터 데이터에서 해당 보상 아이템의 정보를 받아옴
         if (itemInfo.Item1 != ErrorCode.None)
         {
             AttendancedResponse.Error = itemInfo.Item1;
             return AttendancedResponse;
         }
+
+
         List<UserItem> UserItems = new List<UserItem>() { new UserItem {             //받아온 출석보상을 사용자 메일 테이블에 추가
             Eamil=Attendance.Email,
             ItemCount=reward.Count,

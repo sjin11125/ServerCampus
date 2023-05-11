@@ -33,8 +33,8 @@ public class CheckUserAuth
 
         context.Request.EnableBuffering();      //요청 바디의 데이터를 여러 번 읽을 수 있게 함
 
-        string AuthToken="";       //유저가 보낸 토큰 
-        string email="";           //유저가 보낸 이메일
+        string AuthToken = "";       //유저가 보낸 토큰 
+        string email = "";           //유저가 보낸 이메일
         string userLockKey = "";
 
         using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, true, 4096, true))         //요청 바디의 데이터를 문자열로 가져옴
@@ -49,7 +49,7 @@ public class CheckUserAuth
 
             if (result.Item1)//사용자가 보낸 요청에서 email과 토큰 정보가 있는지 확인
                 return;
-            email= result.Item2;
+            email = result.Item2;
             AuthToken = result.Item3;
 
             var (isOK, userInfo) = await _redisDB.GetUserAsync(email);//레디스에서 사용자 정보 조회
@@ -62,15 +62,18 @@ public class CheckUserAuth
 
             userLockKey = "ULock_" + email;
             if (await SetLock(context, userLockKey))        //락이 걸려있는지 확인 걸려있으면
+            {
                 return;
-
-            context.Request.Body.Position = 0;
-
-            await _next(context);
-
-            // 트랜잭션 해제(Redis 동기화 해제) 락 해제
-            await _redisDB.DelUserReqLockAsync(userLockKey);
+            }
+            context.Items[nameof(AuthUser)]=userInfo;
         }
+        context.Request.Body.Position = 0;
+
+        await _next(context);
+
+        // 트랜잭션 해제(Redis 동기화 해제) 락 해제
+        await _redisDB.DelUserReqLockAsync(userLockKey);
+
 
     }
     async Task<bool> IsNullBodyData(HttpContext context, string bodystr)       //바디 문자열이 유효한지 검사

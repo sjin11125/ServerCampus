@@ -22,7 +22,8 @@
 
         //GameData 관련 에러코드
         InsertGameDataDup=4001,
-        WrongGameData=4002,
+        InsertGameDataFail=4002,
+        WrongGameData=4003,
 
 
         //ItemData 관련 에러코드

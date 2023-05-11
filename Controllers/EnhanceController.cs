@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using SqlKata.Execution;
 using StackExchange.Redis;
+using System.Net.Mail;
+using System.Security.Cryptography;
 using ZLogger;
 using static Com2usServerCampus.LogManager;
 
@@ -29,7 +31,9 @@ public class EnhanceController : ControllerBase
     [HttpPost]
     public async Task<EnhanceResponse> Post(EnhanceRequest enhanceInfo)
     {
-        EnhanceResponse enhanceResult=new EnhanceResponse   ();
+        var userInfo = (AuthUser)HttpContext.Items[nameof(AuthUser)]!;
+
+        EnhanceResponse enhanceResult=new EnhanceResponse();
 
         (var errorGetItem, var item) = await _gameDB.GetItem(enhanceInfo.Email,enhanceInfo.Id); //아이템 데이터에서 해당 유저의 아이템 받아옴
         if (errorGetItem != ErrorCode.None)
@@ -51,6 +55,7 @@ public class EnhanceController : ControllerBase
             enhanceResult.Error = errorItemAttribute;
             return enhanceResult;
         }
+
         if (itemdata.EnhanceMaxCount==0)//무기, 방어구아니면 넘겨
         {
             enhanceResult.Error = ErrorCode.NotEnhanceType;
@@ -62,34 +67,11 @@ public class EnhanceController : ControllerBase
             return enhanceResult;
         }
 
-        Random rand=new Random();
+        int attack = item.Attack;
+        int defence = item.Defence;
 
-        int EnhanceValue = rand.Next(1,101);//강화 성공 실패 결정(확률 30퍼)
-        bool isSuccess = false;
-        int before, after;
-        if (EnhanceValue <= 30)//강화 성공
-        {
-            isSuccess=true; 
+        if (Enhancement(itemAttributedata, ref attack, ref defence)) {
 
-            int newAttack, newDefence;
-
-            //성공하면 아이템의 강화 횟수 +1, 무기인 경우 공격력, 방어구일 경우 방어력 수치 10퍼 상승
-            if (itemAttributedata.Name == "무기")
-            {
-                newAttack = (item.Attack + (int)(item.Attack * 0.1));
-                newDefence = item.Defence;
-
-                before = item.Attack;
-                after = newAttack;
-            }
-            else
-            {
-                newAttack = item.Attack;
-                newDefence = (item.Defence + (int)(item.Defence * 0.1));
-
-                before = item.Defence;
-                after = newDefence;
-            }
             var itemUpdate = await _gameDB.UpdateItem(enhanceInfo.Email, new UserItem
             {      // 아이템 업데이트
                 Eamil = enhanceInfo.Email,
@@ -97,8 +79,8 @@ public class EnhanceController : ControllerBase
                 Id = enhanceInfo.Id,
                 EnhanceCount = item.EnhanceCount + 1,
                 ItemCount = item.ItemCount,
-                Attack = newAttack,
-                Defence = newDefence,
+                Attack = attack,
+                Defence = defence,
                 Magic = item.Magic
 
             });
@@ -108,7 +90,6 @@ public class EnhanceController : ControllerBase
                 return enhanceResult;
             }
 
-         
         }
         else
         {
@@ -118,39 +99,39 @@ public class EnhanceController : ControllerBase
                 enhanceResult.Error = deleteReuslt;
                 return enhanceResult;
             }
-
-            if (itemAttributedata.Name == "무기")
-            {
-                before = item.Attack;
-                after = item.Attack;
-            }
-            else
-            {
-                before = item.Defence;
-                after = item.Defence;
-            }
-        }
-        var enhanceInfoReuslt = await _gameDB.InsertEnhanceInfo(enhanceInfo.Email, new EnhanceItemInfo
-        {   //강화 단계 이력 정보 추가
-
-            Email = enhanceInfo.Email,
-            Id = enhanceInfo.Id,
-            ItemCode = item.ItemCode,
-            EnhanceCount = item.EnhanceCount,
-            Attribute = itemAttributedata.Name,
-            BeforeValue = before,
-            AfterValue = after,
-            isSuccess = isSuccess,
-            Date = DateTime.Now,
-
-        });
-        if (enhanceInfoReuslt != ErrorCode.None)
-        {
-            enhanceResult.Error = enhanceInfoReuslt;
-            return enhanceResult;
         }
 
         return enhanceResult;
     }
+
+    public bool Enhancement(ItemAttribute attribute,ref int attack,ref int defence)
+    {
+
+        Random rand = new Random(DateTime.Now.Millisecond);
+        int EnhanceValue = rand.Next(1, 101);//강화 성공 실패 결정(확률 30퍼)
+
+        if (EnhanceValue > 30)          //실패
+        {
+            return false;
+        }
+
+
+        //성공하면 아이템의 강화 횟수 +1, 무기인 경우 공격력, 방어구일 경우 방어력 수치 10퍼 상승
+        if (attribute.Name == "무기")
+        {
+            attack += (int)(attack * 0.1);
+
+        }
+        else
+        {
+            defence += (int)(defence * 0.1);
+
+        }
+        return true;
+
+
+    }
+
+    public void 
 }
 

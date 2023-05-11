@@ -61,7 +61,7 @@ public class GetMailItemController : ControllerBase
             }
         }
 
-        var updateResult = await _gameDB.UpdateMailItem(mailInfo.Email, mailInfo.Id);           //메일 테이블에 받았다고 업데이트
+        var updateResult = await _gameDB.ReceiveMailItem(mailInfo.Email, mailInfo.Id);           //메일 테이블에 받았다고 업데이트
         if (updateResult != ErrorCode.None)
         {
             getMailItemResponse.Error = updateResult;
