@@ -113,3 +113,5 @@ _Chutzpah*
 # Tizen
 **/tizen/buildinfo.json
 **/tizen/tizen-manifest.xml
+
+.vs/
