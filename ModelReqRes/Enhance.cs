@@ -10,3 +10,4 @@ public class EnhanceResponse
    public ErrorCode Error { get; set; }
 }
 
+ 
