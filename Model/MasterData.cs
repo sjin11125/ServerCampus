@@ -38,7 +38,7 @@ public class InAppProduct:UserItem       //인앱상품
 
 public class StageItem      //스테이지 아이템
 {
-    public int Code { get; set; }
+    public int Code { get; set; }           //스테이지 넘버
     public int ItemCode { get; set; }
 }
 public class StageNPC   //스테이지 공격 NPC

@@ -12,6 +12,8 @@ using System.Net.Mail;
 using System.Security.Cryptography;
 using ZLogger;
 namespace Com2usServerCampus.Controllers;
+[ApiController]
+[Route("[controller]")]
 public class StageSelectController
 {
     readonly ILogger _logger;
@@ -72,26 +74,26 @@ public class StageSelectController
     {
         StageInfo stageInfos = new StageInfo();
 
-    
+        stageInfos.StageId = stage;
 
-            (var stageItemError, var stageItem) = _masterDataDB.GetStageItem(stage);  //던전에 생성될 아이템을 리스트 보냄 (마스터데이터)
-            if (stageItemError != ErrorCode.None)                             
-            {
-                return (stageItemError, null);
+        (var stageItemError, var stageItem) = _masterDataDB.GetStageItem(stage);  //던전에 생성될 아이템을 리스트 보냄 (마스터데이터)
+        if (stageItemError != ErrorCode.None)
+        {
+            return (stageItemError, null);
 
-            }
+        }
 
-            stageInfos.StageItmes = stageItem;
+        stageInfos.StageItmes = stageItem;
 
 
-            (var stageNPCError, var stageNPC) = _masterDataDB.GetStageNPC(stage);   //적 NPC 리스트를 보냄 (마스터데이터)
-            if (stageItemError != ErrorCode.None)
-            {
-                return (stageItemError, null);
+        (var stageNPCError, var stageNPC) = _masterDataDB.GetStageNPC(stage);   //적 NPC 리스트를 보냄 (마스터데이터)
+        if (stageItemError != ErrorCode.None)
+        {
+            return (stageItemError, null);
 
-            }
+        }
 
-            stageInfos.StageNPCs = stageNPC;
+        stageInfos.StageNPCs = stageNPC;
 
 
 

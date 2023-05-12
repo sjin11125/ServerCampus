@@ -28,7 +28,6 @@ public class StageController : ControllerBase
     public async Task<StageResponse> StagePost(StageRequest stageInfo)
     {
         StageResponse stageResonse = new StageResponse();
-        //완료한 스테이지 리스트를 요청
 
         (var stageError, var stage) = await _gameDB.GetUserStageInfo(stageInfo.UserId);       //유저가 클리어한 스테이지 불러옴
         if (stageError != ErrorCode.None)

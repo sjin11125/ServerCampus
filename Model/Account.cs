@@ -19,4 +19,6 @@ public class RedisKeyExpireTime
 {
     public const ushort NxKeyExpireSecond = 3;
     public const ushort RedisKeyExpireSecond = 6000;        //1일
+    public const ushort StageItemExpireSecond = 3600;        //1시간
+    public const ushort StageNPCExpireSecond = 3600;        //1시간
 }

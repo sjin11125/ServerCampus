@@ -13,5 +13,7 @@ namespace Com2usServerCampus.Services;
 
     public Task<List<Notice>> LoadNotice();
     public  Task<ErrorCode> SetUserToken(string email, string token, int accountId);
+    public Task<ErrorCode> SetUserStageItem(string userId, int itemCode, int stageNum);
+
 }
 

@@ -87,7 +87,9 @@ public class RedisDB : IRedisDB
     public async Task<ErrorCode> SetUserToken(string email, string token, int accountId)            //레디스에 유저 토큰 넣기
     {
         var uid = "UID_" + email;
+
         var redisId = new RedisString<AuthUser>(RedisConnection, uid, LoginTimeSpan());       //유효 기간 1일
+
         var userInfo = new AuthUser { AccountId = accountId, Email = email, AuthToken = token, State = "Default" };
 
         if (await redisId.SetAsync(userInfo, LoginTimeSpan()) == false) //실패햇다면
@@ -97,6 +99,44 @@ public class RedisDB : IRedisDB
         }
 
         return ErrorCode.None;
+
+    }
+
+    public async Task<ErrorCode> SetUserStageItem(string userId, int itemCode,int stageCode)
+    {
+        var uid =  "StageItem_" + stageCode + "_" + userId;
+
+        var redisId = new RedisList<StageItem>(RedisConnection, uid, StageItemTimeSpan()) ;
+
+      var stageItemPush=  await redisId.RightPushAsync(new StageItem {  ItemCode = itemCode, Code = stageCode, }, StageItemTimeSpan());
+
+        if (stageItemPush == -1)      //실패
+        {
+            logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} Email:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+            return ErrorCode.PushStageItemFail;
+        }
+        return ErrorCode.None;
+
+    }
+
+    public async Task<ErrorCode> SetUserStageNPC(string userId, int npcCode,int stageCode)
+    {
+        var uid =   "StageNPC_"+ stageCode + "_" + userId;
+
+        var redisId = new RedisHashSet<int>(RedisConnection, uid, StageNPCTimeSpan());
+
+
+        var stageNpcPush =await redisId.add
+
+    }
+    public TimeSpan StageNPCTimeSpan()
+    {
+        return TimeSpan.FromSeconds(RedisKeyExpireTime.StageNPCExpireSecond);
+
+    }
+    public TimeSpan StageItemTimeSpan()
+    {
+        return TimeSpan.FromSeconds(RedisKeyExpireTime.StageItemExpireSecond);
 
     }
     public TimeSpan NxKeyTimeSpan()

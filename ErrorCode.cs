@@ -65,6 +65,7 @@
 
         //스테이지 관련 에러코드
         SelectStageError=12001,
+        PushStageItemFail=12002,
 
     }
 }
