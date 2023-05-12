@@ -45,7 +45,7 @@ public class CreateAccountController : ControllerBase
         }
 
         // gamedata_db에 기본 데이터 생성(기본 게임 데이터, 기본 아이템 데이터)
-        UserInfo userInfo = new UserInfo(UserInfo.Email,0, 1, 1,DateTime.Today,1);             //유저정보 초기화
+        UserInfo userInfo = new UserInfo(UserInfo.Email,0, 1, 1,DateTime.Today,1,0);             //유저정보 초기화
        var UserInfoErrorCode= await _gameDB.InsertGameData(userInfo);
         
         if (UserInfoErrorCode != ErrorCode.None)

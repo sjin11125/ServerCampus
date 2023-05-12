@@ -7,9 +7,10 @@ public class UserInfo
     public int Defense { get; set; }
     public DateTime Attendance { get; set; }    
     public int AttendanceCount { get; set; }    
+    public int Stage { get; set; }  
 
 
-    public UserInfo(string email,int exp, int attack, int defense, DateTime attendance, int attendanceCount)
+    public UserInfo(string email, int exp, int attack, int defense, DateTime attendance, int attendanceCount, int stage)
     {
         Email = email;
         Exp = exp;
@@ -17,6 +18,7 @@ public class UserInfo
         Defense = defense;
         Attendance = attendance;
         AttendanceCount = attendanceCount;
+        Stage = stage;
     }
 }
 

@@ -14,6 +14,8 @@ using ZLogger;
 using static Com2usServerCampus.LogManager;
 
 namespace Com2usServerCampus.Controllers;
+[ApiController]
+[Route("[controller]")]
 
 public class EnhanceController : ControllerBase
 {
@@ -54,10 +56,9 @@ public class EnhanceController : ControllerBase
             return enhanceResult;
         }
 
-        int attack = item.Attack;
-        int defence = item.Defence;
 
-        if (Enhancement(itemAttributedata, ref attack, ref defence)) {
+        (var isSuccess, var attack, var defence) = Enhancement(itemAttributedata, item.Attack, item.Defence);
+        if (isSuccess) {
 
             var itemUpdate = await _gameDB.UpdateItem( new UserItem
             {      // 아이템 업데이트
@@ -91,7 +92,9 @@ public class EnhanceController : ControllerBase
         return enhanceResult;
     }
 
-    public bool Enhancement(ItemAttribute attribute,ref int attack,ref int defence)
+
+
+    public (bool,int,int) Enhancement(ItemAttribute attribute,int attack,int defence)
     {
 
         Random rand = new Random(DateTime.Now.Millisecond);
@@ -99,7 +102,7 @@ public class EnhanceController : ControllerBase
 
         if (EnhanceValue > 30)          //실패
         {
-            return false;
+            return (false,attack,defence);
         }
 
 
@@ -114,7 +117,7 @@ public class EnhanceController : ControllerBase
             defence += (int)(defence * 0.1);
 
         }
-        return true;
+        return (true,attack,defence);
 
 
     }
