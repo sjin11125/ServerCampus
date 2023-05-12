@@ -20,11 +20,13 @@ public class CreateAccountController : ControllerBase
     readonly IAccountDB _accountDB;
     readonly IGameDB _gameDB;
     readonly ILogger _logger;
-    public CreateAccountController(ILogger<CreateAccountController> logger, IAccountDB accountDB, IGameDB gameDB)
+    readonly IMasterDataDB _masterDataDB;
+    public CreateAccountController(ILogger<CreateAccountController> logger, IAccountDB accountDB, IGameDB gameDB,IMasterDataDB masterDB)
     {
         _logger = logger;
         _accountDB = accountDB;
         _gameDB = gameDB;
+        _masterDataDB = masterDB;
     }
 
     [HttpPost]
@@ -52,13 +54,14 @@ public class CreateAccountController : ControllerBase
             return Result;
         }
 
-        var UserItemErrorCode = await _gameDB.InsertItem(new UserItem
+        (var error, var itemData) = _masterDataDB.GetItemData(1);
+
+        var UserItemErrorCode = await _gameDB.InsertItem(itemData.isCount, new UserItem
             {             //받아온 출석보상을 사용자 메일 테이블에 추가
                 Eamil = UserInfo.Email,
                 ItemCount = 10,
                 ItemCode = 1,
                 EnhanceCount = 0,
-                IsCount = true
 
             } );
         if (UserItemErrorCode != ErrorCode.None)

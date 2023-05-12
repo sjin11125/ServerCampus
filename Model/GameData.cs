@@ -23,12 +23,11 @@ public class UserInfo
 public class UserItem
 {
     public string Eamil { get; set; }     //계정번호
-    public int Id { get; set; }     //아이템 Id
+    public int ItemId { get; set; }     //아이템 Id
     public int ItemCode { get; set; }        //아이템 코드
     public int EnhanceCount { get; set; }        //강화횟수
     public int ItemCount { get; set; }           //몇개인지
 
-    public bool IsCount { get; set; }       //겹칠수있는지
     public int Attack { get; set; }
     public int Defence { get; set; }
     public int Magic { get; set; }

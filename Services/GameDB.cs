@@ -59,10 +59,10 @@ public class GameDB : IGameDB
         }
     }
 
-    public async Task<ErrorCode> InsertItem(    UserItem userItem)        //게임 아이템 넣기
+    public async Task<ErrorCode> InsertItem(bool isCount,    UserItem userItem)        //게임 아이템 넣기
     {
         int result = 0;
-        if (userItem.IsCount)       //겹치기가 가능한가
+        if (isCount)       //겹치기가 가능한가
         {
             var count = await queryFactory.Query("itemdata").Where("Email", userItem.Eamil).Where("ItemCode", userItem.ItemCode).Select("ItemCount").FirstOrDefaultAsync<int>();  //아이템 있는지 확인
 
@@ -105,11 +105,11 @@ public class GameDB : IGameDB
     }
     public async Task<ErrorCode> UpdateItem(UserItem userItem)        //게임 아이템 업데이트
     { 
-        var   result = await queryFactory.Query("itemdata").Where("ItemCode", userItem.ItemCode).Where("Id",userItem.Id).UpdateAsync(new {
+        var   result = await queryFactory.Query("itemdata").Where("ItemCode", userItem.ItemCode).Where("Id",userItem.ItemId).UpdateAsync(new {
 
             Eamil = userItem.Eamil,
             ItemCode = userItem.ItemCode,
-            Id = userItem.Id,
+            ItemId = userItem.ItemId,
             EnhanceCount = userItem.EnhanceCount + 1,
             ItemCount = userItem.ItemCount,
             Attack = userItem.Attack,
@@ -126,7 +126,7 @@ public class GameDB : IGameDB
     }
     public async Task<ErrorCode> DeleteItem(int itemId)        //게임 아이템 지우기
     {
-        var result = await queryFactory.Query("itemdata").Where("Id", itemId).DeleteAsync(); //(성공 1, 실패 0)
+        var result = await queryFactory.Query("itemdata").Where("ItemId", itemId).DeleteAsync(); //(성공 1, 실패 0)
         if (result != 1)
             return ErrorCode.DeleteItemDataFail;
 
@@ -154,7 +154,7 @@ public class GameDB : IGameDB
     }
     public async Task<(ErrorCode, UserItem)> GetItem(int itemId) //유저 아이템  불러오기
     {
-        var items = await queryFactory.Query("itemdata").Where("Id", itemId).FirstOrDefaultAsync<UserItem>();
+        var items = await queryFactory.Query("itemdata").Where("ItemId", itemId).FirstOrDefaultAsync<UserItem>();
 
         if (items is null)       //해당 아이템이 없다면
             return (ErrorCode.InvalidItemData, null);
@@ -167,15 +167,15 @@ public class GameDB : IGameDB
     public async Task<(ErrorCode,List<Mail>)> GetMails(string userId, int page)           //유저 메일 불러오기
     {
 
-     var mailInfos=await queryFactory.Query("mail").WhereRaw("Time +  ExpiryTime> NOW()").Where("isRead", false).Select("Id","Title").PaginateAsync<Mail>(page, 20);
+     var mailInfos=await queryFactory.Query("mail").WhereRaw("Time +  ExpiryTime> NOW()").Where("isRead", false).Select("MailId", "Title").PaginateAsync<Mail>(page, 20);
         //유효기간 지난 메일과 읽은 메일은 불러오지 않고 메일ID와 제목만 불러오기
         if (mailInfos.List.Count()==0)
         {
-            return (ErrorCode.EmptyMail, null);
+            return (ErrorCode.None, null);
         }
         foreach (var mail in mailInfos.List)
         {
-            var mailitems = await queryFactory.Query("mailitem").Where("Email", userId).Where("Id", mail.Id).GetAsync<MailItem>();
+            var mailitems = await queryFactory.Query("mailitem").Where("Email", userId).Where("MailId", mail.Id).GetAsync<MailItem>();
 
             if (mailitems.Count()==0)      //메일의 아이템이 없으면
                 continue;
@@ -245,7 +245,6 @@ public class GameDB : IGameDB
             Email = userId,
             Title = title,
             Content = content,
-            Time = DateTime.Today,
             ExpiryTime = 7,
             isRead = false,
             isGet = false,
@@ -267,7 +266,7 @@ public class GameDB : IGameDB
             var insertMail = await queryFactory.Query("mailitem").InsertAsync(new  //메일 아이템 테이블에 아이템 넣기(성공 1, 실패 0)
             {
                 Email = userId,
-                Id = itemId,
+                ItemId = itemId,
                 Code = item.ItemCode,
                 Count = item.ItemCount
             });
@@ -309,11 +308,10 @@ public class GameDB : IGameDB
 
             var result = await queryFactory.Query("inapppurchasereceipt").InsertAsync(new
             {
-                Id = info.Id,
+                ReceiptId = info.ReceiptId,
                 Email = info.Email,
                 Title = info.Title,
                 Content = info.Content,
-                Time = info.Time,
                 ExpiryTime = info.ExpiryTime
             });
             if (result != 1)     //중복 됨
@@ -334,7 +332,7 @@ public class GameDB : IGameDB
         var result = await queryFactory.Query("enhance").InsertAsync(new  //강화 단계 이력 테이블에 강화 정보 넣기(성공 1, 실패 0)
         {
             Email = enhanceInfo.Email,
-            Id = enhanceInfo.Id,
+            ItemId = enhanceInfo.ItemId,
             ItemCode = enhanceInfo.ItemCode,
             EnhanceCount = enhanceInfo.EnhanceCount,
             Attribute= enhanceInfo.Attribute,

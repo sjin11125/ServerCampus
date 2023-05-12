@@ -2,7 +2,7 @@
 public class EnhanceRequest
 {
     public string Email { get; set; }
-    public int Id { get; set; }
+    public int ItemId { get; set; }
 }
 
 public class EnhanceResponse

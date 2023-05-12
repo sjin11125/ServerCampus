@@ -46,12 +46,11 @@ public class GetMailItemController : ControllerBase
                 return getMailItemResponse;
             }
 
-            var result = await _gameDB.InsertItem(new Model.UserItem {      //해당 계정에 아이템 넣기
+            var result = await _gameDB.InsertItem(itemData.isCount,new Model.UserItem {      //해당 계정에 아이템 넣기
             Eamil=mailInfo.Email,
             ItemCode= itemData.Code,
             EnhanceCount=0,
             ItemCount =item.Count,
-            IsCount=itemData.isCount
             });
 
             if(result!=ErrorCode.None)

@@ -32,36 +32,26 @@ public class AttendanceController : ControllerBase
         AttendanceResponse AttendancedResponse = new AttendanceResponse();
 
 
-        var content = await _gameDB.Attendance(userInfo.Email);          //출석체크 하기
-        if (content.Item1!=ErrorCode.None)
+        (var attendanceError,var content) = await _gameDB.Attendance(userInfo.Email);          //출석체크 하기
+        if (attendanceError != ErrorCode.None)
         {
-            AttendancedResponse.Error = content.Item1;
+            AttendancedResponse.Error = attendanceError;
             return AttendancedResponse;
         }
 
 
-        (var error,var reward )= _masterDataDB.GetAttendanceRewardData(content.Item2); //마스터 데이터에서 출석 보상 받아옴
+        (var error, var reward, var itemInfo) =await GetData(content);
         if (error != ErrorCode.None)
         {
             AttendancedResponse.Error = error;
             return AttendancedResponse;
         }
 
-
-        var itemInfo = _masterDataDB.GetItemData(content.Item2);          //마스터 데이터에서 해당 보상 아이템의 정보를 받아옴
-        if (itemInfo.Item1 != ErrorCode.None)
-        {
-            AttendancedResponse.Error = itemInfo.Item1;
-            return AttendancedResponse;
-        }
-
-
         List<UserItem> UserItems = new List<UserItem>() { new UserItem {             //받아온 출석보상을 사용자 메일 테이블에 추가
             Eamil=Attendance.Email,
             ItemCount=reward.Count,
             ItemCode=reward.ItemCode,
             EnhanceCount= 0,
-            IsCount=itemInfo.Item2.isCount
 
         } };
 
@@ -73,6 +63,23 @@ public class AttendanceController : ControllerBase
         }
 
         return AttendancedResponse;
+    }
+    public async Task<(ErrorCode,AttendanceReward,ItemData)> GetData(int itemCode)
+    {
+        (var rewardError, var reward) = _masterDataDB.GetAttendanceRewardData(itemCode); //마스터 데이터에서 출석 보상 받아옴
+        if (rewardError != ErrorCode.None)
+        {
+            return (rewardError,null,null);
+        }
+
+
+        (var itemInfoError, var itemInfo) = _masterDataDB.GetItemData(itemCode);          //마스터 데이터에서 해당 보상 아이템의 정보를 받아옴
+        if (itemInfoError != ErrorCode.None)
+        {
+            return (itemInfoError, null, null);
+        }
+        return (ErrorCode.None, reward, itemInfo);
+
     }
 }
 

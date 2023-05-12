@@ -35,7 +35,7 @@ public class EnhanceController : ControllerBase
 
         EnhanceResponse enhanceResult=new EnhanceResponse();
 
-        (var error, var item, var itemdata, var itemAttributedata) = await GetData(enhanceInfo.Id);     //유저 아이템, 아이템 마스터데이터, 아이템 속성 마스터데이터 불러오기
+        (var error, var item, var itemdata, var itemAttributedata) = await GetData(enhanceInfo.ItemId);     //유저 아이템, 아이템 마스터데이터, 아이템 속성 마스터데이터 불러오기
 
         if (error!=ErrorCode.None)
         {
@@ -48,7 +48,7 @@ public class EnhanceController : ControllerBase
             enhanceResult.Error = ErrorCode.NotEnhanceType;
             return enhanceResult;
         }
-        if (item.EnhanceCount>=10)//강화 횟수 10회 이상인지 검사
+        if (item.EnhanceCount>=itemdata.EnhanceMaxCount)//강화 횟수 10회 이상인지 검사
         {
             enhanceResult.Error = ErrorCode.MaxEnhanceCount;
             return enhanceResult;
@@ -63,7 +63,7 @@ public class EnhanceController : ControllerBase
             {      // 아이템 업데이트
                 Eamil = enhanceInfo.Email,
                 ItemCode = item.ItemCode,
-                Id = enhanceInfo.Id,
+                ItemId = enhanceInfo.ItemId,
                 EnhanceCount = item.EnhanceCount + 1,
                 ItemCount = item.ItemCount,
                 Attack = attack,
@@ -80,7 +80,7 @@ public class EnhanceController : ControllerBase
         }
         else
         {
-            var deleteReuslt = await _gameDB.DeleteItem( enhanceInfo.Id);   //실패하면 아이템 지우기
+            var deleteReuslt = await _gameDB.DeleteItem( enhanceInfo.ItemId);   //실패하면 아이템 지우기
             if (deleteReuslt != ErrorCode.None)
             {
                 enhanceResult.Error = deleteReuslt;

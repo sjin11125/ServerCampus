@@ -8,7 +8,7 @@ namespace Com2usServerCampus.Services
         public Task<(ErrorCode, UserInfo)> GetGameData(string userId);
         public Task<(ErrorCode, List<UserItem>)> GetAllItems(string userId);
         public Task<(ErrorCode, UserItem)> GetItem( int itemId);
-        public Task<ErrorCode> InsertItem( UserItem useritem);
+        public Task<ErrorCode> InsertItem(bool isCount, UserItem useritem);
         public Task<ErrorCode> UpdateItem(UserItem userItem);
         public Task<ErrorCode> DeleteItem( int itemId);
 
