@@ -24,6 +24,7 @@
         InsertGameDataDup=4001,
         InsertGameDataFail=4002,
         WrongGameData=4003,
+        GetGameDataException=400,
 
 
         //ItemData 관련 에러코드
@@ -61,5 +62,9 @@
         InsertEnhanceInfoFail=11002,
         //InvalidAppversion = 3002,
         // InvalidDataversion = 3003,
+
+        //스테이지 관련 에러코드
+        SelectStageError=12001,
+
     }
 }

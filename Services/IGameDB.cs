@@ -22,6 +22,8 @@ namespace Com2usServerCampus.Services
         public  Task<ErrorCode> CheckDuplicateReceipt(InAppPurchaseRequest info);
         public Task<ErrorCode> InsertEnhanceInfo(EnhanceItemInfo enhanceInfo);
 
+        public  Task<(ErrorCode, int)> GetUserStageInfo(string userId);
+
 
 
     }

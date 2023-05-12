@@ -23,6 +23,8 @@ public class MasterDataDB : IMasterDataDB
     public List<AttendanceReward> AttendanceRewardDataList { get; set; }
 
     public List<InAppProduct> InAppProductDataList { get; set; }    
+    public List<StageItem> StageItemDataList { get; set; }    
+    public List<StageNPC> StageNPCDataList { get; set; }    
 
     public MasterDataDB(ILogger<MasterDataDB> logger, IOptions<DBConfig> configuration)
     {
@@ -38,33 +40,54 @@ public class MasterDataDB : IMasterDataDB
     {
        var  itemDatas = await queryFactory.Query("item").GetAsync<ItemData>();
         if (itemDatas.Count() == 0)
+        {
             return ErrorCode.InvalidItemData;
-
+        }
 
             ItemDataList = itemDatas.ToList();
         
 
         var itemAttributes = await queryFactory.Query("itemAttribute").GetAsync<ItemAttribute>();
         if (itemAttributes.Count() == 0)
+        {
             return ErrorCode.InvalidItemData;
-
+        }
         ItemAttributeDataList = itemAttributes.ToList();
 
 
 
         var attendances = await queryFactory.Query("attendance").GetAsync<AttendanceReward>();
         if (attendances.Count() == 0)
+        {
             return ErrorCode.InvalidItemData;
-
+        }
         AttendanceRewardDataList =attendances.ToList();
 
 
 
         var inAppProducts=await queryFactory.Query("inAppProduct").GetAsync<InAppProduct>();
         if (inAppProducts.Count() == 0)
+        {
             return ErrorCode.InvalidItemData;
-
+        }
         InAppProductDataList = inAppProducts.ToList();
+
+
+
+        var stageItems=await queryFactory.Query("stageItem").GetAsync<StageItem>();
+        if (stageItems.Count() == 0)
+        {
+            return ErrorCode.InvalidItemData;
+        }
+        StageItemDataList = stageItems.ToList();
+
+
+        var stageNpcs=await queryFactory.Query("stageAttackNPC").GetAsync<StageNPC>();
+        if (stageNpcs.Count() == 0)
+        {
+            return ErrorCode.InvalidItemData;
+        }
+        StageNPCDataList = stageNpcs.ToList();
 
         return ErrorCode.None;
 
@@ -116,6 +139,27 @@ public class MasterDataDB : IMasterDataDB
         }
         else
             return (ErrorCode.InvalidItemData, null);
+    }
+
+    public (ErrorCode,List<StageItem>) GetStageItem(int stageCode)
+    {
+        var data = StageItemDataList.FindAll(x => x.Code == stageCode);
+        if (data is not null)
+        {
+            return (ErrorCode.None, data);
+        }
+        else
+            return (ErrorCode.InvalidItemData, data);
+    }
+    public (ErrorCode,List<StageNPC>) GetStageNPC(int stageCode)
+    {
+        var data = StageNPCDataList.FindAll(x => x.Code == stageCode);
+        if (data is not null)
+        {
+            return (ErrorCode.None, data);
+        }
+        else
+            return (ErrorCode.InvalidItemData, data);
     }
 }
 

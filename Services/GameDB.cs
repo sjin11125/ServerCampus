@@ -346,5 +346,21 @@ public class GameDB : IGameDB
         else                
             return ErrorCode.None;
     }
+
+    public async Task<(ErrorCode, int)> GetUserStageInfo(string userId)
+    {
+
+        try
+        {
+            var stage = await queryFactory.Query("gamedata").Where("Email", userId).Select("Stage").FirstOrDefaultAsync<int>();  //유저가 클리어 한 스테이지 수를 받아옴
+
+            return (ErrorCode.None, stage);
+        }
+        catch (Exception e)
+        {
+            _logger.ZLogError(e, $"GameDB.GetUserStageInfo Exception ErrorCode:{ErrorCode.GetGameDataException} email: {userId}");
+            return (ErrorCode.GetGameDataException, -1);
+        }
+    }
 }
 

@@ -1,0 +1,101 @@
+﻿using CloudStructures;
+using CloudStructures.Structures;
+using Com2usServerCampus.Model;
+using Com2usServerCampus.ModelReqRes;
+using Com2usServerCampus.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using MySqlConnector;
+using SqlKata.Execution;
+using StackExchange.Redis;
+using System.Net.Mail;
+using System.Security.Cryptography;
+using ZLogger;
+namespace Com2usServerCampus.Controllers;
+public class StageSelectController
+{
+    readonly ILogger _logger;
+    readonly IMasterDataDB _masterDataDB;
+    readonly IGameDB _gameDB;
+
+    public StageSelectController(ILogger logger, IMasterDataDB masterDataDB, IGameDB gameDB)
+    {
+        _logger = logger;
+        _masterDataDB = masterDataDB;
+        _gameDB = gameDB;
+    }
+    [HttpPost]
+    public async Task<StageSelectResponse> StagePost(StageSelectRequest stageInfo)
+    {
+        StageSelectResponse stageResonse = new StageSelectResponse();
+
+        var isSelect = await IsStageSelectable(stageInfo.UserId,stageInfo.StageId);             //유저가 스테이지를 선택 가능한지 검증
+        if (isSelect!=ErrorCode.None)
+        {
+            stageResonse.Error = isSelect;
+            return stageResonse;
+
+        }
+
+        (var stageDataError, var stageDataInfo)= GetData(stageInfo.StageId);         //마스터데이터에서 해당 스테이지 정보들 불러오기
+        if (stageDataError != ErrorCode.None)
+        {
+            stageResonse.Error = stageDataError;
+            return stageResonse;
+        }
+
+        stageResonse.StageItems = stageDataInfo.StageItmes;
+        stageDataInfo.StageNPCs = stageDataInfo.StageNPCs;
+        stageResonse.Error = ErrorCode.None;
+
+
+        return stageResonse;    
+
+    }
+    public async Task<ErrorCode> IsStageSelectable(string userId,int selectedStageId)
+    {
+        (var stageError, var stage) = await _gameDB.GetUserStageInfo(userId);       //유저가 클리어한 스테이지 불러옴
+        if (stageError != ErrorCode.None)
+        {
+            return stageError;
+        }
+
+        if (stage < selectedStageId) //선택 가능한지 검증(선택한 스테이지가 클리어한 스테이지 보다 더 많다)
+        {
+            return ErrorCode.SelectStageError;
+        }
+
+        return ErrorCode.None;
+    }
+
+    public (ErrorCode, StageInfo) GetData(int stage)
+    {
+        StageInfo stageInfos = new StageInfo();
+
+    
+
+            (var stageItemError, var stageItem) = _masterDataDB.GetStageItem(stage);  //던전에 생성될 아이템을 리스트 보냄 (마스터데이터)
+            if (stageItemError != ErrorCode.None)                             
+            {
+                return (stageItemError, null);
+
+            }
+
+            stageInfos.StageItmes = stageItem;
+
+
+            (var stageNPCError, var stageNPC) = _masterDataDB.GetStageNPC(stage);   //적 NPC 리스트를 보냄 (마스터데이터)
+            if (stageItemError != ErrorCode.None)
+            {
+                return (stageItemError, null);
+
+            }
+
+            stageInfos.StageNPCs = stageNPC;
+
+
+
+        return (ErrorCode.None, stageInfos);
+    }
+}
+
