@@ -32,7 +32,7 @@ public class AttendanceController : ControllerBase
         AttendanceResponse AttendancedResponse = new AttendanceResponse();
 
 
-        var content = await _gameDB.Attendance(Attendance.Email);          //출석체크 하기
+        var content = await _gameDB.Attendance(userInfo.Email);          //출석체크 하기
         if (content.Item1!=ErrorCode.None)
         {
             AttendancedResponse.Error = content.Item1;

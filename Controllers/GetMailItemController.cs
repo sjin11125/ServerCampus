@@ -29,7 +29,7 @@ public class GetMailItemController : ControllerBase
     {
         GetMailItemResponse getMailItemResponse = new GetMailItemResponse();
 
-        var items = await _gameDB.GetMailItem(mailInfo.Email, mailInfo.Id);     //메일 아이템 불러오기
+        var items = await _gameDB.GetMailItem(mailInfo.Id);     //메일 아이템 불러오기
 
         if (items.Item1!=ErrorCode.None)        //실패라면
         {
@@ -46,7 +46,7 @@ public class GetMailItemController : ControllerBase
                 return getMailItemResponse;
             }
 
-            var result = await _gameDB.InsertItem(mailInfo.Email, new Model.UserItem {      //해당 계정에 아이템 넣기
+            var result = await _gameDB.InsertItem(new Model.UserItem {      //해당 계정에 아이템 넣기
             Eamil=mailInfo.Email,
             ItemCode= itemData.Code,
             EnhanceCount=0,
@@ -61,7 +61,7 @@ public class GetMailItemController : ControllerBase
             }
         }
 
-        var updateResult = await _gameDB.ReceiveMailItem(mailInfo.Email, mailInfo.Id);           //메일 테이블에 받았다고 업데이트
+        var updateResult = await _gameDB.ReceiveMailItem(mailInfo.Id);           //메일 테이블에 받았다고 업데이트
         if (updateResult != ErrorCode.None)
         {
             getMailItemResponse.Error = updateResult;

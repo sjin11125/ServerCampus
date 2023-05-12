@@ -44,7 +44,7 @@ public class CreateAccountController : ControllerBase
 
         // gamedata_db에 기본 데이터 생성(기본 게임 데이터, 기본 아이템 데이터)
         UserInfo userInfo = new UserInfo(UserInfo.Email,0, 1, 1,DateTime.Today,1);             //유저정보 초기화
-       var UserInfoErrorCode= await _gameDB.InsertGameData(UserInfo.Email, userInfo);
+       var UserInfoErrorCode= await _gameDB.InsertGameData(userInfo);
         
         if (UserInfoErrorCode != ErrorCode.None)
         {
@@ -52,8 +52,7 @@ public class CreateAccountController : ControllerBase
             return Result;
         }
 
-        var UserItemErrorCode = await _gameDB.InsertItem(UserInfo.Email,  //기본 아이템 돈 10원
-            new UserItem
+        var UserItemErrorCode = await _gameDB.InsertItem(new UserItem
             {             //받아온 출석보상을 사용자 메일 테이블에 추가
                 Eamil = UserInfo.Email,
                 ItemCount = 10,

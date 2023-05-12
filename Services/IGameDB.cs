@@ -5,22 +5,22 @@ namespace Com2usServerCampus.Services
 {
     public interface IGameDB
     {
-        public Task<(ErrorCode, UserInfo)> GetGameData(string email);
-        public Task<(ErrorCode, List<UserItem>)> GetAllItems(string email);
-        public Task<(ErrorCode, UserItem)> GetItem(string email, int itemId);
-        public Task<ErrorCode> InsertItem(string email, UserItem useritem);
-        public Task<ErrorCode> UpdateItem(string email, UserItem userItem);
-        public Task<ErrorCode> DeleteItem(string email, int itemId);
+        public Task<(ErrorCode, UserInfo)> GetGameData(string userId);
+        public Task<(ErrorCode, List<UserItem>)> GetAllItems(string userId);
+        public Task<(ErrorCode, UserItem)> GetItem( int itemId);
+        public Task<ErrorCode> InsertItem( UserItem useritem);
+        public Task<ErrorCode> UpdateItem(UserItem userItem);
+        public Task<ErrorCode> DeleteItem( int itemId);
 
-        public Task<ErrorCode> InsertGameData(string email, UserInfo userInfo);
-        public Task<(ErrorCode, List<Mail>)> GetMails(string email, int page);
-        public Task<(ErrorCode, string)> ReadMail(string email, int mailId);
-        public Task<(ErrorCode, List<MailItem>)> GetMailItem(string email, int mailId);
-        public Task<ErrorCode> ReceiveMailItem(string email, int mailId);
-        public Task<(ErrorCode, int)> Attendance(string email);
-        public Task<ErrorCode> InsertMail(string email, List<UserItem> items, MailType type);
+        public Task<ErrorCode> InsertGameData(UserInfo userInfo);
+        public Task<(ErrorCode, List<Mail>)> GetMails(string userId,int page);
+        public Task<(ErrorCode, string)> ReadMail(int mailId);
+        public Task<(ErrorCode, List<MailItem>)> GetMailItem( int mailId);
+        public Task<ErrorCode> ReceiveMailItem(int mailId);
+        public Task<(ErrorCode, int)> Attendance(string userId);
+        public Task<ErrorCode> InsertMail(string userId,List<UserItem> items, MailType type);
         public  Task<ErrorCode> CheckDuplicateReceipt(InAppPurchaseRequest info);
-        public Task<ErrorCode> InsertEnhanceInfo(string email, EnhanceItemInfo enhanceInfo);
+        public Task<ErrorCode> InsertEnhanceInfo(EnhanceItemInfo enhanceInfo);
 
 
 
