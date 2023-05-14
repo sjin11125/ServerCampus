@@ -57,6 +57,30 @@ public class GameDB : IGameDB
             _logger.ZLogError(e, $"GameDB.InsertGameData Exception ErrorCode:{ErrorCode.InsertGameDataDup} email: {userInfo.Email}");
             throw;
         }
+    }    public async Task<ErrorCode> UpdateStageClearData(EndStageResult stageResult)        //스테이지 클리어시 유저 정보 업데이트
+    {
+        try
+        {
+            var count = await queryFactory.Query("gamedata").Where("UserId", stageResult.UserId).UpdateAsync(new
+            {
+
+                Exp = stageResult.TotalEXP,
+                Stage = stageResult.StageCode
+            });
+
+            if (count != 1)       //실패
+            {
+                return ErrorCode.UpdateStageClearDataFail;
+            }
+            return ErrorCode.None;
+
+
+        }
+        catch (Exception e)
+        {
+            _logger.ZLogError(e, $"GameDB.UpdateStageClearData Exception ErrorCode:{ErrorCode.UpdateStageClearDataFail} email: {stageResult.UserId}");
+            throw;
+        }
     }
 
     public async Task<ErrorCode> InsertItem(bool isCount,    UserItem userItem)        //게임 아이템 넣기
@@ -92,7 +116,11 @@ public class GameDB : IGameDB
                 userItem.Eamil,
                 userItem.ItemCode,
                 userItem.EnhanceCount,
-                userItem.ItemCount
+                userItem.ItemCount,
+                userItem.Attack,
+                userItem.Defence,
+                userItem.Magic
+
             });
         }
         if (result != 1)  //실패    

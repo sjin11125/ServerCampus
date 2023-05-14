@@ -29,15 +29,15 @@ public class GetMailItemController : ControllerBase
     {
         GetMailItemResponse getMailItemResponse = new GetMailItemResponse();
 
-        var items = await _gameDB.GetMailItem(mailInfo.Id);     //메일 아이템 불러오기
+        (var getMailItemError,var items) = await _gameDB.GetMailItem(mailInfo.Id);     //메일 아이템 불러오기
 
-        if (items.Item1!=ErrorCode.None)        //실패라면
+        if (getMailItemError != ErrorCode.None)        //실패라면
         {
-            getMailItemResponse.Error = items.Item1;
+            getMailItemResponse.Error = getMailItemError;
             return getMailItemResponse;
         }
         //성공
-        foreach (var item in items.Item2)
+        foreach (var item in items)
         {
             (var errorItemData, var itemData) =  _masterDataDB.GetItemData(item.Code); //마스터데이터에서 아이템 데이터 찾아서 
             if (errorItemData!=ErrorCode.None)

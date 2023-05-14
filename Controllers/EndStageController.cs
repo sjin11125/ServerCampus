@@ -22,12 +22,14 @@ namespace Com2usServerCampus.Controllers;
     readonly ILogger<EndStageController> _logger;
     readonly IMasterDataDB _masterDataDB;
     readonly IRedisDB _redisDB;
+    readonly IGameDB _gameDB;
 
-    public EndStageController(ILogger<EndStageController> logger, IMasterDataDB masterDataDB, IRedisDB redisDB)
+    public EndStageController(ILogger<EndStageController> logger, IMasterDataDB masterDataDB, IRedisDB redisDB, IGameDB gameDB)
     {
         _logger = logger;
         _masterDataDB = masterDataDB;
         _redisDB = redisDB;
+        _gameDB = gameDB;
     }
 
     [HttpPost]
@@ -127,6 +129,8 @@ namespace Com2usServerCampus.Controllers;
 
 
         //마스터데이터와 레디스에 저장된 정보 비교 (npc 수)
+        int totalEXP = 0;
+
         if (npcRedisData.Count!=0)
         {
             foreach (var item in npcMasterData)
@@ -138,6 +142,8 @@ namespace Com2usServerCampus.Controllers;
                     if (tempNPC != null)           //레디스에 해당 아이템이 있을때
                     {
                         tempNPC.Count -= item.Count;
+
+                        totalEXP = item.Exp;            //경험치 계산
 
                         if (tempNPC.Count <= 0)
                         {
@@ -162,12 +168,62 @@ namespace Com2usServerCampus.Controllers;
             }
         }
 
-        //맞다면 DB의 아이템 테이블에 저장
-        if (itemRedisData.Count==0&&npcRedisData.Count==0)
+
+        //데이터가 맞지 않는다면
+        if (itemRedisData.Count != 0 )
         {
-            //아이템 테이블에 마스터 데이터 아이템 넣기
-            //유저의 게임 정보 테이블에 경험치 계산 해서 넣기
+            endStageResponse.Error = ErrorCode.NotMatchStageItemData;
+            return endStageResponse;
+
         }
+        if (npcRedisData.Count != 0)
+        {
+            endStageResponse.Error = ErrorCode.NotMatchStageNPCData;
+            return endStageResponse;
+        }
+
+
+
+        //맞다면 DB의 아이템 테이블에 저장
+        //아이템 테이블에 마스터 데이터 아이템 넣기
+        foreach (var item in itemMasterData)
+            {
+                (var getItemDataError, var itemInfo) = _masterDataDB.GetItemData(item.ItemCode); //아이템 마스터데이터 불러오기
+
+
+                var insertItemError = await _gameDB.InsertItem(itemInfo.isCount, new UserItem           //아이템 테이블에 아이템 넣기
+                {
+                    Eamil = endStageInfo.UserId,
+                    ItemCode = item.ItemCode,
+                    ItemCount = 1,
+                    EnhanceCount = 1,
+                    Attack = itemInfo.Attack,
+                    Defence = itemInfo.Defence,
+                    Magic = itemInfo.Magic,
+
+                });
+
+            }
+
+
+            //유저의 게임 정보 테이블에 경험치 넣고 클리어한 스테이지 넣기
+            var updateUserGameDataError = await _gameDB.UpdateStageClearData(new EndStageResult
+            {
+                UserId = endStageInfo.UserId,
+                TotalEXP = totalEXP,
+                StageCode = endStageInfo.StageCode
+
+            });
+
+            if (updateUserGameDataError!=ErrorCode.None)
+            {
+                endStageResponse.Error = updateUserGameDataError;
+                return endStageResponse;
+            }
+
+
+
+        
 
         return endStageResponse;
     }

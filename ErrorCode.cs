@@ -23,8 +23,10 @@
         //GameData 관련 에러코드
         InsertGameDataDup=4001,
         InsertGameDataFail=4002,
-        WrongGameData=4003,
-        GetGameDataException=400,
+        UpdateGameDataFail=4003,
+        UpdateStageClearDataFail=4004,
+        WrongGameData=4005,
+        GetGameDataException=4006,
 
 
         //ItemData 관련 에러코드
@@ -75,6 +77,7 @@
         GetUserStageNPCFail=12007,
         RemoveStageItemKeyFail=12008,
         RemoveStageNpcKeyFail=12009,
+        EndStageException=12010,
 
     }
 }
