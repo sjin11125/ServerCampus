@@ -24,6 +24,9 @@ namespace Com2usServerCampus.Services;
     public  Task<ErrorCode> DeleteUserStageItem(string userId, int stageCode);
     public Task<ErrorCode> DeleteUserStageNPC(string userId, int stageCode);
 
+    public  Task<(ErrorCode, List<AcquireStageItem>)> GetAllUserStageItem(string userId, int stageCode);
+    public  Task<(ErrorCode, List<KillStageNPC>)> GetAllUserStageNPC(string userId, int stageCode);
+    
 
 
 

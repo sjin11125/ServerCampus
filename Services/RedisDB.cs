@@ -232,8 +232,38 @@ public class RedisDB : IRedisDB
 
         }
     }
-    public async Task<(ErrorCode, List<AcquireStageItem>)> GetAllUserStageNPC(string userId,  int stageCode)
-    { }
+    public async Task<(ErrorCode, List<AcquireStageItem>)> GetAllUserStageItem(string userId,  int stageCode)
+    {
+        var uid = "StageItem_" + stageCode + "_" + userId;
+
+        var redisId = new RedisList<AcquireStageItem>(redisConnection, uid, StageItemTimeSpan());
+
+        var stageItems = await redisId.RangeAsync(0, -1);  //모든 아이템 목록 불러오기
+
+        if (stageItems.Length==0)
+        {
+            return (ErrorCode.None, null);
+        }
+
+        return (ErrorCode.None, stageItems.ToList());
+
+    }
+    public async Task<(ErrorCode, List<KillStageNPC>)> GetAllUserStageNPC(string userId,  int stageCode)
+    {
+        var uid = "StageNPC_" + stageCode + "_" + userId;
+
+        var redisId = new RedisList<KillStageNPC>(redisConnection, uid, StageItemTimeSpan());
+
+        var stageItems = await redisId.RangeAsync(0, -1);  //모든 아이템 목록 불러오기
+
+        if (stageItems.Length==0)
+        {
+            return (ErrorCode.None, null);
+        }
+
+        return (ErrorCode.None, stageItems.ToList());
+
+    }
     public async Task<ErrorCode> SetUserStageNPC(string userId, int npcCode, int stageCode, int npcCount, int index)
     {
         var uid = "StageNPC_" + stageCode + "_" + userId;
