@@ -161,5 +161,30 @@ public class MasterDataDB : IMasterDataDB
         else
             return (ErrorCode.InvalidItemData, data);
     }
+
+    public ErrorCode IsExistStageItem(int stageCode,int itemCode)
+    {
+        if (StageItemDataList.Any(x => x.Code == stageCode && x.ItemCode == itemCode))      //스테이지에 해당 아이템이 있는지 확인 있으면
+        {
+            return ErrorCode.None;
+        }
+        else
+        {
+            return ErrorCode.NotExistStageItemData;
+
+        }
+    }
+    public ErrorCode IsExistStageNPC(int stageCode,int npcCode)
+    {
+        if (StageItemDataList.Any(x => x.Code == stageCode && x.ItemCode == npcCode))      //스테이지에 해당 아이템이 있는지 확인 있으면
+        {
+            return ErrorCode.None;
+        }
+        else
+        {
+            return ErrorCode.NotExistStageNPCData;
+
+        }
+    }
 }
 

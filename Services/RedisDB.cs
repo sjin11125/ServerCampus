@@ -2,6 +2,10 @@
 using CloudStructures.Structures;
 using Com2usServerCampus.Model;
 using Microsoft.Extensions.Options;
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Security.Principal;
 using ZLogger;
 using static Com2usServerCampus.LogManager;
 
@@ -10,13 +14,13 @@ public class RedisDB : IRedisDB
 {
     ILogger<RedisDB> logger=GetLogger<RedisDB>();
 
-    public RedisConnection RedisConnection { get; set; }
+    public RedisConnection redisConnection { get; set; }
 
 
     public void Init(string connectString)      //레디스 연결 초기화 (한번만 실행)
     {
         var config = new RedisConfig("basic", connectString);
-        RedisConnection= new RedisConnection(config);       //레디스 연결
+        redisConnection= new RedisConnection(config);       //레디스 연결
         logger.ZLogDebug($"userDBAdress: {connectString}");
     }
 
@@ -26,7 +30,7 @@ public class RedisDB : IRedisDB
 
         try
         {
-            var redis = new RedisString<AuthUser>(RedisConnection,uid,null);       //uid를 키로 설정
+            var redis = new RedisString<AuthUser>(redisConnection,uid,null);       //uid를 키로 설정
             var user =await redis.GetAsync();        //값 불러오기
             if (!user.HasValue)     //값이 없나?
             {
@@ -48,7 +52,7 @@ public class RedisDB : IRedisDB
             return false;
         try
         {
-            var redis = new RedisString<AuthUser>(RedisConnection,key,null);
+            var redis = new RedisString<AuthUser>(redisConnection,key,null);
             var redisResult= await redis.DeleteAsync();     //데이터 삭제
             return redisResult;
         }
@@ -61,7 +65,7 @@ public class RedisDB : IRedisDB
     {
         try
         {
-            var redis=new RedisString<AuthUser>(RedisConnection,key, NxKeyTimeSpan());
+            var redis=new RedisString<AuthUser>(redisConnection,key, NxKeyTimeSpan());
             if (await redis.SetAsync(new AuthUser { },NxKeyTimeSpan(),StackExchange.Redis.When.NotExists)==false)   //키가 존재하지 않을 경우 값 Set
             {
                 return false;
@@ -75,7 +79,7 @@ public class RedisDB : IRedisDB
     }
     public async Task<List<Notice>> LoadNotice()               //공지 불러옴
     {
-        var noticeRedis = new RedisList<Notice>(RedisConnection, "Notice", TimeSpan.FromDays(1)); //키가 Notice인 인덱스의 Value리스트
+        var noticeRedis = new RedisList<Notice>(redisConnection, "Notice", TimeSpan.FromDays(1)); //키가 Notice인 인덱스의 Value리스트
 
         var noticeList = await noticeRedis.RangeAsync(0, -1);
         if (noticeList.Length != 0)        //공지가 있다면
@@ -88,7 +92,7 @@ public class RedisDB : IRedisDB
     {
         var uid = "UID_" + email;
 
-        var redisId = new RedisString<AuthUser>(RedisConnection, uid, LoginTimeSpan());       //유효 기간 1일
+        var redisId = new RedisString<AuthUser>(redisConnection, uid, LoginTimeSpan());       //유효 기간 1일
 
         var userInfo = new AuthUser { AccountId = accountId, Email = email, AuthToken = token, State = "Default" };
 
@@ -102,33 +106,200 @@ public class RedisDB : IRedisDB
 
     }
 
-    public async Task<ErrorCode> SetUserStageItem(string userId, int itemCode,int stageCode)
+    public async Task<(ErrorCode, int, int)> GetUserStageItem(string userId, int itemCode, int stageCode)            //레디스에 해당 유저의 현재 진행중인 스테이지의 특정 아이템 정보를 불러옴
+    {
+     
+
+            var uid = "StageItem_" + stageCode + "_" + userId;
+        try
+        {
+            var redisId = new RedisList<AcquireStageItem>(redisConnection, uid, StageItemTimeSpan());
+
+            var stageItems = await redisId.RangeAsync(0, -1);  //모든 아이템 목록 불러오기
+
+            int itemCount = 0;
+            int index = 0;
+
+            bool isExist = false;
+
+            for (int i = 0; i < stageItems.Length; i++)       //해당 아이템 정보 찾기
+            {
+                if (stageItems[i].ItemCode == itemCode)
+                {
+                    itemCount = stageItems[i].ItemCount;
+                    index = i;
+                    isExist = true;
+                    break;
+                }
+            }
+            if (!isExist)       //해당 아이템이 존재하지 않음
+            {
+                return (ErrorCode.None, -1, -1);
+            }
+            else            //존재함
+            {
+                return (ErrorCode.None, index, itemCount);
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.GetUserStageItemFail} Email:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+            return (ErrorCode.GetUserStageItemFail, -1, -1);
+
+        }
+
+    }
+    public async Task<ErrorCode> SetUserStageItem(string userId, int stageCode, int itemCode,int itemCount,int index)            //유저가 스테이지 아이템 파밍했을 때 레디스에 정보넣기
     {
         var uid =  "StageItem_" + stageCode + "_" + userId;
 
-        var redisId = new RedisList<StageItem>(RedisConnection, uid, StageItemTimeSpan()) ;
+        var redisId = new RedisList<AcquireStageItem>(redisConnection, uid, StageItemTimeSpan()) ;
 
-      var stageItemPush=  await redisId.RightPushAsync(new StageItem {  ItemCode = itemCode, Code = stageCode, }, StageItemTimeSpan());
-
-        if (stageItemPush == -1)      //실패
+        if (index!=-1)          //레디스에 이미 같은 종류의 아이템이 있다면
         {
-            logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} Email:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
-            return ErrorCode.PushStageItemFail;
+            try
+            {
+             await redisId.SetByIndexAsync(index,new AcquireStageItem { ItemCode=itemCode, Code=stageCode, ItemCount=itemCount}); //set
+
+            }
+            catch (Exception e)
+            {
+                logger.ZLogError(e,$"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} Email:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                return ErrorCode.SetStageItemFail;
+            }
+          
+            return ErrorCode.None;
         }
+        else                //없다면
+        {
+            var stageItemPush = await redisId.RightPushAsync(new AcquireStageItem { ItemCode = itemCode, Code = stageCode,ItemCount=itemCount }, StageItemTimeSpan()); //푸쉬
+
+            if (stageItemPush == -1)      //실패
+            {
+                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} Email:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                return ErrorCode.PushStageItemFail;
+            }
+            return ErrorCode.None;
+        }
+
+
+
+    }
+    public async Task<(ErrorCode, int, int)> GetUserStageNPC(string userId, int npcCode, int stageCode)     //레디스에 해당 유저의 현재 진행중인 스테이지의 특정 아이템 정보를 불러옴
+    {
+        var uid = "StageNPC_" + stageCode + "_" + userId;
+        try
+        {
+
+            var redisId = new RedisList<KillStageNPC>(redisConnection, uid, StageNPCTimeSpan());
+
+            var npcInfos = await redisId.RangeAsync(0, -1); //레디스에서 이때까지 죽인 npc 정보들 불러와서 있으면 정보 업데이트
+
+
+
+            int npcCount = 0;
+            int index = 0;
+
+            bool isExist = false;
+
+            for (int i = 0; i < npcInfos.Length; i++)       //해당 npc 정보 찾기
+            {
+                if (npcInfos[i].NPCCode == npcCode)
+                {
+                    npcCount = npcInfos[i].Count;
+                    index = i;
+                    isExist = true;
+                    break;
+                }
+            }
+            if (!isExist)       //해당 npc가 존재하지 않음
+            {
+                return (ErrorCode.None, -1, -1);
+            }
+            else            //존재함
+            {
+                return (ErrorCode.None, index, npcCount);
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.GetUserStageNPCFail} Email:{userId} NPCCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+            return (ErrorCode.GetUserStageNPCFail, -1, -1);
+
+        }
+    }
+    public async Task<(ErrorCode, List<AcquireStageItem>)> GetAllUserStageNPC(string userId,  int stageCode)
+    { }
+    public async Task<ErrorCode> SetUserStageNPC(string userId, int npcCode, int stageCode, int npcCount, int index)
+    {
+        var uid = "StageNPC_" + stageCode + "_" + userId;
+
+        var redisId = new RedisList<KillStageNPC>(redisConnection, uid, StageNPCTimeSpan());
+        if (index != -1)          //레디스에 이미 같은 종류의 npc가 있다면
+        {
+            try
+            {
+                await redisId.SetByIndexAsync(index, new KillStageNPC { NPCCode = npcCode, StageCode = stageCode, Count = npcCount });
+
+            }
+            catch (Exception e)
+            {
+                logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} Email:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                return ErrorCode.SetStageItemFail;
+            }
+
+            return ErrorCode.None;
+        }
+        else                //없다면
+        {
+            var stageNpcPush = await redisId.RightPushAsync(new KillStageNPC { NPCCode = npcCode, StageCode = stageCode, Count = npcCount }, StageNPCTimeSpan()); //푸쉬
+
+            if (stageNpcPush == -1)      //실패
+            {
+                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} Email:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                return ErrorCode.PushStageItemFail;
+            }
+            return ErrorCode.None;
+        }
+    }
+
+    public async Task<ErrorCode> DeleteUserStageItem(string userId,int stageCode)
+    {
+        var uid = "StageNPC_" + stageCode + "_" + userId;
+      
+        var deleteKey=  await  redisConnection.GetConnection().GetDatabase().KeyDeleteAsync(uid);   //해당 키 제거
+
+
+        if (!deleteKey)     //키가 제거가 안됐다면
+        {
+            return ErrorCode.RemoveStageItemKeyFail;
+        }
+
+        return ErrorCode.None;
+
+    }
+    public async Task<ErrorCode> DeleteUserStageNPC(string userId,int stageCode)
+    {
+        var uid = "StageItem_" + stageCode + "_" + userId;
+      
+        var deleteKey=  await  redisConnection.GetConnection().GetDatabase().KeyDeleteAsync(uid);   //해당 키 제거
+
+
+        if (!deleteKey)     //키가 제거가 안됐다면
+        {
+            return ErrorCode.RemoveStageItemKeyFail;
+        }
+
         return ErrorCode.None;
 
     }
 
-    public async Task<ErrorCode> SetUserStageNPC(string userId, int npcCode,int stageCode)
-    {
-        var uid =   "StageNPC_"+ stageCode + "_" + userId;
-
-        var redisId = new RedisHashSet<int>(RedisConnection, uid, StageNPCTimeSpan());
 
 
-        var stageNpcPush =await redisId.add
-
-    }
     public TimeSpan StageNPCTimeSpan()
     {
         return TimeSpan.FromSeconds(RedisKeyExpireTime.StageNPCExpireSecond);

@@ -51,6 +51,8 @@
         //마스터 데이터 관련 에러코드
         InvalidItemData=9001,
         InvanlidItemAttributeData=9002,
+        NotExistStageItemData=9003,
+        NotExistStageNPCData=9004,
 
         //인앱 결제 영수증 관련 에러코드
         InAppPurchaseFailDup=10001,
@@ -66,6 +68,13 @@
         //스테이지 관련 에러코드
         SelectStageError=12001,
         PushStageItemFail=12002,
+        SetStageItemFail=12003,
+        NotMatchStageItemData = 12004,
+        NotMatchStageNPCData = 12005,
+        GetUserStageItemFail=12006,
+        GetUserStageNPCFail=12007,
+        RemoveStageItemKeyFail=12008,
+        RemoveStageNpcKeyFail=12009,
 
     }
 }

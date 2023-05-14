@@ -14,7 +14,7 @@ using ZLogger;
 namespace Com2usServerCampus.Controllers;
 [ApiController]
 [Route("[controller]")]
-public class StageSelectController
+public class StageSelectController:ControllerBase
 {
     readonly ILogger _logger;
     readonly IMasterDataDB _masterDataDB;

@@ -12,8 +12,20 @@ namespace Com2usServerCampus.Services;
     public Task<bool> DelUserReqLockAsync(string key);
 
     public Task<List<Notice>> LoadNotice();
-    public  Task<ErrorCode> SetUserToken(string email, string token, int accountId);
-    public Task<ErrorCode> SetUserStageItem(string userId, int itemCode, int stageNum);
+    public Task<(ErrorCode, int, int)> GetUserStageItem(string userId, int itemCode, int stageCode);
+
+    public Task<ErrorCode> SetUserStageItem(string userId, int itemCode, int stageNum,int itemCount, int index);
+
+    public Task<(ErrorCode, int, int)> GetUserStageNPC(string userId, int npcCode, int stageCode);
+    public  Task<ErrorCode> SetUserStageNPC(string userId, int npcCode, int stageCode, int npcCount, int index);
+
+    public Task<ErrorCode> SetUserToken(string email, string token, int accountId);
+
+    public  Task<ErrorCode> DeleteUserStageItem(string userId, int stageCode);
+    public Task<ErrorCode> DeleteUserStageNPC(string userId, int stageCode);
+
+
+
 
 }
 
