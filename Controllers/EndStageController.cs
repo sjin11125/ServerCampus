@@ -221,9 +221,21 @@ namespace Com2usServerCampus.Controllers;
                 return endStageResponse;
             }
 
+        //레디스 키 삭제
+        var removeItemKey = await _redisDB.DeleteUserStageItem(endStageInfo.UserId, endStageInfo.StageCode);
+        if (removeItemKey != ErrorCode.None)
+        {
+            endStageResponse.Error = removeItemKey;
+            return endStageResponse;
+        }
 
+        var removeNpcKey = await _redisDB.DeleteUserStageNPC(endStageInfo.UserId, endStageInfo.StageCode);
+        if (removeNpcKey != ErrorCode.None)
+        {
+            endStageResponse.Error = removeNpcKey;
+            return endStageResponse;
+        }
 
-        
 
         return endStageResponse;
     }
