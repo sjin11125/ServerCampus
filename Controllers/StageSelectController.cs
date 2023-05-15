@@ -47,7 +47,7 @@ public class StageSelectController:ControllerBase
         }
 
         stageResonse.StageItems = stageDataInfo.StageItmes;
-        stageDataInfo.StageNPCs = stageDataInfo.StageNPCs;
+        stageResonse.StageNPCs = stageDataInfo.StageNPCs;
         stageResonse.Error = ErrorCode.None;
 
 
