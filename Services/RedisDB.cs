@@ -1,6 +1,7 @@
 ﻿using CloudStructures;
 using CloudStructures.Structures;
 using Com2usServerCampus.Model;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Options;
 using System;
 using System.Reflection;
@@ -301,10 +302,22 @@ public class RedisDB : IRedisDB
     {
         var uid = "StageNPC_" + stageCode + "_" + userId;
       
-        var deleteKey=  await  redisConnection.GetConnection().GetDatabase().KeyDeleteAsync(uid);   //해당 키 제거
+        var deleteKey=    redisConnection.GetConnection();   //해당 키 제거
+
+        var keys = deleteKey.GetServer("127.0.0.1", 6379).Keys();
+        foreach (var item in keys)
+        {
+            Console.WriteLine(item);
+        }
+
+        var delete1 = deleteKey.GetDatabase();
+
+        var isKeyExist = delete1.KeyExists(uid);
+        var delete2 =await delete1.KeyDeleteAsync(uid);
+        var redisId = new RedisList<KillStageNPC>(redisConnection, uid, StageNPCTimeSpan());
 
 
-        if (!deleteKey)     //키가 제거가 안됐다면
+        if (!delete2)     //키가 제거가 안됐다면
         {
             return ErrorCode.RemoveStageItemKeyFail;
         }
@@ -321,7 +334,7 @@ public class RedisDB : IRedisDB
 
         if (!deleteKey)     //키가 제거가 안됐다면
         {
-            return ErrorCode.RemoveStageItemKeyFail;
+            return ErrorCode.RemoveStageNpcKeyFail;
         }
 
         return ErrorCode.None;
