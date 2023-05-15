@@ -8,6 +8,8 @@ using System.Dynamic;
 using System.Collections.Generic;
 using Com2usServerCampus.ModelReqRes;
 using ZLogger;
+using System.Collections;
+using System.Reflection.PortableExecutable;
 
 namespace Com2usServerCampus.Services;
 public class GameDB : IGameDB
@@ -57,14 +59,21 @@ public class GameDB : IGameDB
             _logger.ZLogError(e, $"GameDB.InsertGameData Exception ErrorCode:{ErrorCode.InsertGameDataDup} email: {userInfo.Email}");
             throw;
         }
-    }    public async Task<ErrorCode> UpdateStageClearData(EndStageResult stageResult)        //스테이지 클리어시 유저 정보 업데이트
+    }    
+    public async Task<ErrorCode> UpdateStageClearData(EndStageResult stageResult)        //스테이지 클리어시 유저 정보 업데이트
     {
         try
         {
-            var count = await queryFactory.Query("gamedata").Where("UserId", stageResult.UserId).UpdateAsync(new
+            var userGameData = await queryFactory.Query("gamedata").Where("Email", stageResult.UserId).FirstOrDefaultAsync<UserInfo>();
+            if (userGameData is null)
+            {
+                return ErrorCode.WrongGameData;
+            }
+
+            var count = await queryFactory.Query("gamedata").Where("Email", stageResult.UserId).UpdateAsync(new
             {
 
-                Exp = stageResult.TotalEXP,
+                Exp = userGameData.Exp+ stageResult.TotalEXP,                 //경험치는 더해줘야 한다
                 Stage = stageResult.StageCode
             });
 
@@ -113,13 +122,13 @@ public class GameDB : IGameDB
         {
             result = await queryFactory.Query("itemdata").InsertAsync(new
             {
-                userItem.Eamil,
-                userItem.ItemCode,
-                userItem.EnhanceCount,
-                userItem.ItemCount,
-                userItem.Attack,
-                userItem.Defence,
-                userItem.Magic
+                Email = userItem.Eamil,
+                ItemCode = userItem.ItemCode,
+                EnhanceCount = userItem.EnhanceCount,
+                ItemCount = userItem.ItemCount,
+                Attack = userItem.Attack,
+                Defence = userItem.Defence,
+                Magic = userItem.Magic
 
             });
         }

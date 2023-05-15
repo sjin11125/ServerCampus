@@ -75,10 +75,10 @@ namespace Com2usServerCampus.Controllers;
             return endStageResponse;
         }
 
-
+      
 
         //마스터데이터와 레디스에 저장된 정보 비교 (아이템 수)
-        if (itemMasterData.Count != 0)
+        if (itemRedisData is not null)
         {
             foreach (var item in itemMasterData)
             {
@@ -118,7 +118,7 @@ namespace Com2usServerCampus.Controllers;
         //마스터데이터와 레디스에 저장된 정보 비교 (npc 수)
         int totalEXP = 0;
 
-        if (npcRedisData.Count!=0)
+        if (npcRedisData is not null)
         {
             foreach (var item in npcMasterData)
             {
@@ -130,7 +130,7 @@ namespace Com2usServerCampus.Controllers;
                     {
                         tempNPC.Count -= item.Count;
 
-                        totalEXP = item.Exp;            //경험치 계산
+                        totalEXP += item.Exp*item.Count;            //경험치 계산
 
                         if (tempNPC.Count <= 0)
                         {
@@ -153,20 +153,6 @@ namespace Com2usServerCampus.Controllers;
                 endStageResponse.Error = ErrorCode.NotMatchStageNPCData;       //에러
                 return endStageResponse;
             }
-        }
-
-
-        //데이터가 맞지 않는다면
-        if (itemRedisData.Count != 0 )
-        {
-            endStageResponse.Error = ErrorCode.NotMatchStageItemData;
-            return endStageResponse;
-
-        }
-        if (npcRedisData.Count != 0)
-        {
-            endStageResponse.Error = ErrorCode.NotMatchStageNPCData;
-            return endStageResponse;
         }
 
 
@@ -220,13 +206,13 @@ namespace Com2usServerCampus.Controllers;
     }
     public async Task<ErrorCode> DeleteReidsKey(string userId,int stageCode)
     {
-        var removeItemKey = await _redisDB.DeleteUserStageItem(userId, stageCode);
+        var removeItemKey = await _redisDB.DeleteUserStageItemData(userId, stageCode);
         if (removeItemKey != ErrorCode.None)
         {
             return removeItemKey;
         }
 
-        var removeNpcKey = await _redisDB.DeleteUserStageNPC(userId, stageCode);
+        var removeNpcKey = await _redisDB.DeleteUserStageNPCData(userId, stageCode);
         if (removeNpcKey != ErrorCode.None)
         {
             return removeNpcKey;

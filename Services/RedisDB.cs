@@ -298,43 +298,43 @@ public class RedisDB : IRedisDB
         }
     }
 
-    public async Task<ErrorCode> DeleteUserStageItem(string userId,int stageCode)
-    {
-        var uid = "StageNPC_" + stageCode + "_" + userId;
-      
-        var deleteKey=    redisConnection.GetConnection();   //해당 키 제거
-
-        var keys = deleteKey.GetServer("127.0.0.1", 6379).Keys();
-        foreach (var item in keys)
-        {
-            Console.WriteLine(item);
-        }
-
-        var delete1 = deleteKey.GetDatabase();
-
-        var isKeyExist = delete1.KeyExists(uid);
-        var delete2 =await delete1.KeyDeleteAsync(uid);
-        var redisId = new RedisList<KillStageNPC>(redisConnection, uid, StageNPCTimeSpan());
-
-
-        if (!delete2)     //키가 제거가 안됐다면
-        {
-            return ErrorCode.RemoveStageItemKeyFail;
-        }
-
-        return ErrorCode.None;
-
-    }
-    public async Task<ErrorCode> DeleteUserStageNPC(string userId,int stageCode)
+    public async Task<ErrorCode> DeleteUserStageItemData(string userId, int stageCode)
     {
         var uid = "StageItem_" + stageCode + "_" + userId;
-      
-        var deleteKey=  await  redisConnection.GetConnection().GetDatabase().KeyDeleteAsync(uid);   //해당 키 제거
+
+        var deleteKey = redisConnection.GetConnection().GetDatabase();
 
 
-        if (!deleteKey)     //키가 제거가 안됐다면
+        if (deleteKey.KeyExists(uid))     //해당 키가 있나    
         {
-            return ErrorCode.RemoveStageNpcKeyFail;
+            var isDelete = await deleteKey.KeyDeleteAsync(uid);//해당 키 제거
+
+
+            if (!isDelete)     //키가 제거가 안됐다면
+            {
+                return ErrorCode.RemoveStageItemKeyFail;
+            }
+        }
+        return ErrorCode.None;
+
+
+    }
+    public async Task<ErrorCode> DeleteUserStageNPCData(string userId,int stageCode)
+    {
+        var uid = "StageNPC_" + stageCode + "_" + userId;
+
+        var deleteKey = redisConnection.GetConnection().GetDatabase();
+
+
+        if (deleteKey.KeyExists(uid))       //해당 키가 있나
+        {
+            var isDelete = await deleteKey.KeyDeleteAsync(uid);//해당 키 제거
+
+
+            if (!isDelete)     //키가 제거가 안됐다면
+            {
+                return ErrorCode.RemoveStageItemKeyFail;
+            }
         }
 
         return ErrorCode.None;
