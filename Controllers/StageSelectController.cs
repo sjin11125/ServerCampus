@@ -56,6 +56,10 @@ public class StageSelectController:ControllerBase
     }
     public async Task<ErrorCode> IsStageSelectable(string userId,int selectedStageId)
     {
+        if (selectedStageId<0)
+        {
+            return ErrorCode.SelectStageError;
+        }
         (var stageError, var stage) = await _gameDB.GetUserStageInfo(userId);       //유저가 클리어한 스테이지 불러옴
         if (stageError != ErrorCode.None)
         {

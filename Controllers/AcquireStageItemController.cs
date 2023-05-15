@@ -53,8 +53,11 @@ public class AcquireStageItemController
 
         int masterDataStageItemCount = stageItemList.Count(x => x.ItemCode == stageItemInfo.ItemCode);
 
+
+        itemCount += 1;
+
         //레디스에 있는 해당 아이템 수 + 1(이번에 새로 얻은 수) 가 마스터 데이터와 맞는지 확인
-        if (masterDataStageItemCount < (itemCount+1))                   //맞지않으면 에러 리턴
+        if (masterDataStageItemCount < itemCount)                   //맞지않으면 에러 리턴
         {
             acquireStageItemResponse.Error = ErrorCode.NotMatchStageItemData;
             return acquireStageItemResponse;
@@ -62,7 +65,7 @@ public class AcquireStageItemController
 
         //검증 끝
         //레디스에 아이템 정보 저장
-        var error = await _redisDB.SetUserStageItem(stageItemInfo.UserId,  stageItemInfo.StageCode,stageItemInfo.ItemCode, (itemCount + 1),index); //레디스에 아이템 정보 저장
+        var error = await _redisDB.SetUserStageItem(stageItemInfo.UserId,  stageItemInfo.StageCode,stageItemInfo.ItemCode, itemCount,index); //레디스에 아이템 정보 저장
        
         if (error != ErrorCode.None)        //에러면
         {

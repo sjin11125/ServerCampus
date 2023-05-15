@@ -143,6 +143,11 @@ public class MasterDataDB : IMasterDataDB
 
     public (ErrorCode,List<StageItem>) GetStageItem(int stageCode)
     {
+        if (stageCode<=0)
+        {
+            return (ErrorCode.NotExistStageCode, null);
+
+        }
         var data = StageItemDataList.FindAll(x => x.Code == stageCode);
         if (data is not null)
         {

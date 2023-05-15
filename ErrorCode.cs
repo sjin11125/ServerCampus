@@ -55,6 +55,7 @@
         InvanlidItemAttributeData=9002,
         NotExistStageItemData=9003,
         NotExistStageNPCData=9004,
+        NotExistStageCode=9005,
 
         //인앱 결제 영수증 관련 에러코드
         InAppPurchaseFailDup=10001,
