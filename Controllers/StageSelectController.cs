@@ -16,11 +16,11 @@ namespace Com2usServerCampus.Controllers;
 [Route("[controller]")]
 public class StageSelectController:ControllerBase
 {
-    readonly ILogger _logger;
+    readonly ILogger<StageSelectController> _logger;
     readonly IMasterDataDB _masterDataDB;
     readonly IGameDB _gameDB;
 
-    public StageSelectController(ILogger logger, IMasterDataDB masterDataDB, IGameDB gameDB)
+    public StageSelectController(ILogger<StageSelectController> logger, IMasterDataDB masterDataDB, IGameDB gameDB)
     {
         _logger = logger;
         _masterDataDB = masterDataDB;

@@ -41,17 +41,10 @@ namespace Com2usServerCampus.Controllers;
         //레디스에 저장된 정보 지우기 (아이템, npc)
         if (!endStageInfo.isClear)
         {
-          var removeItemKey=  await _redisDB.DeleteUserStageItem(endStageInfo.UserId,endStageInfo.StageCode);
-            if (removeItemKey!=ErrorCode.None)
+          var NotClearError=  await DeleteReidsKey(endStageInfo.UserId, endStageInfo.StageCode);
+            if (NotClearError!=ErrorCode.None)
             {
-                endStageResponse.Error = removeItemKey;
-                return endStageResponse;
-            }
-
-            var removeNpcKey = await _redisDB.DeleteUserStageNPC(endStageInfo.UserId, endStageInfo.StageCode);
-            if (removeNpcKey != ErrorCode.None)
-            {
-                endStageResponse.Error = removeNpcKey;
+                endStageResponse.Error = NotClearError;
                 return endStageResponse;
             }
         }
@@ -62,33 +55,27 @@ namespace Com2usServerCampus.Controllers;
         //레디스에 있던 유저가 얻은 아이템을 마스터데이터에 있는 아이템 정보와 비교
 
 
-        (var itemMasterError, var itemMasterData) = _masterDataDB.GetStageItem(endStageInfo.StageCode); //스테이지 아이템 마스터데이터 가져옴
-        if (itemMasterError != ErrorCode.None)
+        //마스터데이터 불러옴
+        (var getMasterDataError, var itemMasterData, var npcMasterData) =  GetStageMasterData(endStageInfo.StageCode);
+
+        if (getMasterDataError!=ErrorCode.None)
         {
-            endStageResponse.Error = itemMasterError;
+            endStageResponse.Error= getMasterDataError;
             return endStageResponse;
         }
 
-        (var itemRedisError, var itemRedisData) = await _redisDB.GetAllUserStageItem(endStageInfo.UserId, endStageInfo.StageCode);   //레디스에 있는 유저가 얻은 아이템 정보들 불러옴
-        if (itemRedisError != ErrorCode.None)
+
+
+        //레디스에서 데이터 불러옴
+        (var getRedisDataError,var itemRedisData,var npcRedisData)=  await GetRedisData(endStageInfo.UserId, endStageInfo.StageCode);
+
+        if (getRedisDataError != ErrorCode.None)
         {
-            endStageResponse.Error = itemRedisError;
+            endStageResponse.Error = getRedisDataError;
             return endStageResponse;
         }
 
-        (var npcMasterError, var npcMasterData) = _masterDataDB.GetStageNPC(endStageInfo.StageCode); //스테이지 npc 마스터데이터 가져옴
-        if (itemMasterError != ErrorCode.None)
-        {
-            endStageResponse.Error = itemMasterError;
-            return endStageResponse;
-        }
 
-        (var npcRedisError, var npcRedisData) = await _redisDB.GetAllUserStageNPC(endStageInfo.UserId, endStageInfo.StageCode);   //레디스에 있던 유저가 잡은 npc 정보들을 불러옴
-        if (npcRedisError != ErrorCode.None)
-        {
-            endStageResponse.Error = npcRedisError;
-            return endStageResponse;
-        }
 
         //마스터데이터와 레디스에 저장된 정보 비교 (아이템 수)
         if (itemMasterData.Count != 0)
@@ -222,23 +209,69 @@ namespace Com2usServerCampus.Controllers;
             }
 
         //레디스 키 삭제
-        var removeItemKey = await _redisDB.DeleteUserStageItem(endStageInfo.UserId, endStageInfo.StageCode);
-        if (removeItemKey != ErrorCode.None)
+      var deleteRedisKeyError= await DeleteReidsKey(endStageInfo.UserId, endStageInfo.StageCode);
+        if (deleteRedisKeyError!=ErrorCode.None)
         {
-            endStageResponse.Error = removeItemKey;
-            return endStageResponse;
+            endStageResponse.Error = deleteRedisKeyError;
+            return endStageResponse;    
         }
-
-        var removeNpcKey = await _redisDB.DeleteUserStageNPC(endStageInfo.UserId, endStageInfo.StageCode);
-        if (removeNpcKey != ErrorCode.None)
-        {
-            endStageResponse.Error = removeNpcKey;
-            return endStageResponse;
-        }
-
 
         return endStageResponse;
     }
+    public async Task<ErrorCode> DeleteReidsKey(string userId,int stageCode)
+    {
+        var removeItemKey = await _redisDB.DeleteUserStageItem(userId, stageCode);
+        if (removeItemKey != ErrorCode.None)
+        {
+            return removeItemKey;
+        }
 
+        var removeNpcKey = await _redisDB.DeleteUserStageNPC(userId, stageCode);
+        if (removeNpcKey != ErrorCode.None)
+        {
+            return removeNpcKey;
+        }
+
+        return ErrorCode.None;
+    }
+
+    public (ErrorCode,List<StageItem>,List<StageNPC>) GetStageMasterData(int stageCode)     //해당 스테이지의 아이템,npc 마스터데이터 불러오기
+    {
+        (var itemMasterError, var itemMasterData) = _masterDataDB.GetStageItem(stageCode); //스테이지 아이템 마스터데이터 가져옴
+        if (itemMasterError != ErrorCode.None)
+        {
+            return (itemMasterError,null,null);
+        }
+
+        (var npcMasterError, var npcMasterData) = _masterDataDB.GetStageNPC(stageCode); //스테이지 npc 마스터데이터 가져옴
+        if (itemMasterError != ErrorCode.None)
+        {
+            return (itemMasterError,null,null);
+        }
+
+        return (ErrorCode.None, itemMasterData, npcMasterData);
+    }
+
+
+    public async Task<(ErrorCode,List<AcquireStageItem>,List<KillStageNPC>)> GetRedisData(string userId,int stageCode)      //레디스에 저장되어 있는 데이터 불러오기
+    {
+        (var itemRedisError, var itemRedisData) = await _redisDB.GetAllUserStageItem(userId,stageCode);   //레디스에 있는 유저가 얻은 아이템 정보들 불러옴
+        if (itemRedisError != ErrorCode.None)
+        {
+            return (itemRedisError,null,null);
+        }
+
+
+        (var npcRedisError, var npcRedisData) = await _redisDB.GetAllUserStageNPC(userId, stageCode);   //레디스에 있던 유저가 잡은 npc 정보들을 불러옴
+        if (npcRedisError != ErrorCode.None)
+        {
+            return (npcRedisError,null,null);
+        }
+
+
+        return (ErrorCode.None,itemRedisData,npcRedisData);
+    }
 }
+
+
 

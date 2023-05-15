@@ -10,7 +10,6 @@ namespace Com2usServerCampus.Services
         public Task<(ErrorCode, UserItem)> GetItem( int itemId);
         public Task<ErrorCode> InsertItem(bool isCount, UserItem useritem);
 
-        public Task<ErrorCode> UpdateGameData(UserInfo userInfo);
     
     public Task<ErrorCode> UpdateStageClearData(EndStageResult stageResult);
 
