@@ -216,7 +216,7 @@ public class RedisDB : IRedisDB
             }
             if (!isExist)       //해당 npc가 존재하지 않음
             {
-                return (ErrorCode.None, -1, -1);
+                return (ErrorCode.None, -1, 0);
             }
             else            //존재함
             {
