@@ -43,7 +43,7 @@ public class InAppPurchaseController : ControllerBase
             return result;
         }
         List<UserItem> items = data.ConvertAll<UserItem>(i => i as UserItem) ;    //형변환
-        var mailReust = await _gameDB.InsertMail(receipt.Email, items,MailType.InAppPurchase);  //메일 테이블에 메일 넣고 메일 아이템 테이블에 아이템 넣기
+        var mailReust = await _gameDB.InsertMail(receipt.UserId, items,MailType.InAppPurchase);  //메일 테이블에 메일 넣고 메일 아이템 테이블에 아이템 넣기
         if (mailReust != ErrorCode.None)
         { 
             result.Error = mailReust;

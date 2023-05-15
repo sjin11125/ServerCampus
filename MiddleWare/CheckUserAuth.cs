@@ -125,7 +125,7 @@ public class CheckUserAuth
     {
         try
         {
-            email = document.RootElement.GetProperty("Email").GetString();
+            email = document.RootElement.GetProperty("UserId").GetString();
             authToken = document.RootElement.GetProperty("AuthToken").GetString();
 
             return (false,email,authToken);

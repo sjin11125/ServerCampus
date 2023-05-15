@@ -58,7 +58,7 @@ public class CreateAccountController : ControllerBase
 
         var UserItemErrorCode = await _gameDB.InsertItem(itemData.isCount, new UserItem
             {             //받아온 출석보상을 사용자 메일 테이블에 추가
-                Eamil = UserInfo.Email,
+                UserId = UserInfo.Email,
                 ItemCount = 10,
                 ItemCode = 1,
                 EnhanceCount = 0,

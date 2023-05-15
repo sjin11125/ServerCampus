@@ -62,7 +62,7 @@ public class EnhanceController : ControllerBase
 
             var itemUpdate = await _gameDB.UpdateItem( new UserItem
             {      // 아이템 업데이트
-                Eamil = enhanceInfo.Email,
+                UserId = enhanceInfo.Email,
                 ItemCode = item.ItemCode,
                 ItemId = enhanceInfo.ItemId,
                 EnhanceCount = item.EnhanceCount + 1,

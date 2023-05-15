@@ -99,7 +99,7 @@ namespace Com2usServerCampus.Controllers;
                 }
                 catch (Exception e)                 //
                 {
-                    _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} Email:{endStageInfo.UserId} ItemCode:{item.ItemCode} StageNum: {endStageInfo.UserId} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                    _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{endStageInfo.UserId} ItemCode:{item.ItemCode} StageNum: {endStageInfo.UserId} ");    //레디스에 스테이지 아이템 넣기 실패 에러
 
                     endStageResponse.Error = ErrorCode.EndStageException;
                     return endStageResponse;
@@ -141,7 +141,7 @@ namespace Com2usServerCampus.Controllers;
                 }
                 catch (Exception e)                 //
                 {
-                    _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} Email:{endStageInfo.UserId} NPCCode:{item.NPCCode} StageNum: {endStageInfo.UserId} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                    _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{endStageInfo.UserId} NPCCode:{item.NPCCode} StageNum: {endStageInfo.UserId} ");    //레디스에 스테이지 아이템 넣기 실패 에러
 
                     endStageResponse.Error = ErrorCode.EndStageException;
                     return endStageResponse;
@@ -166,7 +166,7 @@ namespace Com2usServerCampus.Controllers;
 
                 var insertItemError = await _gameDB.InsertItem(itemInfo.isCount, new UserItem           //아이템 테이블에 아이템 넣기
                 {
-                    Eamil = endStageInfo.UserId,
+                    UserId = endStageInfo.UserId,
                     ItemCode = item.ItemCode,
                     ItemCount = 1,
                     EnhanceCount = 1,

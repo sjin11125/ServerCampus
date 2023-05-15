@@ -48,7 +48,7 @@ public class AttendanceController : ControllerBase
         }
 
         List<UserItem> UserItems = new List<UserItem>() { new UserItem {             //받아온 출석보상을 사용자 메일 테이블에 추가
-            Eamil=Attendance.Email,
+            UserId=Attendance.Email,
             ItemCount=reward.Count,
             ItemCode=reward.ItemCode,
             EnhanceCount= 0,

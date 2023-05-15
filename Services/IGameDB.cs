@@ -24,7 +24,6 @@ namespace Com2usServerCampus.Services
         public Task<(ErrorCode, int)> Attendance(string userId);
         public Task<ErrorCode> InsertMail(string userId,List<UserItem> items, MailType type);
         public  Task<ErrorCode> CheckDuplicateReceipt(InAppPurchaseRequest info);
-        public Task<ErrorCode> InsertEnhanceInfo(EnhanceItemInfo enhanceInfo);
 
         public  Task<(ErrorCode, int)> GetUserStageInfo(string userId);
 

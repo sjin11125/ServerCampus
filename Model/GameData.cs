@@ -1,7 +1,7 @@
 ﻿namespace Com2usServerCampus.Model;
 public class UserInfo
 {
-    public string Email { get; set; }
+    public string UserId { get; set; }
     public int Exp { get; set; }
     public int Attack { get; set; }
     public int Defense { get; set; }
@@ -12,7 +12,7 @@ public class UserInfo
 
     public UserInfo(string email, int exp, int attack, int defense, DateTime attendance, int attendanceCount, int stage)
     {
-        Email = email;
+        UserId = email;
         Exp = exp;
         Attack = attack;
         Defense = defense;
@@ -24,7 +24,7 @@ public class UserInfo
 
 public class UserItem
 {
-    public string Eamil { get; set; }     //계정번호
+    public string UserId { get; set; }     //계정번호
     public int ItemId { get; set; }     //아이템 Id
     public int ItemCode { get; set; }        //아이템 코드
     public int EnhanceCount { get; set; }        //강화횟수

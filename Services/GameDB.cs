@@ -38,7 +38,7 @@ public class GameDB : IGameDB
             userInfo.Attendance = DateTime.Today;
             var count = await queryFactory.Query("gamedata").InsertAsync(new
             {
-                userInfo.Email,
+                userInfo.UserId,
                 userInfo.Exp,
                 userInfo.Attack,
                 userInfo.Defense,
@@ -56,7 +56,7 @@ public class GameDB : IGameDB
         }
         catch (Exception e)
         {
-            _logger.ZLogError(e, $"GameDB.InsertGameData Exception ErrorCode:{ErrorCode.InsertGameDataDup} email: {userInfo.Email}");
+            _logger.ZLogError(e, $"GameDB.InsertGameData Exception ErrorCode:{ErrorCode.InsertGameDataDup} email: {userInfo.UserId}");
             throw;
         }
     }    
@@ -64,13 +64,13 @@ public class GameDB : IGameDB
     {
         try
         {
-            var userGameData = await queryFactory.Query("gamedata").Where("Email", stageResult.UserId).FirstOrDefaultAsync<UserInfo>();
+            var userGameData = await queryFactory.Query("gamedata").Where("UserId", stageResult.UserId).FirstOrDefaultAsync<UserInfo>();
             if (userGameData is null)
             {
                 return ErrorCode.WrongGameData;
             }
 
-            var count = await queryFactory.Query("gamedata").Where("Email", stageResult.UserId).UpdateAsync(new
+            var count = await queryFactory.Query("gamedata").Where("UserId", stageResult.UserId).UpdateAsync(new
             {
 
                 Exp = userGameData.Exp+ stageResult.TotalEXP,                 //경험치는 더해줘야 한다
@@ -97,14 +97,14 @@ public class GameDB : IGameDB
         int result = 0;
         if (isCount)       //겹치기가 가능한가
         {
-            var count = await queryFactory.Query("itemdata").Where("Email", userItem.Eamil).Where("ItemCode", userItem.ItemCode).Select("ItemCount").FirstOrDefaultAsync<int>();  //아이템 있는지 확인
+            var count = await queryFactory.Query("itemdata").Where("UserId", userItem.UserId).Where("ItemCode", userItem.ItemCode).Select("ItemCount").FirstOrDefaultAsync<int>();  //아이템 있는지 확인
 
 
             if (count == 0)//없으면 걍 넣고
             {
                 result = await queryFactory.Query("itemdata").InsertAsync(new
                 {
-                    userItem.Eamil,
+                    userItem.UserId,
                     userItem.ItemCode,
                     userItem.EnhanceCount,
                     userItem.ItemCount
@@ -122,7 +122,7 @@ public class GameDB : IGameDB
         {
             result = await queryFactory.Query("itemdata").InsertAsync(new
             {
-                Email = userItem.Eamil,
+                UserId = userItem.UserId,
                 ItemCode = userItem.ItemCode,
                 EnhanceCount = userItem.EnhanceCount,
                 ItemCount = userItem.ItemCount,
@@ -144,7 +144,7 @@ public class GameDB : IGameDB
     { 
         var   result = await queryFactory.Query("itemdata").Where("ItemCode", userItem.ItemCode).Where("Id",userItem.ItemId).UpdateAsync(new {
 
-            Eamil = userItem.Eamil,
+            Eamil = userItem.UserId,
             ItemCode = userItem.ItemCode,
             ItemId = userItem.ItemId,
             EnhanceCount = userItem.EnhanceCount + 1,
@@ -172,7 +172,7 @@ public class GameDB : IGameDB
     }
     public  async Task<(ErrorCode,UserInfo)> GetGameData(string userId)       //유저 게임 데이터 불러오기
     {
-        UserInfo userInfo = await queryFactory.Query("gamedata").Where("Email", userId).FirstOrDefaultAsync<UserInfo>();
+        UserInfo userInfo = await queryFactory.Query("gamedata").Where("UserId", userId).FirstOrDefaultAsync<UserInfo>();
         if (userInfo==null)             //유저의 게임정보가 없다면
             return ( ErrorCode.WrongGameData,null);
         else 
@@ -182,7 +182,7 @@ public class GameDB : IGameDB
 
    public async Task<(ErrorCode,List<UserItem>)> GetAllItems(string userId)         //유저 아이템 모두 불러오기
     {
-        var items =await queryFactory.Query("itemdata").Where("Email", userId).GetAsync<UserItem>();
+        var items =await queryFactory.Query("itemdata").Where("UserId", userId).GetAsync<UserItem>();
 
         if (items.Count()==0)       //가지고 있는 아이템이 하나도 없다면
             return (ErrorCode.InvalidItemData, null);
@@ -212,7 +212,7 @@ public class GameDB : IGameDB
         }
         foreach (var mail in mailInfos.List)
         {
-            var mailitems = await queryFactory.Query("mailitem").Where("Email", userId).Where("MailId", mail.Id).GetAsync<MailItem>();
+            var mailitems = await queryFactory.Query("mailitem").Where("UserId", userId).Where("MailId", mail.Id).GetAsync<MailItem>();
 
             if (mailitems.Count()==0)      //메일의 아이템이 없으면
                 continue;
@@ -279,7 +279,7 @@ public class GameDB : IGameDB
 
         var result = await queryFactory.Query("mail").InsertGetIdAsync<int>(new
         {               //메일 내용 넣고 메일Id 불러오기
-            Email = userId,
+            UserId = userId,
             Title = title,
             Content = content,
             ExpiryTime = 7,
@@ -302,7 +302,6 @@ public class GameDB : IGameDB
         {
             var insertMail = await queryFactory.Query("mailitem").InsertAsync(new  //메일 아이템 테이블에 아이템 넣기(성공 1, 실패 0)
             {
-                Email = userId,
                 ItemId = itemId,
                 Code = item.ItemCode,
                 Count = item.ItemCount
@@ -316,7 +315,7 @@ public class GameDB : IGameDB
     }
     public async Task<(ErrorCode, int)> Attendance(string userId)          //출석 확인
     {
-        var result = await queryFactory.Query("gamedata").Where("Email", userId).Select("Attendance", "AttendanceCount").FirstOrDefaultAsync<AttendanceInfo>();     //사용자 게임정보 중 날짜를 불러옴
+        var result = await queryFactory.Query("gamedata").Where("UserId", userId).Select("Attendance", "AttendanceCount").FirstOrDefaultAsync<AttendanceInfo>();     //사용자 게임정보 중 날짜를 불러옴
 
         if (result is null)
             return (ErrorCode.InvalidAttendance, 0);
@@ -325,14 +324,14 @@ public class GameDB : IGameDB
 
         if (day != 1)     //연속으로 출석하지 않으면
         {
-           await queryFactory.Query("gamedata").Where("Email", userId).UpdateAsync(new { AttendanceCount = 1, Attendance = DateTime.Today });
+           await queryFactory.Query("gamedata").Where("UserId", userId).UpdateAsync(new { AttendanceCount = 1, Attendance = DateTime.Today });
             //마지막으로 출석한 날짜 초기화, 1일부터 다시시작 
          
             return (ErrorCode.None, 1);
         }
         else
         {
-            await queryFactory.Query("gamedata").Where("Email", userId).UpdateAsync(new { AttendanceCount = result.AttendanceCount+1, Attendance = DateTime.Today });
+            await queryFactory.Query("gamedata").Where("UserId", userId).UpdateAsync(new { AttendanceCount = result.AttendanceCount+1, Attendance = DateTime.Today });
             //마지막으로 출석한 날짜 초기화, 출석일수 업데이트
             return (ErrorCode.None, result.AttendanceCount+1); //(오늘 날짜 - DB 출석 날짜)+1 한 결과를 컨트롤러에 전달
         } 
@@ -346,7 +345,7 @@ public class GameDB : IGameDB
             var result = await queryFactory.Query("inapppurchasereceipt").InsertAsync(new
             {
                 ReceiptId = info.ReceiptId,
-                Email = info.Email,
+                UserId = info.UserId,
                 Title = info.Title,
                 Content = info.Content,
                 ExpiryTime = info.ExpiryTime
@@ -358,38 +357,19 @@ public class GameDB : IGameDB
         }
         catch (Exception e)
         {
-            _logger.ZLogError(e,$"GameDB.CheckDuplicateReceipt Exception ErrorCode:{ErrorCode.InAppPurchaseFailDup} email: {info.Email}");
+            _logger.ZLogError(e,$"GameDB.CheckDuplicateReceipt Exception ErrorCode:{ErrorCode.InAppPurchaseFailDup} email: {info.UserId}");
             Console.WriteLine(e);
             throw;
         }
     } 
     
-    public async Task<ErrorCode> InsertEnhanceInfo(EnhanceItemInfo enhanceInfo)           //강화 단계 이력 정보 추가
-    {
-        var result = await queryFactory.Query("enhance").InsertAsync(new  //강화 단계 이력 테이블에 강화 정보 넣기(성공 1, 실패 0)
-        {
-            Email = enhanceInfo.Email,
-            ItemId = enhanceInfo.ItemId,
-            ItemCode = enhanceInfo.ItemCode,
-            EnhanceCount = enhanceInfo.EnhanceCount,
-            Attribute= enhanceInfo.Attribute,
-            BeforeValue = enhanceInfo.BeforeValue,
-            AfterValue = enhanceInfo.AfterValue,
-            isSuccess = enhanceInfo.isSuccess,
-            Date= enhanceInfo.Date,
-        }) ;
-        if (result !=1)     //실패하면
-            return ErrorCode.InsertEnhanceInfoFail;
-        else                
-            return ErrorCode.None;
-    }
-
+   
     public async Task<(ErrorCode, int)> GetUserStageInfo(string userId)
     {
 
         try
         {
-            var stage = await queryFactory.Query("gamedata").Where("Email", userId).Select("Stage").FirstOrDefaultAsync<int>();  //유저가 클리어 한 스테이지 수를 받아옴
+            var stage = await queryFactory.Query("gamedata").Where("UserId", userId).Select("Stage").FirstOrDefaultAsync<int>();  //유저가 클리어 한 스테이지 수를 받아옴
 
             return (ErrorCode.None, stage);
         }

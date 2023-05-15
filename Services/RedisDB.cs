@@ -99,7 +99,7 @@ public class RedisDB : IRedisDB
 
         if (await redisId.SetAsync(userInfo, LoginTimeSpan()) == false) //실패햇다면
         {
-            logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.SetUserTokenFail} Email:{email} Token: {token} AccountId:{accountId}");    //레디스에 토큰 넣기 실패 에러
+            logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.SetUserTokenFail} UserId:{email} Token: {token} AccountId:{accountId}");    //레디스에 토큰 넣기 실패 에러
             return ErrorCode.SetUserTokenFail;
         }
 
@@ -146,7 +146,7 @@ public class RedisDB : IRedisDB
         }
         catch (Exception e)
         {
-            logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.GetUserStageItemFail} Email:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+            logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.GetUserStageItemFail} UserId:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
             return (ErrorCode.GetUserStageItemFail, -1, -1);
 
         }
@@ -167,7 +167,7 @@ public class RedisDB : IRedisDB
             }
             catch (Exception e)
             {
-                logger.ZLogError(e,$"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} Email:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                logger.ZLogError(e,$"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} UserId:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
                 return ErrorCode.SetStageItemFail;
             }
           
@@ -179,7 +179,7 @@ public class RedisDB : IRedisDB
 
             if (stageItemPush == -1)      //실패
             {
-                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} Email:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} UserId:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
                 return ErrorCode.PushStageItemFail;
             }
             return ErrorCode.None;
@@ -228,7 +228,7 @@ public class RedisDB : IRedisDB
         }
         catch (Exception e)
         {
-            logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.GetUserStageNPCFail} Email:{userId} NPCCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+            logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{userId} NPCCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
             return (ErrorCode.GetUserStageNPCFail, -1, -1);
 
         }
@@ -279,7 +279,7 @@ public class RedisDB : IRedisDB
             }
             catch (Exception e)
             {
-                logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} Email:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} UserId:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
                 return ErrorCode.SetStageItemFail;
             }
 
@@ -291,7 +291,7 @@ public class RedisDB : IRedisDB
 
             if (stageNpcPush == -1)      //실패
             {
-                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} Email:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} UserId:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
                 return ErrorCode.PushStageItemFail;
             }
             return ErrorCode.None;

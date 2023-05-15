@@ -56,7 +56,7 @@ public class AccountDB : IAccountDB
         }
         catch (Exception e)
         {
-            _logger.ZLogError(e,$"{e.Message} ErrorCode: {ErrorCode.CreateAccount_Fail_Exception}, Email:{email}");
+            _logger.ZLogError(e,$"{e.Message} ErrorCode: {ErrorCode.CreateAccount_Fail_Exception}, UserId:{email}");
             return ErrorCode.CreateAccount_Fail_Exception;
         }
     }
@@ -67,16 +67,16 @@ public class AccountDB : IAccountDB
         {
         string HashedPassword = Security.Encrypt(password);  //비번 암호화 
 
-       var count = await queryFactory.Query("account").Where("Email", email).FirstOrDefaultAsync<DBUserInfo>();
+       var count = await queryFactory.Query("account").Where("UserId", email).FirstOrDefaultAsync<DBUserInfo>();
 
         if (count is null)           //이메일 틀리면?
         {
-            _logger.ZLogError($"AccountDB.CheckUser  ErrorCode: {ErrorCode.Login_Fail_Email}  Email: {email}");
+            _logger.ZLogError($"AccountDB.CheckUser  ErrorCode: {ErrorCode.Login_Fail_Email}  UserId: {email}");
             return (ErrorCode.Login_Fail_Email, null); }
 
         if (HashedPassword != count.HashedPassword)       //비번 틀리면?
         {
-            _logger.ZLogError($"AccountDB.CheckUser  ErrorCode: {ErrorCode.Login_Fail_Password}  Email: {email} Password: {password}");
+            _logger.ZLogError($"AccountDB.CheckUser  ErrorCode: {ErrorCode.Login_Fail_Password}  UserId: {email} Password: {password}");
             return (ErrorCode.Login_Fail_Password, null); }
 
         //다 맞으면
@@ -86,7 +86,7 @@ public class AccountDB : IAccountDB
         }
         catch (Exception e)
         {
-            _logger.ZLogError(e,$"AccountDB.CheckUser Exception ErrorCode: {ErrorCode.Login_Fail_Password}  Email: {email} Password: {password}");
+            _logger.ZLogError(e,$"AccountDB.CheckUser Exception ErrorCode: {ErrorCode.Login_Fail_Password}  UserId: {email} Password: {password}");
 
             throw;
         }

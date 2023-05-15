@@ -74,7 +74,7 @@ public class KillStageNPCController : ControllerBase
         }
         catch (Exception e)
         {
-            _logger.ZLogError(e, $"  Email:{npcInfo.UserId} ");
+            _logger.ZLogError(e, $"  UserId:{npcInfo.UserId} ");
             killStageNPCResponse.Error= ErrorCode.NotMatchStageNPCData;
             return killStageNPCResponse;
         }

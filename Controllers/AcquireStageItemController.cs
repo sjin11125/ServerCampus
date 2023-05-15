@@ -70,7 +70,7 @@ public class AcquireStageItemController
         }
         catch (Exception e)
         {
-            _logger.ZLogError(e, $"  Email:{stageItemInfo.UserId} ");
+            _logger.ZLogError(e, $"  UserId:{stageItemInfo.UserId} ");
         }
         //검증 끝
         //레디스에 아이템 정보 저장

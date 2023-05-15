@@ -5,8 +5,8 @@ namespace Com2usServerCampus.ModelReqRes;
 public class CreateAccountRequest //유저가 서버에게 주는 아이디, 비번 데이터 클래스
 {
     [Required]
-    [MinLength(1, ErrorMessage = "Email cannot be empty")]
-    [MaxLength(50, ErrorMessage = "Email is so long")]
+    [MinLength(1, ErrorMessage = "UserId cannot be empty")]
+    [MaxLength(50, ErrorMessage = "UserId is so long")]
     [DataType(DataType.EmailAddress)]
 
     //[RegularExpression("^[a-zA-Z0-9")]
