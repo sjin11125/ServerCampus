@@ -13,10 +13,15 @@ public class CheckUserAuth
 {
     readonly RequestDelegate _next;
     readonly IRedisDB _redisDB;
+    readonly IGameDB _gameDB;
 
-    public CheckUserAuth(RequestDelegate next, IRedisDB redisDB)  //CheckUserAuth 클래스가 미들웨어로 등록될 때 생성자 호출 
+    string CurrentAppVersion = "1.0.00.0v";
+    string CurrentMasterDataVersion = "1.0.00.0v";
+
+    public CheckUserAuth(RequestDelegate next, IRedisDB redisDB,IGameDB gameDB)  //CheckUserAuth 클래스가 미들웨어로 등록될 때 생성자 호출 
     {
         _redisDB = redisDB;
+        _gameDB = gameDB;
         _next = next;
     }
     public async Task Invoke(HttpContext context)
@@ -57,14 +62,23 @@ public class CheckUserAuth
             if (!isOK)     //조회 안되면 리턴
                 return;
 
+           if(await IsInvalidVersion(context, email, CurrentAppVersion, CurrentMasterDataVersion))      //유저의 버전이 맞지않다면
+            {
+                //리턴
+                return;
+            }
+
             if (await IsInvalidUserAuthToken(context, userInfo, AuthToken)) //유저가 보낸 토큰과 레디스에 있던 토큰을 비교해 맞지 않다면
                 return; //리턴
 
             userLockKey = "ULock_" + email;
-            if (await SetLock(context, userLockKey))        //락이 걸려있는지 확인 걸려있으면
+            if (await SetLock(context, userLockKey))        //락이 걸려있는지 확인하고 걸려있으면
             {
                 return;
             }
+
+
+
             context.Items[nameof(AuthUser)]=userInfo;
         }
         context.Request.Body.Position = 0;
@@ -75,6 +89,27 @@ public class CheckUserAuth
         await _redisDB.DelUserReqLockAsync(userLockKey);
 
 
+    }
+
+    async Task<bool> IsInvalidVersion(HttpContext context, string userId, string currentAppVersion,string  currentMasterDataVersion)
+    {
+        var isVersionOK = await _gameDB.CheckUserVersion(userId, currentAppVersion, currentMasterDataVersion);
+
+
+        if (isVersionOK != ErrorCode.None)
+        {
+            var errorJsonResponse = JsonSerializer.Serialize(new MiddlewareResponse             //에러코드 설정
+            {
+                errorCode = isVersionOK
+            }) ;
+            var bytes = Encoding.UTF8.GetBytes(errorJsonResponse);
+            await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);           //Response Body에 에러코드 반환
+
+            return true;
+        }
+
+
+        return false;
     }
     async Task<bool> IsNullBodyData(HttpContext context, string bodystr)       //바디 문자열이 유효한지 검사
     {

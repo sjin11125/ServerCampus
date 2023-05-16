@@ -5,6 +5,7 @@ namespace Com2usServerCampus.Services
 {
     public interface IGameDB
     {
+        public Task<ErrorCode> CheckUserVersion(string userId, string currentAppVersion, string currentMasterDataVersion);
         public Task<(ErrorCode, UserInfo)> GetGameData(string userId);
         public Task<(ErrorCode, List<UserItem>)> GetAllItems(string userId);
         public Task<(ErrorCode, UserItem)> GetItem( int itemId);

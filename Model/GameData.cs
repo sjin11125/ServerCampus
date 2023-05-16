@@ -1,4 +1,11 @@
 ﻿namespace Com2usServerCampus.Model;
+
+public class UserVersion
+{
+    public string AppVersion { get; set; }
+    public string MasterDataVersion { get; set; }
+}
+
 public class UserInfo
 {
     public string UserId { get; set; }

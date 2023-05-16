@@ -65,8 +65,8 @@
         NotEnhanceType=11001,
         MaxEnhanceCount=11002,
         InsertEnhanceInfoFail=11002,
-        //InvalidAppversion = 3002,
-        // InvalidDataversion = 3003,
+        InvalidAppversion = 3002,
+         InvalidDataversion = 3003,
 
         //스테이지 관련 에러코드
         SelectStageError=12001,

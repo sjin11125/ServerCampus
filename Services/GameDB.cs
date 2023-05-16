@@ -31,6 +31,27 @@ public class GameDB : IGameDB
         queryFactory = new SqlKata.Execution.QueryFactory(_dbconn, compiler);
     }
 
+
+
+    public async Task<ErrorCode> CheckUserVersion(string userId,string currentAppVersion, string currentMasterDataVersion)
+    {
+      var version=  await queryFactory.Query("gamedata").Select("AppVersion", "MasterDataVersion").Where("UserId", userId).FirstOrDefaultAsync<UserVersion>();
+
+        if (version.AppVersion!=currentAppVersion)             //버전이 안맞다면
+        {
+            return ErrorCode.InvalidAppversion;
+        }
+        if ( version.MasterDataVersion != currentMasterDataVersion)
+        {
+            return ErrorCode.InvalidDataversion;
+
+        }
+
+        return ErrorCode.None;
+    }
+
+
+
     public async Task<ErrorCode> InsertGameData(UserInfo userInfo)        //유저 게임 정보 넣기
     {
         try
