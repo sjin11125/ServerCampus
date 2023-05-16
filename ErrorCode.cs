@@ -19,9 +19,11 @@
         WrongAuthTokenOrEmail = 3002,
         InvalidAuthToken= 3003,
         AuthTokenFailSetNx=3004,
+        InvalidAppversion = 3005,
+        InvalidDataversion = 3006,
 
         //GameData 관련 에러코드
-        InsertGameDataDup=4001,
+        InsertGameDataDup =4001,
         InsertGameDataFail=4002,
         UpdateGameDataFail=4003,
         UpdateStageClearDataFail=4004,
@@ -65,8 +67,7 @@
         NotEnhanceType=11001,
         MaxEnhanceCount=11002,
         InsertEnhanceInfoFail=11002,
-        InvalidAppversion = 3002,
-         InvalidDataversion = 3003,
+  
 
         //스테이지 관련 에러코드
         SelectStageError=12001,
