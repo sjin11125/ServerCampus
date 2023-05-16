@@ -13,6 +13,7 @@ namespace Com2usServerCampus.Services;
 
     public Task<List<Notice>> LoadNotice();
     public Task<(ErrorCode, int, int)> GetUserStageItem(string userId, int itemCode, int stageCode);
+    public Task<ErrorCode> CheckPlayGmae(string email, string token, int accountId);
 
     public Task<ErrorCode> SetUserStageItem(string userId, int itemCode, int stageNum,int itemCount, int index);
 
@@ -20,8 +21,9 @@ namespace Com2usServerCampus.Services;
     public  Task<ErrorCode> SetUserStageNPC(string userId, int npcCode, int stageCode, int npcCount, int index);
 
     public Task<ErrorCode> SetUserToken(string email, string token, int accountId);
+    public  Task<ErrorCode> UpdateUserToken(string email, string token, int accountId);
 
-    public  Task<ErrorCode> DeleteUserStageItemData(string userId, int stageCode);
+    public Task<ErrorCode> DeleteUserStageItemData(string userId, int stageCode);
     public Task<ErrorCode> DeleteUserStageNPCData(string userId, int stageCode);
 
     public  Task<(ErrorCode, List<AcquireStageItem>)> GetAllUserStageItem(string userId, int stageCode);

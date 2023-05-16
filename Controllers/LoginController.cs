@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;
 using static Com2usServerCampus.LogManager;
 using ZLogger;
+using Com2usServerCampus.Model;
 
 namespace Com2usServerCampus.Controllers;
 

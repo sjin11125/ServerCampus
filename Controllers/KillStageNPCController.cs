@@ -33,6 +33,15 @@ public class KillStageNPCController : ControllerBase
         KillStageNPCResponse killStageNPCResponse = new KillStageNPCResponse();
 
 
+        var authUser = (AuthUser)HttpContext.Items[nameof(AuthUser)]!;
+
+        var isGame = await _redisDB.CheckPlayGmae(authUser.Email, authUser.AuthToken,(int) authUser.AccountId); //게임중인지 확인
+        if (isGame!=ErrorCode.None)         //아니라면 에러
+        {
+            killStageNPCResponse.Error = isGame;
+            return killStageNPCResponse;
+        }
+
 
         //해당 npc가 해당 스테이지 npc인지 확인 (마스터데이터)
         (var dataError, var stageNPCData) = _masterDataDB.GetStageNPC(npcInfo.StageCode);

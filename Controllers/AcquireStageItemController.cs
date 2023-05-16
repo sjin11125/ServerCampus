@@ -19,7 +19,7 @@ using static Com2usServerCampus.LogManager;
 namespace Com2usServerCampus.Controllers;
 [ApiController]
 [Route("[controller]")]
-public class AcquireStageItemController
+public class AcquireStageItemController:ControllerBase
 {
     readonly ILogger<AcquireStageItemController> _logger;
     readonly IRedisDB _redisDB;
@@ -35,6 +35,17 @@ public class AcquireStageItemController
     public async Task<AcquireStageItemResponse> Post(AcquireStageItemRequest stageItemInfo)
     {
         AcquireStageItemResponse acquireStageItemResponse = new AcquireStageItemResponse();
+
+        var authUser = (AuthUser)HttpContext.Items[nameof(AuthUser)]!;
+
+
+        var isGame = await _redisDB.CheckPlayGmae(authUser.Email, authUser.AuthToken, (int)authUser.AccountId); //게임중인지 확인
+        if (isGame != ErrorCode.None)         //아니라면 에러
+        {
+            acquireStageItemResponse.Error = isGame;
+            return acquireStageItemResponse;
+        }
+
 
         (var stageItemData, var stageItemList) = _masterDataDB.GetStageItem(stageItemInfo.StageCode); //해당 아이템이 해당 스테이지 아이템인지 확인 (마스터데이터)
 

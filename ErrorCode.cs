@@ -38,6 +38,8 @@
 
         //Token 관련 에러코드
         SetUserTokenFail=6001,
+        GetUserTokenFail=6002,
+        UpdateUserTokenFail=6003,
 
         //Mail 관련 에러코드
         EmptyMail=7001,

@@ -39,6 +39,17 @@ namespace Com2usServerCampus.Controllers;
     {
         EndStageResponse endStageResponse = new EndStageResponse();
 
+
+
+        var authUser = (AuthUser)HttpContext.Items[nameof(AuthUser)]!;
+
+
+        var isGame = await _redisDB.CheckPlayGmae(authUser.Email, authUser.AuthToken, (int)authUser.AccountId); //게임중인지 확인
+        if (isGame != ErrorCode.None)         //아니라면 에러
+        {
+            endStageResponse.Error = isGame;
+            return endStageResponse;
+        }
         //클리어 못했다면
         //레디스에 저장된 정보 지우기 (아이템, npc)
         if (!endStageInfo.isClear)
@@ -79,7 +90,7 @@ namespace Com2usServerCampus.Controllers;
 
 
         //마스터데이터와 레디스에 저장된 정보 비교 (아이템 수)
-        var itemCheckError = ItemDataCheck(itemRedisData, itemMasterData, endStageInfo.UserId,endStageInfo.StageCode); 
+        var itemCheckError = ItemDataCheck(itemRedisData, itemMasterData, endStageInfo.UserId, endStageInfo.StageCode);
         if (itemCheckError != ErrorCode.None)
         {
             endStageResponse.Error = itemCheckError;
@@ -88,7 +99,7 @@ namespace Com2usServerCampus.Controllers;
 
 
         //마스터데이터와 레디스에 저장된 정보 비교 (npc 수)
-        (var npcCheckError, int totalEXP) = NpcDataCheck(npcRedisData, npcMasterData, endStageInfo.UserId,endStageInfo.StageCode); 
+        (var npcCheckError, int totalEXP) = NpcDataCheck(npcRedisData, npcMasterData, endStageInfo.UserId, endStageInfo.StageCode);
         if (npcCheckError != ErrorCode.None)
         {
             endStageResponse.Error = npcCheckError;
@@ -100,7 +111,7 @@ namespace Com2usServerCampus.Controllers;
         //전부 다 정보가 맞다면 DB의 아이템 테이블과 게임테이블에 해당 정보 저장
 
         //아이템 테이블에 마스터 데이터 아이템 넣기
-        var takeRewardError = await TakeReward(itemMasterData, itemRedisData, endStageInfo.UserId);
+        var takeRewardError = await TakeReward(itemRedisData, endStageInfo.UserId);
         if (takeRewardError != ErrorCode.None)
         {
             endStageResponse.Error = takeRewardError;
@@ -131,6 +142,13 @@ namespace Com2usServerCampus.Controllers;
             return endStageResponse;
         }
 
+        var endGameError = await _redisDB.SetUserToken(authUser.Email,authUser.AuthToken,(int)authUser.AccountId); //레디스에 있는 유저 상태 변경
+        if (endGameError != ErrorCode.None)
+        {
+            endStageResponse.Error = endGameError;
+            return endStageResponse;
+
+        }
 
         _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.EndStage], new { UserId = endStageInfo.UserId }, $"EndStage Success");
 
@@ -138,7 +156,7 @@ namespace Com2usServerCampus.Controllers;
         return endStageResponse;
     }
 
-    public async Task<ErrorCode> TakeReward(List<StageItem> itemMasterData,List<AcquireStageItem> itemRedisData, string userId)
+    public async Task<ErrorCode> TakeReward(List<AcquireStageItem> itemRedisData, string userId)
     {
         foreach (var item in itemRedisData)
         {

@@ -21,12 +21,14 @@ public class StageSelectController:ControllerBase
     readonly ILogger<StageSelectController> _logger;
     readonly IMasterDataDB _masterDataDB;
     readonly IGameDB _gameDB;
+    readonly IRedisDB _redisDB;
 
-    public StageSelectController(ILogger<StageSelectController> logger, IMasterDataDB masterDataDB, IGameDB gameDB)
+    public StageSelectController(ILogger<StageSelectController> logger, IMasterDataDB masterDataDB, IGameDB gameDB, IRedisDB redisDB)
     {
         _logger = logger;
         _masterDataDB = masterDataDB;
         _gameDB = gameDB;
+        _redisDB = redisDB;
     }
     [HttpPost]
     public async Task<StageSelectResponse> StagePost(StageSelectRequest stageInfo)
@@ -47,6 +49,18 @@ public class StageSelectController:ControllerBase
             stageResonse.Error = stageDataError;
             return stageResonse;
         }
+
+
+        //레디스에 사용자 상태 넣기
+        var authUser = (AuthUser)HttpContext.Items[nameof(AuthUser)]!;
+       var tokenError=  await _redisDB.UpdateUserToken(stageInfo.UserId, authUser.AuthToken, (int)authUser.AccountId);
+        if (tokenError != ErrorCode.None)
+        {
+            stageResonse.Error = tokenError;
+            return stageResonse;
+        }
+
+
 
         stageResonse.StageItems = stageDataInfo.StageItmes;
         stageResonse.StageNPCs = stageDataInfo.StageNPCs;

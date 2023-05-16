@@ -24,7 +24,7 @@ public class RedisDB : IRedisDB
         redisConnection= new RedisConnection(config);       //레디스 연결
         logger.ZLogDebug($"userDBAdress: {connectString}");
     }
-
+  
     public async Task<(bool, AuthUser)> GetUserAsync(string email)        //레디스에서 사용자 정보 조회(email)
     {
         var uid = "UID_" + email;
@@ -97,7 +97,7 @@ public class RedisDB : IRedisDB
 
         var redisId = new RedisString<AuthUser>(redisConnection, uid, LoginTimeSpan());       //유효 기간 1일
 
-        var userInfo = new AuthUser { AccountId = accountId, Email = email, AuthToken = token, State = "Default" };
+        var userInfo = new AuthUser { AccountId = accountId, Email = email, AuthToken = token, State = UserState.Default };
 
         if (await redisId.SetAsync(userInfo, LoginTimeSpan()) == false) //실패햇다면
         {
@@ -108,6 +108,50 @@ public class RedisDB : IRedisDB
         return ErrorCode.None;
 
     }
+    public async Task<ErrorCode> CheckPlayGmae(string email, string token, int accountId)            //유저가 현재 게임하는 상태인지 아닌지 체크
+    {
+        var uid = "UID_" + email;
+
+        var redisId = new RedisString<AuthUser>(redisConnection, uid, LoginTimeSpan());       //유효 기간 1일
+
+
+        var tokenResult = await redisId.GetAsync();
+
+        if (!tokenResult.HasValue) //실패햇다면
+        {
+            logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.GetUserTokenFail} UserId:{email} Token: {token} AccountId:{accountId}");    //레디스에 토큰 불러오기 실패 에러
+            return ErrorCode.GetUserTokenFail;
+        }
+
+        if (tokenResult.Value.State != UserState.Game)          //게임하는 중이 아니라면
+        {
+            return ErrorCode.NotPlayGame;           
+        }
+
+
+        return ErrorCode.None;
+
+    }
+    
+    public async Task<ErrorCode> UpdateUserToken(string email, string token, int accountId)            //레디스에 유저 토큰 업뎃
+    {
+        var uid = "UID_" + email;
+
+        var redisId = new RedisString<AuthUser>(redisConnection, uid, StageTimeSpan());       //유효 기간 1시간
+
+        var userInfo = new AuthUser { AccountId = accountId, Email = email, AuthToken = token, State = UserState.Game };
+
+        if (await redisId.SetAsync(userInfo, LoginTimeSpan()) == false) //실패햇다면
+        {
+            logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.UpdateUserTokenFail} UserId:{email} Token: {token} AccountId:{accountId}");    //레디스에 토큰 넣기 실패 에러
+            return ErrorCode.UpdateUserTokenFail;
+        }
+
+        return ErrorCode.None;
+
+    }
+    
+ 
 
     public async Task<(ErrorCode, int, int)> GetUserStageItem(string userId, int itemCode, int stageCode)            //레디스에 해당 유저의 현재 진행중인 스테이지의 특정 아이템 정보를 불러옴
     {
@@ -353,6 +397,11 @@ public class RedisDB : IRedisDB
     public TimeSpan StageItemTimeSpan()
     {
         return TimeSpan.FromSeconds(RedisKeyExpireTime.StageItemExpireSecond);
+
+    }
+    public TimeSpan StageTimeSpan()
+    {
+        return TimeSpan.FromSeconds(RedisKeyExpireTime.StageExpireSecond);
 
     }
     public TimeSpan NxKeyTimeSpan()
