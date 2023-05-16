@@ -43,8 +43,8 @@ namespace Com2usServerCampus.Controllers;
         //레디스에 저장된 정보 지우기 (아이템, npc)
         if (!endStageInfo.isClear)
         {
-          var NotClearError=  await DeleteReidsKey(endStageInfo.UserId, endStageInfo.StageCode);
-            if (NotClearError!=ErrorCode.None)
+            var NotClearError = await DeleteReidsKey(endStageInfo.UserId, endStageInfo.StageCode);
+            if (NotClearError != ErrorCode.None)
             {
                 endStageResponse.Error = NotClearError;
                 return endStageResponse;
@@ -58,18 +58,18 @@ namespace Com2usServerCampus.Controllers;
 
 
         //마스터데이터 불러옴
-        (var getMasterDataError, var itemMasterData, var npcMasterData) =  GetStageMasterData(endStageInfo.StageCode);
+        (var getMasterDataError, var itemMasterData, var npcMasterData) = GetStageMasterData(endStageInfo.StageCode);
 
-        if (getMasterDataError!=ErrorCode.None)
+        if (getMasterDataError != ErrorCode.None)
         {
-            endStageResponse.Error= getMasterDataError;
+            endStageResponse.Error = getMasterDataError;
             return endStageResponse;
         }
 
 
 
         //레디스에서 데이터 불러옴
-        (var getRedisDataError,var itemRedisData,var npcRedisData)=  await GetRedisData(endStageInfo.UserId, endStageInfo.StageCode);
+        (var getRedisDataError, var itemRedisData, var npcRedisData) = await GetRedisData(endStageInfo.UserId, endStageInfo.StageCode);
 
         if (getRedisDataError != ErrorCode.None)
         {
@@ -77,9 +77,158 @@ namespace Com2usServerCampus.Controllers;
             return endStageResponse;
         }
 
-      
 
-        //마스터데이터와 레디스에 저장된 정보 비교 (아이템 수)
+
+        var itemCheckError = ItemDataCheck(itemRedisData, itemMasterData); //마스터데이터와 레디스에 저장된 정보 비교 (아이템 수)
+        if (itemCheckError != ErrorCode.None)
+        {
+            endStageResponse.Error = itemCheckError;
+            return endStageResponse;
+        }
+
+        (var npcCheckError, int totalEXP) = NpcDataCheck(npcRedisData, npcMasterData, endStageInfo.UserId,endStageInfo.StageCode); //마스터데이터와 레디스에 저장된 정보 비교 (npc 수)
+        if (npcCheckError != ErrorCode.None)
+        {
+            endStageResponse.Error = npcCheckError;
+            return endStageResponse;
+        }
+
+
+
+        //전부 다 정보가 맞다면 DB의 아이템 테이블에 저장
+        //아이템 테이블에 마스터 데이터 아이템 넣기
+        var takeRewardError = await TakeReward(itemMasterData, itemRedisData, endStageInfo.UserId);
+        if (takeRewardError != ErrorCode.None)
+        {
+            endStageResponse.Error = takeRewardError;
+            return endStageResponse;
+        }
+
+
+        //유저의 게임 정보 테이블에 경험치 넣고 클리어한 스테이지 넣기
+        var updateUserGameDataError = await _gameDB.UpdateStageClearData(new EndStageResult
+        {
+            UserId = endStageInfo.UserId,
+            TotalEXP = totalEXP,
+            StageCode = endStageInfo.StageCode + 1
+
+        });
+
+        if (updateUserGameDataError != ErrorCode.None)
+        {
+            endStageResponse.Error = updateUserGameDataError;
+            return endStageResponse;
+        }
+
+        //레디스 키 삭제
+        var deleteRedisKeyError = await DeleteReidsKey(endStageInfo.UserId, endStageInfo.StageCode);
+        if (deleteRedisKeyError != ErrorCode.None)
+        {
+            endStageResponse.Error = deleteRedisKeyError;
+            return endStageResponse;
+        }
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.EndStage], new { UserId = endStageInfo.UserId }, $"EndStage Success");
+
+
+        return endStageResponse;
+    }
+
+    public async Task<ErrorCode> TakeReward(List<StageItem> itemMasterData,List<AcquireStageItem> itemRedisData, string userId)
+    {
+        foreach (var item in itemRedisData)
+        {
+            (var getItemDataError, var itemInfo) = _masterDataDB.GetItemData(item.ItemCode); //아이템 마스터데이터 불러오기
+            if (getItemDataError != ErrorCode.None)
+            {
+                return getItemDataError;
+            }
+
+            var insertItemError = await _gameDB.InsertItem(itemInfo.isCount, new UserItem           //아이템 테이블에 아이템 넣기
+            {
+                UserId = userId,
+                ItemCode = item.ItemCode,
+                ItemCount = 1,
+                EnhanceCount = 1,
+                Attack = itemInfo.Attack,
+                Defence = itemInfo.Defence,
+                Magic = itemInfo.Magic,
+
+            });
+            if (insertItemError != ErrorCode.None)
+            {
+                return insertItemError;
+            }
+
+        }
+        return ErrorCode.None;
+    }
+
+
+    public async Task<ErrorCode> DeleteReidsKey(string userId,int stageCode)
+    {
+        var removeItemKey = await _redisDB.DeleteUserStageItemData(userId, stageCode);
+        if (removeItemKey != ErrorCode.None)
+        {
+            return removeItemKey;
+        }
+
+        var removeNpcKey = await _redisDB.DeleteUserStageNPCData(userId, stageCode);
+        if (removeNpcKey != ErrorCode.None)
+        {
+            return removeNpcKey;
+        }
+
+        return ErrorCode.None;
+    }
+
+
+
+    public (ErrorCode,int )NpcDataCheck(List<KillStageNPC> npcRedisData,List<StageNPC> npcMasterData,string userId,int stageCode)
+    {
+        int totalEXP = 0;
+
+        if (npcRedisData is not null)
+        {
+            foreach (var item in npcMasterData)
+            {
+                try
+                {
+
+                    var tempNPC = npcRedisData.Find(x => x.NPCCode == item.NPCCode);
+                    if (tempNPC != null)           //레디스에 해당 아이템이 있을때
+                    {
+                        tempNPC.Count -= item.Count;
+
+                        totalEXP += item.Exp * item.Count;            //경험치 계산
+
+                        if (tempNPC.Count <= 0)
+                        {
+                            npcRedisData.Remove(tempNPC);
+                        }
+                    }
+
+                }
+                catch (Exception e)                 //
+                {
+                    _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{userId} NPCCode:{item.NPCCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+
+                    return (ErrorCode.EndStageException,0);
+                }
+            }
+
+            if (npcRedisData.Count != 0)      //레디스 npc 정보에서 마스터데이터의 npc 외 다른 npc 정보가 있거나 npc 처치 수가 더 많으면
+            {
+                return (ErrorCode.NotMatchStageNPCData,0);
+            }
+        }
+
+        return (ErrorCode.None,totalEXP);
+    }
+
+    public ErrorCode ItemDataCheck(List<AcquireStageItem> itemRedisData,List<StageItem> itemMasterData)
+    {
         if (itemRedisData is not null)
         {
             foreach (var item in itemMasterData)
@@ -103,125 +252,17 @@ namespace Com2usServerCampus.Controllers;
                 {
                     _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{endStageInfo.UserId} ItemCode:{item.ItemCode} StageNum: {endStageInfo.UserId} ");    //레디스에 스테이지 아이템 넣기 실패 에러
 
-                    endStageResponse.Error = ErrorCode.EndStageException;
-                    return endStageResponse;
+                    return ErrorCode.EndStageException;
                 }
             }
 
 
-            if (itemRedisData.Count!=0)            //레디스 아이템 정보에서 마스터데이터의 아이템 외 다른 아이템 정보가 있거나 아이템의 갯수가 더 많으면
+            if (itemRedisData.Count != 0)            //레디스 아이템 정보에서 마스터데이터의 아이템 외 다른 아이템 정보가 있거나 아이템의 갯수가 더 많으면
             {
-                endStageResponse.Error = ErrorCode.NotMatchStageItemData;       //에러
-                return endStageResponse;
-            }
-        }
-
-
-        //마스터데이터와 레디스에 저장된 정보 비교 (npc 수)
-        int totalEXP = 0;
-
-        if (npcRedisData is not null)
-        {
-            foreach (var item in npcMasterData)
-            {
-                try
-                {
-
-                    var tempNPC = npcRedisData.Find(x => x.NPCCode == item.NPCCode);
-                    if (tempNPC != null)           //레디스에 해당 아이템이 있을때
-                    {
-                        tempNPC.Count -= item.Count;
-
-                        totalEXP += item.Exp*item.Count;            //경험치 계산
-
-                        if (tempNPC.Count <= 0)
-                        {
-                            npcRedisData.Remove(tempNPC);
-                        }
-                    }
-
-                }
-                catch (Exception e)                 //
-                {
-                    _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{endStageInfo.UserId} NPCCode:{item.NPCCode} StageNum: {endStageInfo.UserId} ");    //레디스에 스테이지 아이템 넣기 실패 에러
-
-                    endStageResponse.Error = ErrorCode.EndStageException;
-                    return endStageResponse;
-                }
-            }
-
-            if (npcRedisData.Count!=0)      //레디스 npc 정보에서 마스터데이터의 npc 외 다른 npc 정보가 있거나 npc 처치 수가 더 많으면
-            {
-                endStageResponse.Error = ErrorCode.NotMatchStageNPCData;       //에러
-                return endStageResponse;
-            }
-        }
-
-
-
-        //맞다면 DB의 아이템 테이블에 저장
-        //아이템 테이블에 마스터 데이터 아이템 넣기
-        foreach (var item in itemMasterData)
-            {
-                (var getItemDataError, var itemInfo) = _masterDataDB.GetItemData(item.ItemCode); //아이템 마스터데이터 불러오기
-
-
-                var insertItemError = await _gameDB.InsertItem(itemInfo.isCount, new UserItem           //아이템 테이블에 아이템 넣기
-                {
-                    UserId = endStageInfo.UserId,
-                    ItemCode = item.ItemCode,
-                    ItemCount = 1,
-                    EnhanceCount = 1,
-                    Attack = itemInfo.Attack,
-                    Defence = itemInfo.Defence,
-                    Magic = itemInfo.Magic,
-
-                });
-
+                return ErrorCode.NotMatchStageItemData;
             }
 
 
-            //유저의 게임 정보 테이블에 경험치 넣고 클리어한 스테이지 넣기
-            var updateUserGameDataError = await _gameDB.UpdateStageClearData(new EndStageResult
-            {
-                UserId = endStageInfo.UserId,
-                TotalEXP = totalEXP,
-                StageCode = endStageInfo.StageCode
-
-            });
-
-            if (updateUserGameDataError!=ErrorCode.None)
-            {
-                endStageResponse.Error = updateUserGameDataError;
-                return endStageResponse;
-            }
-
-        //레디스 키 삭제
-      var deleteRedisKeyError= await DeleteReidsKey(endStageInfo.UserId, endStageInfo.StageCode);
-        if (deleteRedisKeyError!=ErrorCode.None)
-        {
-            endStageResponse.Error = deleteRedisKeyError;
-            return endStageResponse;    
-        }
-
-
-        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.EndStage], new { UserId = endStageInfo.UserId }, $"EndStage Success");
-
-
-        return endStageResponse;
-    }
-    public async Task<ErrorCode> DeleteReidsKey(string userId,int stageCode)
-    {
-        var removeItemKey = await _redisDB.DeleteUserStageItemData(userId, stageCode);
-        if (removeItemKey != ErrorCode.None)
-        {
-            return removeItemKey;
-        }
-
-        var removeNpcKey = await _redisDB.DeleteUserStageNPCData(userId, stageCode);
-        if (removeNpcKey != ErrorCode.None)
-        {
-            return removeNpcKey;
         }
 
         return ErrorCode.None;
