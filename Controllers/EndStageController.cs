@@ -78,15 +78,17 @@ namespace Com2usServerCampus.Controllers;
         }
 
 
-
-        var itemCheckError = ItemDataCheck(itemRedisData, itemMasterData); //마스터데이터와 레디스에 저장된 정보 비교 (아이템 수)
+        //마스터데이터와 레디스에 저장된 정보 비교 (아이템 수)
+        var itemCheckError = ItemDataCheck(itemRedisData, itemMasterData, endStageInfo.UserId,endStageInfo.StageCode); 
         if (itemCheckError != ErrorCode.None)
         {
             endStageResponse.Error = itemCheckError;
             return endStageResponse;
         }
 
-        (var npcCheckError, int totalEXP) = NpcDataCheck(npcRedisData, npcMasterData, endStageInfo.UserId,endStageInfo.StageCode); //마스터데이터와 레디스에 저장된 정보 비교 (npc 수)
+
+        //마스터데이터와 레디스에 저장된 정보 비교 (npc 수)
+        (var npcCheckError, int totalEXP) = NpcDataCheck(npcRedisData, npcMasterData, endStageInfo.UserId,endStageInfo.StageCode); 
         if (npcCheckError != ErrorCode.None)
         {
             endStageResponse.Error = npcCheckError;
@@ -95,7 +97,8 @@ namespace Com2usServerCampus.Controllers;
 
 
 
-        //전부 다 정보가 맞다면 DB의 아이템 테이블에 저장
+        //전부 다 정보가 맞다면 DB의 아이템 테이블과 게임테이블에 해당 정보 저장
+
         //아이템 테이블에 마스터 데이터 아이템 넣기
         var takeRewardError = await TakeReward(itemMasterData, itemRedisData, endStageInfo.UserId);
         if (takeRewardError != ErrorCode.None)
@@ -105,7 +108,7 @@ namespace Com2usServerCampus.Controllers;
         }
 
 
-        //유저의 게임 정보 테이블에 경험치 넣고 클리어한 스테이지 넣기
+        //유저의 게임 정보 테이블에 경험치 넣고 클리어한 스테이지 업뎃
         var updateUserGameDataError = await _gameDB.UpdateStageClearData(new EndStageResult
         {
             UserId = endStageInfo.UserId,
@@ -227,7 +230,7 @@ namespace Com2usServerCampus.Controllers;
         return (ErrorCode.None,totalEXP);
     }
 
-    public ErrorCode ItemDataCheck(List<AcquireStageItem> itemRedisData,List<StageItem> itemMasterData)
+    public ErrorCode ItemDataCheck(List<AcquireStageItem> itemRedisData,List<StageItem> itemMasterData, string userId, int stageCode)
     {
         if (itemRedisData is not null)
         {
@@ -250,7 +253,7 @@ namespace Com2usServerCampus.Controllers;
                 }
                 catch (Exception e)                 //
                 {
-                    _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{endStageInfo.UserId} ItemCode:{item.ItemCode} StageNum: {endStageInfo.UserId} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                    _logger.ZLogError(e, $" ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{userId} ItemCode:{item.ItemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
 
                     return ErrorCode.EndStageException;
                 }
