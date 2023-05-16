@@ -8,9 +8,12 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using SqlKata.Execution;
 using StackExchange.Redis;
+using System.Dynamic;
 using System.Net.Mail;
 using System.Security.Cryptography;
 using ZLogger;
+using static Com2usServerCampus.LogManager;
+
 namespace Com2usServerCampus.Controllers;
 [ApiController]
 [Route("[controller]")]
@@ -38,6 +41,9 @@ public class StageController : ControllerBase
 
         stageResonse.Error=ErrorCode.None;
         stageResonse.StageId = stage;
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.GetUserStage], new { UserId = stageInfo.UserId }, $"GetUserStage Success");
 
 
         return stageResonse;

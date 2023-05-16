@@ -142,7 +142,7 @@ public class GameDB : IGameDB
     }
     public async Task<ErrorCode> UpdateItem(UserItem userItem)        //게임 아이템 업데이트
     { 
-        var   result = await queryFactory.Query("itemdata").Where("ItemCode", userItem.ItemCode).Where("Id",userItem.ItemId).UpdateAsync(new {
+        var   result = await queryFactory.Query("itemdata").Where("ItemCode", userItem.ItemCode).Where("MailId",userItem.ItemId).UpdateAsync(new {
 
             Eamil = userItem.UserId,
             ItemCode = userItem.ItemCode,
@@ -257,7 +257,7 @@ public class GameDB : IGameDB
         return ErrorCode.None;
             
     }
-    public async Task<ErrorCode> InsertMail(string userId, List<UserItem> items, MailType type)        //유저에게 메일 전송
+    public async Task<ErrorCode> InsertMail(string userId, MailItem items, MailType type)        //유저에게 메일 전송
     {
         string title, content;
         switch (type)
@@ -286,6 +286,10 @@ public class GameDB : IGameDB
             isRead = false,
             isGet = false,
         });
+
+
+
+
         var item = await InsertMailItems(userId, items, result); //메일 아이템 테이블에 아이템 넣기
 
         if (item != ErrorCode.None)
@@ -294,21 +298,22 @@ public class GameDB : IGameDB
         return ErrorCode.None;
 
     }
-    public async Task<ErrorCode> InsertMailItems(string userId, List<UserItem> items, int itemId) //메일 아이템 테이블에 아이템 넣기
+    public async Task<ErrorCode> InsertMailItems(string userId, MailItem items, int itemId) //메일 아이템 테이블에 아이템 넣기
     {
-        if (items.Count == 0) return ErrorCode.EmptyMailItemInfo;
+        if (items is null) return ErrorCode.EmptyMailItemInfo;
 
-        foreach (var item in items)
+
+        var insertMail = await queryFactory.Query("mailitem").InsertAsync(new  //메일 아이템 테이블에 아이템 넣기(성공 1, 실패 0)
         {
-            var insertMail = await queryFactory.Query("mailitem").InsertAsync(new  //메일 아이템 테이블에 아이템 넣기(성공 1, 실패 0)
-            {
-                ItemId = itemId,
-                Code = item.ItemCode,
-                Count = item.ItemCount
-            });
+            MailId = itemId,
+            Code = items.Code,
+            Count = items.Count
 
-            if (insertMail != 1)
-                return ErrorCode.ErrorInsertMail;
+        });
+
+        if (insertMail != 1)
+        {
+            return ErrorCode.ErrorInsertMail;
         }
         return ErrorCode.None;
 

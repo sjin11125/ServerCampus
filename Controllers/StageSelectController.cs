@@ -11,6 +11,8 @@ using StackExchange.Redis;
 using System.Net.Mail;
 using System.Security.Cryptography;
 using ZLogger;
+using static Com2usServerCampus.LogManager;
+
 namespace Com2usServerCampus.Controllers;
 [ApiController]
 [Route("[controller]")]
@@ -50,6 +52,7 @@ public class StageSelectController:ControllerBase
         stageResonse.StageNPCs = stageDataInfo.StageNPCs;
         stageResonse.Error = ErrorCode.None;
 
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.StageSelect], new { UserId = stageInfo.UserId }, $"StageSelect Success");
 
         return stageResonse;    
 

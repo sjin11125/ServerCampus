@@ -22,13 +22,12 @@ namespace Com2usServerCampus.Services
         public Task<(ErrorCode, List<MailItem>)> GetMailItem( int mailId);
         public Task<ErrorCode> ReceiveMailItem(int mailId);
         public Task<(ErrorCode, int)> Attendance(string userId);
-        public Task<ErrorCode> InsertMail(string userId,List<UserItem> items, MailType type);
         public  Task<ErrorCode> CheckDuplicateReceipt(InAppPurchaseRequest info);
 
         public  Task<(ErrorCode, int)> GetUserStageInfo(string userId);
 
-
-
+        Task<ErrorCode> InsertMailItems(string userId, MailItem items, int itemId);
+        Task<ErrorCode> InsertMail(string userId, MailItem items, MailType type);
     }
 
 }

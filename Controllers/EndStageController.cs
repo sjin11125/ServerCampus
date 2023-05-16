@@ -13,6 +13,8 @@ using System.Reflection.Emit;
 using System;
 using System.Security.Cryptography;
 using ZLogger;
+using static Com2usServerCampus.LogManager;
+
 namespace Com2usServerCampus.Controllers;
 
 [ApiController]
@@ -201,6 +203,10 @@ namespace Com2usServerCampus.Controllers;
             endStageResponse.Error = deleteRedisKeyError;
             return endStageResponse;    
         }
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.EndStage], new { UserId = endStageInfo.UserId }, $"EndStage Success");
+
 
         return endStageResponse;
     }

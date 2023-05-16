@@ -5,8 +5,8 @@ namespace Com2usServerCampus.ModelReqRes;
 
 public class GetMailItemRequest
 {
-    public string Email { get;set; }
-    public int Id { get; set; }         //메일 id
+    public string UserId { get;set; }
+    public int MailId { get; set; }         //메일 id
 
 }
 public class GetMailItemResponse

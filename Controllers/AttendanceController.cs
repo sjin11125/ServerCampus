@@ -7,6 +7,7 @@ using ZLogger;
 using  Com2usServerCampus.ModelReqRes;
 using  Com2usServerCampus.Model;
 using Com2usServerCampus.Services;
+using static Com2usServerCampus.LogManager;
 
 namespace Com2usServerCampus.Controllers;
 [ApiController]
@@ -25,7 +26,7 @@ public class AttendanceController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<AttendanceResponse> AttendancePost(AttendanceRequest Attendance)
+    public async Task<AttendanceResponse> AttendancePost(AttendanceRequest attendance)
     {
         var userInfo = (AuthUser)HttpContext.Items[nameof(AuthUser)]!;
 
@@ -48,19 +49,32 @@ public class AttendanceController : ControllerBase
         }
 
         List<UserItem> UserItems = new List<UserItem>() { new UserItem {             //받아온 출석보상을 사용자 메일 테이블에 추가
-            UserId=Attendance.Email,
+            UserId=attendance.UserId,
             ItemCount=reward.Count,
             ItemCode=reward.ItemCode,
             EnhanceCount= 0,
 
         } };
 
-        var result = await _gameDB.InsertMail(Attendance.Email,UserItems,MailType.AttendanceReward);
+        var result = await _gameDB.InsertMail(attendance.UserId, new MailItem
+        {             //받아온 출석보상을 사용자 메일 테이블에 추가
+            Count = reward.Count,
+            Code = reward.ItemCode,
+
+        }, MailType.AttendanceReward);
+
+
+
         if (result != ErrorCode.None)
         {
             AttendancedResponse.Error = result;
             return AttendancedResponse;
         }
+
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.SetAttendance], new { UserId = attendance.UserId}, $"SetAttendance Success");
+
 
         return AttendancedResponse;
     }

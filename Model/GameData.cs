@@ -25,7 +25,7 @@ public class UserInfo
 public class UserItem
 {
     public string UserId { get; set; }     //계정번호
-    public int ItemId { get; set; }     //아이템 Id
+    public int ItemId { get; set; }     //아이템 MailId
     public int ItemCode { get; set; }        //아이템 코드
     public int EnhanceCount { get; set; }        //강화횟수
     public int ItemCount { get; set; }           //몇개인지

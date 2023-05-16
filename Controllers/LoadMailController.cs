@@ -7,6 +7,8 @@ using SqlKata.Execution;
 using ZLogger;
 using Com2usServerCampus.ModelReqRes;
 using Com2usServerCampus.Services;
+using static Com2usServerCampus.LogManager;
+using System.Dynamic;
 
 namespace Com2usServerCampus.Controllers;
 
@@ -14,11 +16,11 @@ namespace Com2usServerCampus.Controllers;
 [ApiController]
 public class LoadMailController : ControllerBase
 {
-    ILogger<LoadMailController> logger;
+    ILogger<LoadMailController> _logger;
     IGameDB _gameDB;
     public LoadMailController(ILogger<LoadMailController> logger, IGameDB gameDB)
     {
-        this.logger = logger;
+        this._logger = logger;
         this._gameDB = gameDB;
     }
 
@@ -27,14 +29,18 @@ public class LoadMailController : ControllerBase
     {
         MailLoadResponse mailLoadResponse = new MailLoadResponse();
 
-        (var errorMail, var mailInfos) =await _gameDB.GetMails(MailInfo.Email, MailInfo.Page);
+        (var errorMail, var mailInfos) =await _gameDB.GetMails(MailInfo.UserId, MailInfo.Page);
 
         if (errorMail != ErrorCode.None)         //메일이 없다면
         {
             mailLoadResponse.Error = errorMail;
             return mailLoadResponse;
         }
-         mailLoadResponse.Mails = mailInfos;
+        mailLoadResponse.Mails = mailInfos;
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.LoadMail], new { UserId = MailInfo.UserId }, $"LoadMail Success");
+
 
         return mailLoadResponse;
     }

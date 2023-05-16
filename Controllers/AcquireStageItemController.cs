@@ -14,6 +14,7 @@ using System.Security.Cryptography;
 using ZLogger;
 using System.Linq;
 using System;
+using static Com2usServerCampus.LogManager;
 
 namespace Com2usServerCampus.Controllers;
 [ApiController]
@@ -81,6 +82,10 @@ public class AcquireStageItemController
             acquireStageItemResponse.Error = error;
             return acquireStageItemResponse;
         }
+
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.AcquireStageItem], new { UserId = stageItemInfo.UserId }, $"AcquireStageItem Success");
 
         return acquireStageItemResponse;
     }

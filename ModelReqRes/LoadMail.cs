@@ -6,12 +6,12 @@ namespace Com2usServerCampus.ModelReqRes;
 [Serializable]
 public class MailLoadRequest
 {
-    public string Email { get; set; }
+    public string UserId { get; set; }
     public int Page { get; set; }
     public string Authtoken { get; set; }
     public MailLoadRequest(string email, int page, string authtoken)
     {
-        Email = email;
+        UserId = email;
         Page = page;
         Authtoken = authtoken;
     }

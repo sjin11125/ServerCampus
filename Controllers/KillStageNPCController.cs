@@ -10,6 +10,8 @@ using SqlKata.Execution;
 using StackExchange.Redis;
 using System.Security.Cryptography;
 using ZLogger;
+using static Com2usServerCampus.LogManager;
+
 namespace Com2usServerCampus.Controllers;
 [ApiController]
 [Route("[controller]")]
@@ -90,6 +92,7 @@ public class KillStageNPCController : ControllerBase
         }
 
 
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.KillStageNPC], new { UserId = npcInfo.UserId }, $"KillStageNPC Success");
 
         return killStageNPCResponse;
     }

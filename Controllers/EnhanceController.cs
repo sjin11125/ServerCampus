@@ -62,7 +62,7 @@ public class EnhanceController : ControllerBase
 
             var itemUpdate = await _gameDB.UpdateItem( new UserItem
             {      // 아이템 업데이트
-                UserId = enhanceInfo.Email,
+                UserId = enhanceInfo.UserId,
                 ItemCode = item.ItemCode,
                 ItemId = enhanceInfo.ItemId,
                 EnhanceCount = item.EnhanceCount + 1,
@@ -88,6 +88,9 @@ public class EnhanceController : ControllerBase
                 return enhanceResult;
             }
         }
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.Enhance], new { UserId = enhanceInfo.UserId }, $"Enhance Success");
 
         return enhanceResult;
     }

@@ -8,6 +8,7 @@ using ZLogger;
 using Com2usServerCampus.ModelReqRes;
 using Com2usServerCampus.Services;
 using Com2usServerCampus;
+using static Com2usServerCampus.LogManager;
 
 namespace APIServer.Controllers;
 [ApiController]
@@ -42,14 +43,37 @@ public class InAppPurchaseController : ControllerBase
             result.Error=errorItemData;
             return result;
         }
-        List<UserItem> items = data.ConvertAll<UserItem>(i => i as UserItem) ;    //형변환
-        var mailReust = await _gameDB.InsertMail(receipt.UserId, items,MailType.InAppPurchase);  //메일 테이블에 메일 넣고 메일 아이템 테이블에 아이템 넣기
-        if (mailReust != ErrorCode.None)
-        { 
-            result.Error = mailReust;
-            return result;
+
+
+        foreach (var item in data)
+        {
+
+            var mailReust = await _gameDB.InsertMail(receipt.UserId, new MailItem {   //메일 테이블에 메일 넣고 메일 아이템 테이블에 아이템 넣기
+            
+            Code = item.ItemCode,
+            Count = item.ItemCount
+            
+            
+            }, MailType.InAppPurchase);
+
+
+
+            if (mailReust != ErrorCode.None)
+            {
+                result.Error = mailReust;
+                return result;
+            }
+
         }
+      
+
+
         result.Error = ErrorCode.None;
+
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.InAppPurchase], new { UserId = receipt.UserId }, $"EndStage Success");
+
         return result;
     }
 }

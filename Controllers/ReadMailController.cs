@@ -6,6 +6,8 @@ using SqlKata.Execution;
 using ZLogger;
 using  Com2usServerCampus.ModelReqRes;
 using Com2usServerCampus.Services;
+using Com2usServerCampus.Model;
+using static Com2usServerCampus.LogManager;
 
 namespace Com2usServerCampus.Controllers;
 [ApiController]
@@ -35,6 +37,10 @@ public class ReadMailController : ControllerBase
         }
         readMaildResponse.Error = ErrorCode.None;
         readMaildResponse.Content = Content;
+
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.ReadMail], new { Email = mailInfo.Email }, $"ReadMail Success");
 
         return readMaildResponse;
     }

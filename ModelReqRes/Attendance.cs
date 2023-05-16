@@ -1,7 +1,7 @@
 ﻿namespace Com2usServerCampus.ModelReqRes;
 public class AttendanceRequest
 {
-   public  string Email { get; set; }
+   public  string UserId { get; set; }
 }
 public class AttendanceResponse
 {
