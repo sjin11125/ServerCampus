@@ -40,6 +40,7 @@
         SetUserTokenFail=6001,
         GetUserTokenFail=6002,
         UpdateUserTokenFail=6003,
+        NotPlayGame=6004,
 
         //Mail 관련 에러코드
         EmptyMail=7001,

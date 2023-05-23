@@ -10,7 +10,7 @@
 CREATE TABLE IF NOT EXISTS account_db.`account`
 (
     AccountId BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '계정번호',
-    Email VARCHAR(50) NOT NULL UNIQUE COMMENT '이메일',
+    UserId VARCHAR(50) NOT NULL UNIQUE COMMENT '이메일',
     HashedPassword VARCHAR(100) NOT NULL COMMENT '해싱된 비밀번호',
     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성 날짜'
 ) ;
@@ -27,12 +27,13 @@ CREATE TABLE IF NOT EXISTS account_db.`account`
   CREATE TABLE IF NOT EXISTS gamedata_db.`gamedata`
 (
 
-    Email VARCHAR(50) NOT NULL primary key COMMENT '이메일',
+    UserId VARCHAR(50) NOT NULL primary key COMMENT '이메일',
     Exp int NOT NULL COMMENT  '경험치',
     Attack int NOT NULL COMMENT '공격력',
     Defense int Not Null comment '방어력',
     Attendance datetime not null COMMENT '마지막 출석 날짜',
-    AttendanceCount int not null comment '출석 카운트'
+    AttendanceCount int not null comment '출석 카운트',
+    Stage int not null commnet '클리어한 스테이지 번호'
     
 );
 ```
@@ -42,25 +43,24 @@ CREATE TABLE IF NOT EXISTS account_db.`account`
 ```sql
   CREATE TABLE IF NOT EXISTS gamedata_db.`itemdata`
 (
-
-    Email VARCHAR(50) NOT NULL COMMENT '이메일',
+    ItemId int not null primary key auto_increment comment '아이템 아이디',
+    UserId VARCHAR(50) NOT NULL COMMENT '이메일',
     ItemCode int NOT NULL COMMENT  '아이템코드',
     EnhanceCount int NOT NULL COMMENT '강화 횟수',
-
     ItemCount int NOT NULL COMMENT '아이템 갯수',
     Attack int NOT NULL COMMENT  '공격력',
     Defence int NOT NULL COMMENT  '방어력',
     Magic int NOT NULL COMMENT  '마법력'
 );
-```
+``` 
 
 ## mail 테이블
 유저 메일 테이블
 ```sql
 CREATE TABLE IF NOT EXISTS gamedata_db.`mail`
 (
-    Id bigint not null auto_increment primary key comment '메일번호',
-    Email VARCHAR(50) NOT NULL COMMENT '이메일',
+    MailId bigint not null auto_increment primary key comment '메일번호',
+    UserId VARCHAR(50) NOT NULL COMMENT '이메일',
     Title VARCHAR(100) NOT NULL COMMENT  '제목',
     Content VARCHAR(100) NOT NULL COMMENT '내용',
     isRead bool NOT NULL COMMENT '읽었는지 유무',
@@ -75,8 +75,7 @@ CREATE TABLE IF NOT EXISTS gamedata_db.`mail`
 ```sql
   CREATE TABLE IF NOT EXISTS gamedata_db.`mailitem`
 (
-    Id bigint not null comment '메일번호',
-    Email VARCHAR(50) NOT NULL COMMENT '이메일',
+    MailId bigint not null comment '메일번호',
     Code int NOT NULL COMMENT '아이템 코드',
     Count int NOT NULL COMMENT '아이템 갯수'
 );
@@ -88,10 +87,9 @@ CREATE TABLE IF NOT EXISTS gamedata_db.`mail`
 DROP TABLE IF EXISTS gamedata_db.`inapppurchasereceipt`;
   CREATE TABLE IF NOT EXISTS gamedata_db.`inapppurchasereceipt`
 (
-    Id VARCHAR(50) not null  primary key comment '영수증id',
-    Email VARCHAR(50) NOT NULL COMMENT '이메일',
+    ReceiptId VARCHAR(50) not null  primary key comment '영수증id',
+    UserId VARCHAR(50) NOT NULL COMMENT '이메일',
     Title VARCHAR(100) NOT NULL COMMENT  '제목',
-    Code int NOT NULL COMMENT '상품 코드',
     Content VARCHAR(100) NOT NULL COMMENT '내용',
     Time datetime Not Null comment '발송날짜',
     ExpiryTime int comment '유효기간'
