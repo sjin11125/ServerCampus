@@ -14,6 +14,8 @@ using ZLogger;
 using static Com2usServerCampus.LogManager;
 
 namespace Com2usServerCampus.Controllers;
+[ApiController]
+[Route("[controller]")]
 
 public class EnhanceController : ControllerBase
 {
@@ -35,24 +37,11 @@ public class EnhanceController : ControllerBase
 
         EnhanceResponse enhanceResult=new EnhanceResponse();
 
-        (var errorGetItem, var item) = await _gameDB.GetItem(enhanceInfo.Email,enhanceInfo.Id); //아이템 데이터에서 해당 유저의 아이템 받아옴
-        if (errorGetItem != ErrorCode.None)
-        {
-            enhanceResult.Error = errorGetItem;
-            return enhanceResult;
-        }
+        (var error, var item, var itemdata, var itemAttributedata) = await GetData(enhanceInfo.ItemId);     //유저 아이템, 아이템 마스터데이터, 아이템 속성 마스터데이터 불러오기
 
-       (var errorItemdata, var itemdata) = _masterDataDB.GetItemData(item.ItemCode);  //해당 아이템의 마스터 데이터 불러옴
-        if (errorItemdata != ErrorCode.None)
+        if (error!=ErrorCode.None)
         {
-            enhanceResult.Error = errorItemdata;
-            return enhanceResult;
-        }
-
-       (var errorItemAttribute, var itemAttributedata) =  _masterDataDB.GetItemAttributeData(item.ItemCode);  //해당 아이템 특성의 마스터 데이터 불러옴
-        if (errorItemAttribute != ErrorCode.None)
-        {
-            enhanceResult.Error = errorItemAttribute;
+            enhanceResult.Error = error;
             return enhanceResult;
         }
 
@@ -61,22 +50,21 @@ public class EnhanceController : ControllerBase
             enhanceResult.Error = ErrorCode.NotEnhanceType;
             return enhanceResult;
         }
-        if (item.EnhanceCount>=10)//강화 횟수 10회 이상인지 검사
+        if (item.EnhanceCount>=itemdata.EnhanceMaxCount)//강화 횟수 10회 이상인지 검사
         {
             enhanceResult.Error = ErrorCode.MaxEnhanceCount;
             return enhanceResult;
         }
 
-        int attack = item.Attack;
-        int defence = item.Defence;
 
-        if (Enhancement(itemAttributedata, ref attack, ref defence)) {
+        (var isSuccess, var attack, var defence) = Enhancement(itemAttributedata, item.Attack, item.Defence);
+        if (isSuccess) {
 
-            var itemUpdate = await _gameDB.UpdateItem(enhanceInfo.Email, new UserItem
+            var itemUpdate = await _gameDB.UpdateItem( new UserItem
             {      // 아이템 업데이트
-                Eamil = enhanceInfo.Email,
+                UserId = enhanceInfo.UserId,
                 ItemCode = item.ItemCode,
-                Id = enhanceInfo.Id,
+                ItemId = enhanceInfo.ItemId,
                 EnhanceCount = item.EnhanceCount + 1,
                 ItemCount = item.ItemCount,
                 Attack = attack,
@@ -93,7 +81,7 @@ public class EnhanceController : ControllerBase
         }
         else
         {
-            var deleteReuslt = await _gameDB.DeleteItem(enhanceInfo.Email, enhanceInfo.Id);   //실패하면 아이템 지우기
+            var deleteReuslt = await _gameDB.DeleteItem( enhanceInfo.ItemId);   //실패하면 아이템 지우기
             if (deleteReuslt != ErrorCode.None)
             {
                 enhanceResult.Error = deleteReuslt;
@@ -101,10 +89,15 @@ public class EnhanceController : ControllerBase
             }
         }
 
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.Enhance], new { UserId = enhanceInfo.UserId }, $"Enhance Success");
+
         return enhanceResult;
     }
 
-    public bool Enhancement(ItemAttribute attribute,ref int attack,ref int defence)
+
+
+    public (bool,int,int) Enhancement(ItemAttribute attribute,int attack,int defence)
     {
 
         Random rand = new Random(DateTime.Now.Millisecond);
@@ -112,7 +105,7 @@ public class EnhanceController : ControllerBase
 
         if (EnhanceValue > 30)          //실패
         {
-            return false;
+            return (false,attack,defence);
         }
 
 
@@ -127,11 +120,32 @@ public class EnhanceController : ControllerBase
             defence += (int)(defence * 0.1);
 
         }
-        return true;
+        return (true,attack,defence);
 
 
     }
 
-    public void 
+    public async Task<(ErrorCode,UserItem,ItemData,ItemAttribute)> GetData(int id)
+    {
+        (var errorGetItem, var item) = await _gameDB.GetItem(id); //아이템 데이터에서 해당 유저의 아이템 받아옴
+        if (errorGetItem != ErrorCode.None)
+        {
+            return (errorGetItem, null,null,null);
+        }
+
+        (var errorItemdata, var itemdata) = _masterDataDB.GetItemData(item.ItemCode);  //해당 아이템의 마스터 데이터 불러옴
+        if (errorItemdata != ErrorCode.None)
+        {
+            return (errorItemdata,null,null,null);
+        }
+
+        (var errorItemAttribute, var itemAttributedata) = _masterDataDB.GetItemAttributeData(item.ItemCode);  //해당 아이템 특성의 마스터 데이터 불러옴
+        if (errorItemAttribute != ErrorCode.None)
+        {
+            return (errorItemAttribute, null, null, null);
+        }
+
+        return (ErrorCode.None, item, itemdata, itemAttributedata);
+    }
 }
 

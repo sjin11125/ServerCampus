@@ -5,6 +5,9 @@ using Com2usServerCampus.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;
+using static Com2usServerCampus.LogManager;
+using ZLogger;
+using Com2usServerCampus.Model;
 
 namespace Com2usServerCampus.Controllers;
 
@@ -82,6 +85,11 @@ public class LoginController : ControllerBase
 
         Result.Authtoken= tokenValue;
         Result.Error = ErrorCode.None;
+
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.Login], new { Email = UserInfo.Email}, $"Login Success");
+
 
         return Result;
 

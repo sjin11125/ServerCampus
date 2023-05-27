@@ -7,6 +7,7 @@ using ZLogger;
 using  Com2usServerCampus.ModelReqRes;
 using Com2usServerCampus.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
+using static Com2usServerCampus.LogManager;
 
 namespace Com2usServerCampus.Controllers;
 [ApiController]
@@ -29,15 +30,15 @@ public class GetMailItemController : ControllerBase
     {
         GetMailItemResponse getMailItemResponse = new GetMailItemResponse();
 
-        var items = await _gameDB.GetMailItem(mailInfo.Email, mailInfo.Id);     //메일 아이템 불러오기
+        (var getMailItemError,var items) = await _gameDB.GetMailItem(mailInfo.MailId);     //메일 아이템 불러오기
 
-        if (items.Item1!=ErrorCode.None)        //실패라면
+        if (getMailItemError != ErrorCode.None)        //실패라면
         {
-            getMailItemResponse.Error = items.Item1;
+            getMailItemResponse.Error = getMailItemError;
             return getMailItemResponse;
         }
         //성공
-        foreach (var item in items.Item2)
+        foreach (var item in items)
         {
             (var errorItemData, var itemData) =  _masterDataDB.GetItemData(item.Code); //마스터데이터에서 아이템 데이터 찾아서 
             if (errorItemData!=ErrorCode.None)
@@ -46,12 +47,11 @@ public class GetMailItemController : ControllerBase
                 return getMailItemResponse;
             }
 
-            var result = await _gameDB.InsertItem(mailInfo.Email, new Model.UserItem {      //해당 계정에 아이템 넣기
-            Eamil=mailInfo.Email,
+            var result = await _gameDB.InsertItem(itemData.isCount,new Model.UserItem {      //해당 계정에 아이템 넣기
+            UserId=mailInfo.UserId,
             ItemCode= itemData.Code,
             EnhanceCount=0,
             ItemCount =item.Count,
-            IsCount=itemData.isCount
             });
 
             if(result!=ErrorCode.None)
@@ -61,7 +61,7 @@ public class GetMailItemController : ControllerBase
             }
         }
 
-        var updateResult = await _gameDB.ReceiveMailItem(mailInfo.Email, mailInfo.Id);           //메일 테이블에 받았다고 업데이트
+        var updateResult = await _gameDB.ReceiveMailItem(mailInfo.MailId);           //메일 테이블에 받았다고 업데이트
         if (updateResult != ErrorCode.None)
         {
             getMailItemResponse.Error = updateResult;
@@ -69,6 +69,11 @@ public class GetMailItemController : ControllerBase
         }
 
         getMailItemResponse.Error = ErrorCode.None;
+
+
+
+        _logger.ZLogInformationWithPayload(EventIdDictionary[EventType.GetMailItem], new { UserId = mailInfo.UserId }, $"GetMailItem Success");
+
 
         return getMailItemResponse;
     }

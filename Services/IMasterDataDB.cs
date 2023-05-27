@@ -18,6 +18,11 @@ namespace Com2usServerCampus.Services
 
         public (ErrorCode, List<InAppProduct>) GetInAppProduct(int code);
         public (ErrorCode, ItemAttribute) GetItemAttributeData(int code);
+        public (ErrorCode, List<StageItem>) GetStageItem(int stageCode);
+        public (ErrorCode, List<StageNPC>) GetStageNPC(int stageCode);
+        public ErrorCode IsExistStageItem(int stageCode, int itemCode);
+        public ErrorCode IsExistStageNPC(int stageCode, int npcCode);
+
 
     }
 

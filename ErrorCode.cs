@@ -19,11 +19,16 @@
         WrongAuthTokenOrEmail = 3002,
         InvalidAuthToken= 3003,
         AuthTokenFailSetNx=3004,
+        InvalidAppversion = 3005,
+        InvalidDataversion = 3006,
 
         //GameData 관련 에러코드
-        InsertGameDataDup=4001,
+        InsertGameDataDup =4001,
         InsertGameDataFail=4002,
-        WrongGameData=4003,
+        UpdateGameDataFail=4003,
+        UpdateStageClearDataFail=4004,
+        WrongGameData=4005,
+        GetGameDataException=4006,
 
 
         //ItemData 관련 에러코드
@@ -33,6 +38,9 @@
 
         //Token 관련 에러코드
         SetUserTokenFail=6001,
+        GetUserTokenFail=6002,
+        UpdateUserTokenFail=6003,
+        NotPlayGame=6004,
 
         //Mail 관련 에러코드
         EmptyMail=7001,
@@ -50,6 +58,9 @@
         //마스터 데이터 관련 에러코드
         InvalidItemData=9001,
         InvanlidItemAttributeData=9002,
+        NotExistStageItemData=9003,
+        NotExistStageNPCData=9004,
+        NotExistStageCode=9005,
 
         //인앱 결제 영수증 관련 에러코드
         InAppPurchaseFailDup=10001,
@@ -59,7 +70,19 @@
         NotEnhanceType=11001,
         MaxEnhanceCount=11002,
         InsertEnhanceInfoFail=11002,
-        //InvalidAppversion = 3002,
-        // InvalidDataversion = 3003,
+  
+
+        //스테이지 관련 에러코드
+        SelectStageError=12001,
+        PushStageItemFail=12002,
+        SetStageItemFail=12003,
+        NotMatchStageItemData = 12004,
+        NotMatchStageNPCData = 12005,
+        GetUserStageItemFail=12006,
+        GetUserStageNPCFail=12007,
+        RemoveStageItemKeyFail=12008,
+        RemoveStageNpcKeyFail=12009,
+        EndStageException=12010,
+
     }
 }

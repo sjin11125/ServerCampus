@@ -33,8 +33,7 @@ CREATE TABLE IF NOT EXISTS account_db.`account`
     Defense int Not Null comment '방어력',
     Attendance datetime not null COMMENT '마지막 출석 날짜',
     AttendanceCount int not null comment '출석 카운트',
-    Stage int not null commnet '클리어한 스테이지 번호',
-    
+    Stage int not null commnet '클리어한 스테이지 번호'
     
 );
 ```
