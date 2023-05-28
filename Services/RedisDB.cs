@@ -153,7 +153,8 @@ public class RedisDB : IRedisDB
     
  
 
-    public async Task<(ErrorCode, int, int)> GetUserStageItem(string userId, int itemCode, int stageCode)            //레디스에 해당 유저의 현재 진행중인 스테이지의 특정 아이템 정보를 불러옴
+    public async Task<(ErrorCode, int, int)> GetUserStageItem(string userId, int itemCode, int stageCode)            
+        //레디스에 해당 유저의 현재 진행중인 스테이지의 특정 아이템 정보를 불러옴
     {
      
 
@@ -198,7 +199,8 @@ public class RedisDB : IRedisDB
         }
 
     }
-    public async Task<ErrorCode> SetUserStageItem(string userId, int stageCode, int itemCode,int itemCount,int index)            //유저가 스테이지 아이템 파밍했을 때 레디스에 정보넣기
+    public async Task<ErrorCode> SetUserStageItem(string userId, int stageCode, int itemCode,int itemCount,int index)            
+        //유저가 스테이지 아이템 파밍했을 때 레디스에 정보넣기
     {
         var uid =  "StageItem_" + stageCode + "_" + userId;
 
@@ -213,7 +215,8 @@ public class RedisDB : IRedisDB
             }
             catch (Exception e)
             {
-                logger.ZLogError(e,$"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} UserId:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                logger.ZLogError(e,$"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} UserId:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    
+                //레디스에 스테이지 아이템 넣기 실패 에러
                 return ErrorCode.SetStageItemFail;
             }
           
@@ -225,7 +228,8 @@ public class RedisDB : IRedisDB
 
             if (stageItemPush == -1)      //실패
             {
-                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} UserId:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} UserId:{userId} ItemCode:{itemCode} StageNum: {stageCode} ");    
+                //레디스에 스테이지 아이템 넣기 실패 에러
                 return ErrorCode.PushStageItemFail;
             }
             return ErrorCode.None;
@@ -234,7 +238,8 @@ public class RedisDB : IRedisDB
 
 
     }
-    public async Task<(ErrorCode, int, int)> GetUserStageNPC(string userId, int npcCode, int stageCode)     //레디스에 해당 유저의 현재 진행중인 스테이지의 특정 아이템 정보를 불러옴
+    public async Task<(ErrorCode, int, int)> GetUserStageNPC(string userId, int npcCode, int stageCode)     
+        //레디스에 해당 유저의 현재 진행중인 스테이지의 특정 npc 정보를 불러옴
     {
         var uid = "StageNPC_" + stageCode + "_" + userId;
         try
@@ -274,7 +279,8 @@ public class RedisDB : IRedisDB
         }
         catch (Exception e)
         {
-            logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{userId} NPCCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+            logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.GetUserStageNPCFail} UserId:{userId} NPCCode:{npcCode} StageNum: {stageCode} ");    
+            //레디스에 스테이지 npc 불러오기 실패 에러
             return (ErrorCode.GetUserStageNPCFail, -1, -1);
 
         }
@@ -325,7 +331,8 @@ public class RedisDB : IRedisDB
             }
             catch (Exception e)
             {
-                logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} UserId:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                logger.ZLogError(e, $"UID:{uid}, ErrorCode: {ErrorCode.SetStageItemFail} UserId:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");   
+                //레디스에 스테이지 npc 넣기 실패 에러
                 return ErrorCode.SetStageItemFail;
             }
 
@@ -337,7 +344,8 @@ public class RedisDB : IRedisDB
 
             if (stageNpcPush == -1)      //실패
             {
-                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} UserId:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    //레디스에 스테이지 아이템 넣기 실패 에러
+                logger.ZLogError($"UID:{uid}, ErrorCode: {ErrorCode.PushStageItemFail} UserId:{userId} NpcCode:{npcCode} StageNum: {stageCode} ");    
+                //레디스에 스테이지 npc 넣기 실패 에러
                 return ErrorCode.PushStageItemFail;
             }
             return ErrorCode.None;

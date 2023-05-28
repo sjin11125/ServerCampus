@@ -341,7 +341,7 @@ public class GameDB : IGameDB
     }
     public async Task<(ErrorCode, int)> Attendance(string userId)          //출석 확인
     {
-        var result = await queryFactory.Query("gamedata").Where("UserId", userId).Select("Attendance", "AttendanceCount").FirstOrDefaultAsync<AttendanceInfo>();     //사용자 게임정보 중 날짜를 불러옴
+        var result = await queryFactory.Query("gamedata").Where("UserId", userId).Select("Attendance", "AttendanceCount").FirstOrDefaultAsync<AttendanceInfo>();            //사용자 게임정보 중 날짜를 불러옴
 
         if (result is null)
             return (ErrorCode.InvalidAttendance, 0);

@@ -55,6 +55,11 @@ public class CreateAccountController : ControllerBase
         }
 
         (var error, var itemData) = _masterDataDB.GetItemData(1);
+        if (error != ErrorCode.None)
+        {
+            Result.Error = error;
+            return Result;
+        }
 
         var UserItemErrorCode = await _gameDB.InsertItem(itemData.isCount, new UserItem
             {             //받아온 출석보상을 사용자 메일 테이블에 추가
